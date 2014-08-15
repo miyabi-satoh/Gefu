@@ -11,9 +11,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // イベントフィルタを設定する
-    this->installEventFilter(this);
-
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v0.00"));
 
@@ -26,29 +23,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+///
+/// \brief MainWindow::onMoveOther
+///
+/// キーボードフォーカスを他方のパネルに移動します
+///
+void MainWindow::onMoveOther()
 {
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        switch (keyEvent->key()) {
-        case Qt::Key_Tab: {
-            FolderPanel *fPanel;
-            if (obj->parent()->objectName() == "folderPanel_L") {
-                fPanel = ui->folderPanel_R;
-            }
-            else if (obj->parent()->objectName() == "folderPanel_R") {
-                fPanel = ui->folderPanel_L;
-            }
-            else {
-                break;
-            }
-            fPanel->fileTable()->setFocus();
-            keyEvent->accept();
-            return true; }
-        }
+    FolderPanel *fp = this->inactivePanel();
+    if (fp) {
+        fp->fileTable()->setFocus();
     }
-
-    return QMainWindow::eventFilter(obj, event);
 }
 
 FolderPanel* MainWindow::activePanel()
@@ -112,7 +97,15 @@ void MainWindow::on_action_Exec_triggered()
     QDesktopServices::openUrl(QUrl("file:///" + path));
 }
 
+///
+/// \brief MainWindow::on_view_FromOther_triggered
+///
+/// 隣のパネルと同じフォルダを表示します(O)
 void MainWindow::on_view_FromOther_triggered()
+{
+    this->onViewFromOther();
+}
+void MainWindow::onViewFromOther()
 {
     FolderPanel *fp1 = activePanel();
     FolderPanel *fp2 = inactivePanel();
@@ -123,7 +116,11 @@ void MainWindow::on_view_FromOther_triggered()
     fp1->setCurrentFolder(fp2->dir()->absolutePath());
 }
 
-
+///
+/// \brief MainWindow::on_view_ToOther_triggered
+///
+/// 隣のパネルに同じフォルダを表示します(Ctrl + O)
+///
 void MainWindow::on_view_ToOther_triggered()
 {
     FolderPanel *fp1 = activePanel();
@@ -135,7 +132,16 @@ void MainWindow::on_view_ToOther_triggered()
     fp2->setCurrentFolder(fp1->dir()->absolutePath());
 }
 
+///
+/// \brief MainWindow::on_mark_Toggle_triggered
+///
+/// マークを設定または解除します
+///
 void MainWindow::on_mark_Toggle_triggered()
+{
+    this->onMarkToggle();
+}
+void MainWindow::onMarkToggle()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -159,6 +165,11 @@ void MainWindow::on_mark_Toggle_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_mark_All_triggered
+///
+/// すべてマークします(Ctrl + A)
+///
 void MainWindow::on_mark_All_triggered()
 {
     FolderPanel *fp = activePanel();
@@ -176,7 +187,16 @@ void MainWindow::on_mark_All_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_mark_AllFiles_triggered
+///
+/// すべての「ファイル」をマークします(A)
+///
 void MainWindow::on_mark_AllFiles_triggered()
+{
+    this->onMarkAllFiles();
+}
+void MainWindow::onMarkAllFiles()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -205,9 +225,13 @@ void MainWindow::on_mark_AllFiles_triggered()
 ///
 /// \brief MainWindow::on_mark_AllOff_triggered
 ///
-/// すべてのマークを解除します
+/// すべてのマークを解除します(Shift + A)
 ///
 void MainWindow::on_mark_AllOff_triggered()
+{
+    this->onMarkAllOff();
+}
+void MainWindow::onMarkAllOff()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -224,7 +248,16 @@ void MainWindow::on_mark_AllOff_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_mark_Invert_triggered
+///
+/// マークを反転します(I)
+///
 void MainWindow::on_mark_Invert_triggered()
+{
+    this->onMarkInvert();
+}
+void MainWindow::onMarkInvert()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -247,7 +280,15 @@ void MainWindow::on_mark_Invert_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_view_Swap_triggered
+///
+/// パネルの表示内容を交換します(W)
 void MainWindow::on_view_Swap_triggered()
+{
+    this->onViewSwap();
+}
+void MainWindow::onViewSwap()
 {
     FolderPanel *fp1 = activePanel();
     FolderPanel *fp2 = inactivePanel();
@@ -262,7 +303,16 @@ void MainWindow::on_view_Swap_triggered()
     fp2->setCurrentFolder(path1);
 }
 
+///
+/// \brief MainWindow::on_move_Down_triggered
+///
+/// カーソルを下に移動します(J)
+///
 void MainWindow::on_move_Down_triggered()
+{
+    this->onMoveDown();
+}
+void MainWindow::onMoveDown()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -276,7 +326,16 @@ void MainWindow::on_move_Down_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_move_Up_triggered
+///
+/// カーソルを上に移動します(K)
+///
 void MainWindow::on_move_Up_triggered()
+{
+    this->onMoveUp();
+}
+void MainWindow::onMoveUp()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -290,7 +349,16 @@ void MainWindow::on_move_Up_triggered()
     }
 }
 
+///
+/// \brief MainWindow::on_move_Parent_triggered
+///
+/// 親フォルダに移動します
+///
 void MainWindow::on_move_Parent_triggered()
+{
+    this->onMoveParent();
+}
+void MainWindow::onMoveParent()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {

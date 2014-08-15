@@ -16,16 +16,10 @@ FolderPanel::FolderPanel(QWidget *parent) :
     ui->setupUi(this);
 
     // MainWindowのスロットに接続する
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (w->objectName() == "MainWindow") {
-            MainWindow *mainWnd = static_cast<MainWindow*>(w);
-            connect(ui->fileTable, SIGNAL(cellDoubleClicked(int,int)), mainWnd, SLOT(on_action_Open_triggered()));
-        }
+    MainWindow *mainWnd = this->mainWindow();
+    if (mainWnd) {
+        connect(ui->fileTable, SIGNAL(cellDoubleClicked(int,int)), mainWnd, SLOT(on_action_Open_triggered()));
     }
-
-
-
-
 
     // ヘッダーラベルを設定する
     QStringList labels;
@@ -63,59 +57,102 @@ const QTableWidget* FolderPanel::fileTable() const
     return ui->fileTable;
 }
 
+MainWindow* FolderPanel::mainWindow()
+{
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (w->objectName() == "MainWindow") {
+            return static_cast<MainWindow*>(w);
+        }
+    }
+    return NULL;
+}
+
 bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         switch (keyEvent->key()) {
-//        case Qt::Key_Space: {
-//            // 選択アイテムのチェック状態を反転する
-//            QModelIndex index = ui->fileTable->currentIndex();
-//            int row = index.row();
-//            if (ui->fileTable->item(row, 1)->text() == "..") {
-//                // 何もしない
-//            }
-//            else if (ui->fileTable->item(row, 0)->checkState() == Qt::Checked) {
-//                ui->fileTable->item(row, 0)->setCheckState(Qt::Unchecked);
-//            }
-//            else {
-//                ui->fileTable->item(row, 0)->setCheckState(Qt::Checked);
-//            }
-//            // 最終行でなければ、次のアイテムに移動する
-//            if (row < ui->fileTable->rowCount() - 1) {
-//                QModelIndex nextIndex = ui->fileTable->model()->index(row + 1, 1);
-//                ui->fileTable->setCurrentIndex(nextIndex);
-//            }
-//            keyEvent->accept();
-//            return true; }
-
-        case Qt::Key_Tab:
-            // MainWindowで処理を行う
-            foreach (QWidget *w, qApp->topLevelWidgets()) {
-                if (w->objectName() == "MainWindow") {
-                    return w->eventFilter(obj, event);
+        case Qt::Key_A: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onMarkAllOff();
+                }
+                else {
+                    mainWnd->onMarkAllFiles();
                 }
             }
-            break;
+            keyEvent->accept();
+            return true; }
 
-//        case Qt::Key_Return: {
-//            if (keyEvent->modifiers() & Qt::ControlModifier) {
-//                int row = ui->fileTable->currentIndex().row();
-//                QString path = ui->fileTable->item(row, 1)->text();
-//                path = m_dir.absoluteFilePath(path);
-//                path = QDir::toNativeSeparators(path);
-//                QDesktopServices::openUrl(QUrl("file:///" + path));
-//            }
-//            keyEvent->accept();
-//            return true; }
+        case Qt::Key_I: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMarkInvert();
+            }
+            keyEvent->accept();
+            return true; }
 
-//        case Qt::Key_Backspace: {
-//            if (!m_dir.isRoot()) {
-//                QString path = m_dir.absoluteFilePath("..");
-//                setCurrentFolder(path);
-//            }
-//            keyEvent->accept();
-//            return true; }
+        case Qt::Key_J: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMoveDown();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_K: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMoveUp();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_O: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onViewFromOther();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_Q:
+            qApp->quit();
+            keyEvent->accept();
+            return true;
+
+        case Qt::Key_W: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onViewSwap();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_Space: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMarkToggle();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_Tab: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMoveOther();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_Backspace: {
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMoveParent();
+            }
+            keyEvent->accept();
+            return true; }
         }
     }
 

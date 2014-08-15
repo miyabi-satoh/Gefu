@@ -142,7 +142,7 @@
      <x>0</x>
      <y>0</y>
      <width>647</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -314,7 +314,7 @@
     <string>すべてのマークを解除</string>
    </property>
    <property name="shortcut">
-    <string>Shift+A</string>
+    <string>Alt+Å</string>
    </property>
   </action>
   <action name="mark_Invert">

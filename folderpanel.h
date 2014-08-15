@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QDir>
 #include <QTableWidget>
-
+class MainWindow;
 namespace Ui {
 class FolderPanel;
 }
@@ -29,6 +29,7 @@ private:
     Ui::FolderPanel *ui;
     QDir m_dir;
 
+    MainWindow* mainWindow();
     bool eventFilter(QObject *, QEvent *);
 
 private slots:
