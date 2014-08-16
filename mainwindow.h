@@ -46,6 +46,9 @@ public slots:
     void onViewHidden();
     void onViewSwap();
 
+    void onCmdDelete();
+    void onCmdNewFile();
+    void onCmdNewFolder();
     void onCmdRename();
 
     void onHelpAbout();
@@ -57,7 +60,6 @@ private:
 
     FolderPanel* activePanel();
     FolderPanel* inactivePanel();
-
 };
 
 #endif // MAINWINDOW_H

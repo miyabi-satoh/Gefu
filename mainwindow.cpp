@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -51,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(onViewHidden()));
     connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(onViewSwap()));
 
+    connect(ui->cmd_Delete, SIGNAL(triggered()), this, SLOT(onCmdDelete()));
+    connect(ui->cmd_NewFile, SIGNAL(triggered()), this, SLOT(onCmdNewFile()));
+    connect(ui->cmd_NewFolder, SIGNAL(triggered()), this, SLOT(onCmdNewFolder()));
     connect(ui->cmd_Rename, SIGNAL(triggered()), this, SLOT(onCmdRename()));
 
     connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
@@ -606,6 +610,111 @@ void MainWindow::onViewSwap()
 
     fp1->setCurrentFolder(path2);
     fp2->setCurrentFolder(path1);
+}
+
+void MainWindow::onCmdDelete()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    QStringList list;
+    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
+        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
+            list << fp->fileTable()->item(n, 1)->text();
+        }
+    }
+
+    if (list.isEmpty()) {
+        int row = fp->fileTable()->currentIndex().row();
+        QString name = fp->fileTable()->item(row, 1)->text();
+        if (name == "..") {
+            return;
+        }
+        list << name;
+    }
+
+    QString msg;
+    if (list.size() == 1) {
+        msg = list.at(0);
+    }
+    else {
+        msg = tr("%1個のアイテム").arg(list.size());
+    }
+    int ret = QMessageBox::question(
+                this,
+                tr("確認"),
+                msg + tr("を削除します<br/>よろしいですか？"));
+    if (ret == QMessageBox::Yes) {
+        qDebug() << "OK";
+    }
+}
+
+///
+/// \brief MainWindow::onCmdNewFile
+///
+/// ファイルを作成します
+///
+void MainWindow::onCmdNewFile()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    bool bOk;
+    QString name = QInputDialog::getText(
+                this,
+                tr("ファイルを作成"),
+                tr("ファイル名"),
+                QLineEdit::Normal,
+                "",
+                &bOk);
+    if (bOk && !name.isEmpty()) {
+        QFile file(fp->dir()->absoluteFilePath(name));
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::critical(this,
+                                  tr("エラー"),
+                                  tr("ファイルの作成に失敗しました。"));
+        }
+        else {
+            file.close();
+            fp->setCurrentFolder(fp->dir()->absolutePath());
+        }
+    }
+}
+
+///
+/// \brief MainWindow::onCmdNewFolder
+///
+/// フォルダを作成します
+///
+void MainWindow::onCmdNewFolder()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    bool bOk;
+    QString name = QInputDialog::getText(
+                this,
+                tr("フォルダを作成"),
+                tr("フォルダ名"),
+                QLineEdit::Normal,
+                "",
+                &bOk);
+    if (bOk && !name.isEmpty()) {
+        if (!fp->dir()->mkpath(name)) {
+            QMessageBox::critical(this,
+                                  tr("エラー"),
+                                  tr("フォルダの作成に失敗しました。"));
+        }
+        else {
+            fp->setCurrentFolder(fp->dir()->absoluteFilePath(name));
+        }
+    }
 }
 
 ///

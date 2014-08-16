@@ -1,7 +1,6 @@
 #include "folderpanel.h"
 #include "mainwindow.h"
 #include "ui_folderpanel.h"
-#include <QFileIconProvider>
 #include <QCheckBox>
 #include <QMessageBox>
 #include <QKeyEvent>
@@ -11,7 +10,10 @@
 
 FolderPanel::FolderPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FolderPanel)
+    ui(new Ui::FolderPanel),
+    m_dir(),
+    m_IconFactory(),
+    m_fsWatcher(new QFileSystemWatcher(this))
 {
     ui->setupUi(this);
 
@@ -42,6 +44,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
 
 FolderPanel::~FolderPanel()
 {
+    delete m_fsWatcher;
     delete ui;
 }
 
@@ -80,6 +83,31 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
                 }
                 else {
                     mainWnd->onMarkAllFiles();
+                }
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_D: {
+            // Ctrl + D ファイルを削除
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ControlModifier) {
+                    mainWnd->onCmdDelete();
+                }
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_E: {
+            // E        エディタで開く
+            // Ctrl + E ファイルを作成
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ControlModifier) {
+                    mainWnd->onCmdNewFile();
+                }
+                else {
                 }
             }
             keyEvent->accept();
@@ -140,10 +168,16 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             return true; }
 
         case Qt::Key_K: {
-            // K    カーソルを上に移動
+            // K        カーソルを上に移動
+            // Ctrl + K フォルダを作成
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
-                mainWnd->onMoveCursorUp();
+                if (keyEvent->modifiers() & Qt::ControlModifier) {
+                    mainWnd->onCmdNewFolder();
+                }
+                else {
+                    mainWnd->onMoveCursorUp();
+                }
             }
             keyEvent->accept();
             return true; }
@@ -274,8 +308,17 @@ void FolderPanel::setCurrentFolder(const QString &path)
                     tr("エラー"),
                     tr("フォルダが存在しないか利用できません。"));
         m_dir.setPath(curDir);
+        ui->locationField->setText(curDir);
         return;
     }
+
+    // フォルダの変更監視
+    delete m_fsWatcher;
+    m_fsWatcher = new QFileSystemWatcher(this);
+    m_fsWatcher->addPath(m_dir.absolutePath());
+    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
+            this, SLOT(on_directoryChanged(QString)));
+
 
     ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
     for (int i = 0; i < list.size(); i++) {
@@ -294,7 +337,7 @@ void FolderPanel::setCurrentFolder(const QString &path)
             iName->setIcon(QIcon(":/images/Up.png"));
         }
         else {
-            iName->setIcon(QFileIconProvider().icon(info));
+            iName->setIcon(m_IconFactory.icon(info));
         }
         ui->fileTable->setItem(row, 1, iName);
 
@@ -362,7 +405,6 @@ void FolderPanel::on_fileTable_cellChanged(int row, int column)
     }
 }
 
-
 void FolderPanel::on_locationField_editingFinished()
 {
     ui->locationField->blockSignals(true);
@@ -371,4 +413,14 @@ void FolderPanel::on_locationField_editingFinished()
     setCurrentFolder(path);
 
     ui->locationField->blockSignals(false);
+}
+
+void FolderPanel::on_directoryChanged(QString)
+{
+    int row = ui->fileTable->currentRow();
+    this->setCurrentFolder(m_dir.absolutePath());
+    if (row >= ui->fileTable->rowCount()) {
+        row = ui->fileTable->rowCount() - 1;
+    }
+    ui->fileTable->selectRow(row);
 }
