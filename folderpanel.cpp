@@ -18,7 +18,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
     // MainWindowのスロットに接続する
     MainWindow *mainWnd = this->mainWindow();
     if (mainWnd) {
-        connect(ui->fileTable, SIGNAL(cellDoubleClicked(int,int)), mainWnd, SLOT(on_action_Open_triggered()));
+        connect(ui->fileTable, SIGNAL(cellDoubleClicked(int,int)), mainWnd, SLOT(onActionOpen()));
     }
 
     // ヘッダーラベルを設定する
@@ -38,8 +38,6 @@ FolderPanel::FolderPanel(QWidget *parent) :
     // フォルダの要素を表示
     m_dir.setFilter(QDir::NoDot | QDir::AllEntries);
     m_dir.setSorting(QDir::DirsFirst | QDir::Name);
-    setCurrentFolder(QDir::homePath());
-    ui->fileTable->resizeColumnsToContents();
 }
 
 FolderPanel::~FolderPanel()
@@ -73,10 +71,12 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         switch (keyEvent->key()) {
         case Qt::Key_A: {
+            // A            すべてのファイルをマーク
+            // Shift + A    すべてマーク
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
                 if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onMarkAllOff();
+                    mainWnd->onMarkAll();
                 }
                 else {
                     mainWnd->onMarkAllFiles();
@@ -85,7 +85,38 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             keyEvent->accept();
             return true; }
 
+        case Qt::Key_G: {
+            // G            カーソルを先頭に移動
+            // Shift + G    カーソルを末尾に移動
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onMoveCursorEnd();
+                }
+                else {
+                    mainWnd->onMoveCursorBegin();
+                }
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_H: {
+            // H            ホームフォルダに移動
+            // Shift + H    隠しファイルを表示/非表示
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onViewHidden();
+                }
+                else {
+                    mainWnd->onMoveHome();
+                }
+            }
+            keyEvent->accept();
+            return true; }
+
         case Qt::Key_I: {
+            // I    マークを反転
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
                 mainWnd->onMarkInvert();
@@ -94,35 +125,79 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             return true; }
 
         case Qt::Key_J: {
+            // J            カーソルを下に移動
+            // Shift + J    フォルダを選択して移動
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
-                mainWnd->onMoveDown();
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onMoveJump();
+                }
+                else {
+                    mainWnd->onMoveCursorDown();
+                }
             }
             keyEvent->accept();
             return true; }
 
         case Qt::Key_K: {
+            // K    カーソルを上に移動
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
-                mainWnd->onMoveUp();
+                mainWnd->onMoveCursorUp();
             }
             keyEvent->accept();
             return true; }
 
         case Qt::Key_O: {
+            // O            隣のパネルと同じフォルダを表示
+            // Shift + O    隣のパネルに同じフォルダを表示
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
-                mainWnd->onViewFromOther();
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onViewToOther();
+                }
+                else {
+                    mainWnd->onViewFromOther();
+                }
             }
             keyEvent->accept();
             return true; }
 
-        case Qt::Key_Q:
-            qApp->quit();
+        case Qt::Key_Q: {
+            // Q    アプリケーションを終了
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onActionQuit();
+            }
             keyEvent->accept();
-            return true;
+            return true; }
+
+        case Qt::Key_R: {
+            // R        履歴を表示
+            // Ctrl + R 名前を変更
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ControlModifier) {
+                    mainWnd->onCmdRename();
+                }
+                else {
+
+                }
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_U: {
+            // U    すべてのマークを解除
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onMarkAllOff();
+            }
+            keyEvent->accept();
+            return true; }
 
         case Qt::Key_W: {
+            // W    表示フォルダを交換
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
                 mainWnd->onViewSwap();
@@ -130,7 +205,26 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             keyEvent->accept();
             return true; }
 
+        case Qt::Key_X: {
+            // X     コマンドを実行
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onActionCommand();
+            }
+            keyEvent->accept();
+            return true; }
+
+        case Qt::Key_Question: {
+            // ?    アプリケーション情報を表示
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                mainWnd->onHelpAbout();
+            }
+            keyEvent->accept();
+            return true; }
+
         case Qt::Key_Space: {
+            // マーク/解除
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
                 mainWnd->onMarkToggle();
@@ -139,6 +233,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             return true; }
 
         case Qt::Key_Tab: {
+            // 隣のパネルに移動
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
                 mainWnd->onMoveOther();
@@ -147,9 +242,16 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             return true; }
 
         case Qt::Key_Backspace: {
+            // BS           親フォルダに移動
+            // Shift + BS   ルートフォルダに移動
             MainWindow *mainWnd = this->mainWindow();
             if (mainWnd) {
-                mainWnd->onMoveParent();
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onMoveRoot();
+                }
+                else {
+                    mainWnd->onMoveParent();
+                }
             }
             keyEvent->accept();
             return true; }
@@ -161,7 +263,9 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
 void FolderPanel::setCurrentFolder(const QString &path)
 {
+    QString curDir = m_dir.absolutePath();
     m_dir.setPath(QDir::cleanPath(path));
+    m_dir.canonicalPath();
     QFileInfoList list = m_dir.entryInfoList();
 
     if (list.empty()) {
@@ -169,6 +273,7 @@ void FolderPanel::setCurrentFolder(const QString &path)
                     this,
                     tr("エラー"),
                     tr("フォルダが存在しないか利用できません。"));
+        m_dir.setPath(curDir);
         return;
     }
 
@@ -257,19 +362,6 @@ void FolderPanel::on_fileTable_cellChanged(int row, int column)
     }
 }
 
-//void FolderPanel::on_fileTable_doubleClicked(const QModelIndex &index)
-//{
-//    QString strName = ui->fileTable->item(index.row(), 1)->text();
-//    QString strPath = m_dir.absoluteFilePath(strName);
-//    QFileInfo info(strPath);
-
-//    if (info.isDir()) {
-//        setCurrentFolder(strPath);
-//    }
-//    else {
-//        // TODO:ファイルの場合はどうしよう？
-//    }
-//}
 
 void FolderPanel::on_locationField_editingFinished()
 {

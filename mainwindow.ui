@@ -13,22 +13,26 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/images/Gefu.png</normaloff>:/images/Gefu.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="topMargin">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>1</number>
+     <number>0</number>
     </property>
     <item>
      <widget class="QSplitter" name="splitter">
@@ -133,7 +137,28 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_Open"/>
+   <addaction name="action_Exec"/>
+   <addaction name="action_OpenEditor"/>
+   <addaction name="action_Command"/>
+   <addaction name="separator"/>
+   <addaction name="mark_All"/>
+   <addaction name="mark_AllFiles"/>
+   <addaction name="mark_AllOff"/>
+   <addaction name="separator"/>
+   <addaction name="move_Back"/>
+   <addaction name="move_Forward"/>
+   <addaction name="move_Root"/>
+   <addaction name="move_Home"/>
+   <addaction name="move_Jump"/>
+   <addaction name="separator"/>
+   <addaction name="cmd_Copy"/>
+   <addaction name="cmd_Move"/>
+   <addaction name="cmd_Delete"/>
+   <addaction name="cmd_Rename"/>
+   <addaction name="cmd_NewFile"/>
+   <addaction name="cmd_NewFolder"/>
+   <addaction name="separator"/>
+   <addaction name="help_About"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -142,7 +167,7 @@
      <x>0</x>
      <y>0</y>
      <width>647</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -151,6 +176,8 @@
     </property>
     <addaction name="action_Open"/>
     <addaction name="action_Exec"/>
+    <addaction name="action_OpenEditor"/>
+    <addaction name="action_Command"/>
     <addaction name="separator"/>
     <addaction name="action_Setting"/>
     <addaction name="separator"/>
@@ -185,6 +212,7 @@
     <addaction name="move_Forward"/>
     <addaction name="move_History"/>
     <addaction name="separator"/>
+    <addaction name="move_Home"/>
     <addaction name="move_Parent"/>
     <addaction name="move_Root"/>
     <addaction name="move_Jump"/>
@@ -192,10 +220,31 @@
     <addaction name="move_Down"/>
     <addaction name="move_Up"/>
    </widget>
+   <widget class="QMenu" name="menu_Operate">
+    <property name="title">
+     <string>操作(&amp;O)</string>
+    </property>
+    <addaction name="cmd_Copy"/>
+    <addaction name="cmd_Move"/>
+    <addaction name="cmd_Delete"/>
+    <addaction name="separator"/>
+    <addaction name="cmd_Rename"/>
+    <addaction name="separator"/>
+    <addaction name="cmd_NewFile"/>
+    <addaction name="cmd_NewFolder"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>ヘルプ(&amp;H)</string>
+    </property>
+    <addaction name="help_About"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Mark"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Move"/>
+   <addaction name="menu_Operate"/>
+   <addaction name="menu_Help"/>
   </widget>
   <action name="action_Quit">
    <property name="icon">
@@ -210,6 +259,9 @@
    </property>
    <property name="shortcut">
     <string>Q</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
    </property>
   </action>
   <action name="action_Open">
@@ -239,7 +291,7 @@
     <string>アプリケーションで開く</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Return</string>
+    <string>Shift+Return</string>
    </property>
   </action>
   <action name="view_FromOther">
@@ -262,14 +314,10 @@
     <string>隣のパネルに同じフォルダを表示</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Shift+O</string>
    </property>
   </action>
   <action name="mark_Toggle">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/images/Apply.png</normaloff>:/images/Apply.png</iconset>
-   </property>
    <property name="text">
     <string>マーク/解除</string>
    </property>
@@ -283,7 +331,7 @@
   <action name="mark_All">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/images/Check boxes.png</normaloff>:/images/Check boxes.png</iconset>
+     <normaloff>:/images/Ok.png</normaloff>:/images/Ok.png</iconset>
    </property>
    <property name="text">
     <string>すべてマーク</string>
@@ -292,10 +340,14 @@
     <string>すべてマーク</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+A</string>
+    <string>Shift+A</string>
    </property>
   </action>
   <action name="mark_AllFiles">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Check boxes.png</normaloff>:/images/Check boxes.png</iconset>
+   </property>
    <property name="text">
     <string>すべてのファイルをマーク</string>
    </property>
@@ -307,6 +359,10 @@
    </property>
   </action>
   <action name="mark_AllOff">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Cancel.png</normaloff>:/images/Cancel.png</iconset>
+   </property>
    <property name="text">
     <string>すべてのマークを解除</string>
    </property>
@@ -314,7 +370,7 @@
     <string>すべてのマークを解除</string>
    </property>
    <property name="shortcut">
-    <string>Alt+Å</string>
+    <string>U</string>
    </property>
   </action>
   <action name="mark_Invert">
@@ -352,19 +408,18 @@
     <string>環境設定...</string>
    </property>
    <property name="toolTip">
-    <string>環境設定</string>
+    <string>環境設定...</string>
    </property>
    <property name="shortcut">
     <string>Z</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
   <action name="view_Hidden">
    <property name="checkable">
     <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/images/Show.png</normaloff>:/images/Show.png</iconset>
    </property>
    <property name="text">
     <string>隠しファイルを表示</string>
@@ -373,7 +428,7 @@
     <string>隠しファイルを表示</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+H</string>
+    <string>Shift+H</string>
    </property>
   </action>
   <action name="view_Sort">
@@ -381,13 +436,17 @@
     <string>ソート方法...</string>
    </property>
    <property name="toolTip">
-    <string>ソート方法</string>
+    <string>ソート方法...</string>
    </property>
    <property name="shortcut">
     <string>S</string>
    </property>
   </action>
   <action name="move_Down">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Go down.png</normaloff>:/images/Go down.png</iconset>
+   </property>
    <property name="text">
     <string>カーソルを下に</string>
    </property>
@@ -399,6 +458,10 @@
    </property>
   </action>
   <action name="move_Up">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Go up.png</normaloff>:/images/Go up.png</iconset>
+   </property>
    <property name="text">
     <string>カーソルを上に</string>
    </property>
@@ -444,10 +507,10 @@
     <string>履歴...</string>
    </property>
    <property name="toolTip">
-    <string>履歴</string>
+    <string>履歴...</string>
    </property>
    <property name="shortcut">
-    <string>H</string>
+    <string>R</string>
    </property>
   </action>
   <action name="move_Parent">
@@ -466,6 +529,10 @@
    </property>
   </action>
   <action name="move_Root">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Monitor.png</normaloff>:/images/Monitor.png</iconset>
+   </property>
    <property name="text">
     <string>ルートフォルダに移動</string>
    </property>
@@ -473,7 +540,7 @@
     <string>ルートフォルダに移動</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Backspace</string>
+    <string>Shift+Backspace</string>
    </property>
   </action>
   <action name="move_Jump">
@@ -486,6 +553,181 @@
    </property>
    <property name="toolTip">
     <string>フォルダを選択して移動</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+J</string>
+   </property>
+  </action>
+  <action name="move_Home">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Home.png</normaloff>:/images/Home.png</iconset>
+   </property>
+   <property name="text">
+    <string>ホームフォルダに移動</string>
+   </property>
+   <property name="toolTip">
+    <string>ホームフォルダに移動</string>
+   </property>
+   <property name="shortcut">
+    <string>H</string>
+   </property>
+  </action>
+  <action name="move_Begin">
+   <property name="text">
+    <string>カーソルを先頭に</string>
+   </property>
+   <property name="toolTip">
+    <string>カーソルを先頭に</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+  </action>
+  <action name="move_End">
+   <property name="text">
+    <string>カーソルを末尾に</string>
+   </property>
+   <property name="toolTip">
+    <string>カーソルを末尾に</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+G</string>
+   </property>
+  </action>
+  <action name="action_OpenEditor">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Edit page.png</normaloff>:/images/Edit page.png</iconset>
+   </property>
+   <property name="text">
+    <string>エディタで開く</string>
+   </property>
+   <property name="toolTip">
+    <string>エディタで開く</string>
+   </property>
+   <property name="shortcut">
+    <string>E</string>
+   </property>
+  </action>
+  <action name="action_Command">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Export.png</normaloff>:/images/Export.png</iconset>
+   </property>
+   <property name="text">
+    <string>コマンドを実行...</string>
+   </property>
+   <property name="toolTip">
+    <string>コマンドを実行...</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="cmd_Copy">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Copy.png</normaloff>:/images/Copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>選択項目を隣のパネルにコピー</string>
+   </property>
+   <property name="toolTip">
+    <string>選択項目を隣のパネルにコピー</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="cmd_Move">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Paste.png</normaloff>:/images/Paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>選択項目を隣のパネルに移動</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="cmd_Delete">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Delete.png</normaloff>:/images/Delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>選択項目を削除</string>
+   </property>
+   <property name="toolTip">
+    <string>選択項目を削除</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="cmd_Rename">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Rename.png</normaloff>:/images/Rename.png</iconset>
+   </property>
+   <property name="text">
+    <string>名前を変更</string>
+   </property>
+   <property name="toolTip">
+    <string>名前を変更</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="cmd_NewFile">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/New file.png</normaloff>:/images/New file.png</iconset>
+   </property>
+   <property name="text">
+    <string>ファイルを作成</string>
+   </property>
+   <property name="toolTip">
+    <string>ファイルを作成</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="cmd_NewFolder">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Add folder.png</normaloff>:/images/Add folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>フォルダを作成</string>
+   </property>
+   <property name="toolTip">
+    <string>フォルダを作成</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="help_About">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Help.png</normaloff>:/images/Help.png</iconset>
+   </property>
+   <property name="text">
+    <string>げふぅ について...</string>
+   </property>
+   <property name="toolTip">
+    <string>げふぅ について...</string>
+   </property>
+   <property name="shortcut">
+    <string>?</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
    </property>
   </action>
  </widget>

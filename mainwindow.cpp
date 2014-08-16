@@ -1,9 +1,15 @@
+#include "commanddialog.h"
 #include "mainwindow.h"
+#include "renamesingledialog.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QDesktopServices>
+#include <QSettings>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,29 +17,66 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QSettings settings;
+    bool checked = settings.value("Common/ShowHidden", false).toBool();
+    ui->view_Hidden->setChecked(checked);
+
+    // メニューのシグナル/スロットを設定する
+    connect(ui->action_Command, SIGNAL(triggered()), this, SLOT(onActionCommand()));
+    connect(ui->action_Exec, SIGNAL(triggered()), this, SLOT(onActionExec()));
+    connect(ui->action_Open, SIGNAL(triggered()), this, SLOT(onActionOpen()));
+    connect(ui->action_Quit, SIGNAL(triggered()), this, SLOT(onActionQuit()));
+    connect(ui->action_Setting, SIGNAL(triggered()), this, SLOT(onActionSetting()));
+
+    connect(ui->mark_All, SIGNAL(triggered()), this, SLOT(onMarkAll()));
+    connect(ui->mark_AllFiles, SIGNAL(triggered()), this, SLOT(onMarkAllFiles()));
+    connect(ui->mark_AllOff, SIGNAL(triggered()), this, SLOT(onMarkAllOff()));
+    connect(ui->mark_Invert, SIGNAL(triggered()), this, SLOT(onMarkInvert()));
+    connect(ui->mark_Toggle, SIGNAL(triggered()), this, SLOT(onMarkToggle()));
+
+    connect(ui->move_Down, SIGNAL(triggered()), this, SLOT(onMoveCursorDown()));
+    connect(ui->move_Up, SIGNAL(triggered()), this, SLOT(onMoveCursorUp()));
+    connect(ui->move_Begin, SIGNAL(triggered()), this, SLOT(onMoveCursorBegin()));
+    connect(ui->move_End, SIGNAL(triggered()), this, SLOT(onMoveCursorEnd()));
+    connect(ui->move_Back, SIGNAL(triggered()), this, SLOT(onMoveBack()));
+    connect(ui->move_Forward, SIGNAL(triggered()), this, SLOT(onMoveForward()));
+    connect(ui->move_Home, SIGNAL(triggered()), this, SLOT(onMoveHome()));
+    connect(ui->move_Jump, SIGNAL(triggered()), this, SLOT(onMoveJump()));
+    connect(ui->move_Parent, SIGNAL(triggered()), this, SLOT(onMoveParent()));
+    connect(ui->move_Root, SIGNAL(triggered()), this, SLOT(onMoveRoot()));
+
+    connect(ui->view_FromOther, SIGNAL(triggered()), this, SLOT(onViewFromOther()));
+    connect(ui->view_ToOther, SIGNAL(triggered()), this, SLOT(onViewToOther()));
+    connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(onViewHidden()));
+    connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(onViewSwap()));
+
+    connect(ui->cmd_Rename, SIGNAL(triggered()), this, SLOT(onCmdRename()));
+
+    connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
+
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v0.00"));
 
     // ウィンドウ初期サイズを設定する
     resize(800, 600);
+
+    QString path;
+
+    path = settings.value("Left/dir", QDir::homePath()).toString();
+    ui->folderPanel_L->setCurrentFolder(path);
+
+    path = settings.value("Right/dir", QDir::homePath()).toString();
+    ui->folderPanel_R->setCurrentFolder(path);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-}
+    QSettings settings;
 
-///
-/// \brief MainWindow::onMoveOther
-///
-/// キーボードフォーカスを他方のパネルに移動します
-///
-void MainWindow::onMoveOther()
-{
-    FolderPanel *fp = this->inactivePanel();
-    if (fp) {
-        fp->fileTable()->setFocus();
-    }
+    settings.setValue("Left/dir", ui->folderPanel_L->dir()->absolutePath());
+    settings.setValue("Right/dir", ui->folderPanel_R->dir()->absolutePath());
+
+    delete ui;
 }
 
 FolderPanel* MainWindow::activePanel()
@@ -61,12 +104,90 @@ FolderPanel* MainWindow::inactivePanel()
     return NULL;
 }
 
-void MainWindow::on_action_Quit_triggered()
+///
+/// \brief MainWindow::onActionCommand
+///
+/// コマンドを実行します(X)
+///
+void MainWindow::onActionCommand()
 {
-    qApp->quit();
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    QString command = "";
+    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
+        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
+            QString path = fp->fileTable()->item(n, 1)->text();
+            path = fp->dir()->absoluteFilePath(path);
+            path = QDir::cleanPath(path);
+            path = QDir::toNativeSeparators(path);
+
+            QFileInfo info(path);
+            if (info.isExecutable()) {
+                command = "\"" + path + "\" " + command;
+            }
+            else {
+                command += " \"" + path + "\"";
+            }
+        }
+    }
+
+    if (command.isEmpty()) {
+        int row = fp->fileTable()->currentIndex().row();
+        QString path = fp->fileTable()->item(row, 1)->text();
+        path = fp->dir()->absoluteFilePath(path);
+        path = QDir::cleanPath(path);
+        path = QDir::toNativeSeparators(path);
+
+        command = "\"" + path + "\"";
+    }
+
+    CommandDialog dlg(this);
+    dlg.setWorkingDirectory(fp->dir()->absolutePath());
+    dlg.setCommandLine(command);
+    dlg.exec();
 }
 
-void MainWindow::on_action_Open_triggered()
+///
+/// \brief MainWindow::onActionExec
+///
+/// アプリケーションで開きます(Shift + Enter)
+///
+void MainWindow::onActionExec()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    int count = 0;
+    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
+        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
+            QString path = fp->fileTable()->item(n, 1)->text();
+            path = fp->dir()->absoluteFilePath(path);
+            path = QDir::toNativeSeparators(path);
+            QDesktopServices::openUrl(QUrl("file:///" + path));
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        int row = fp->fileTable()->currentIndex().row();
+        QString path = fp->fileTable()->item(row, 1)->text();
+        path = fp->dir()->absoluteFilePath(path);
+        path = QDir::toNativeSeparators(path);
+        QDesktopServices::openUrl(QUrl("file:///" + path));
+    }
+}
+
+///
+/// \brief MainWindow::onActionOpen
+///
+/// フォルダを開きます(Enter)
+///
+void MainWindow::onActionOpen()
 {
     FolderPanel *fp = activePanel();
     if (!fp) {
@@ -83,94 +204,32 @@ void MainWindow::on_action_Open_triggered()
     }
 }
 
-void MainWindow::on_action_Exec_triggered()
+///
+/// \brief MainWindow::onActionQuit
+///
+/// アプリケーションを終了します(Q)
+///
+void MainWindow::onActionQuit()
 {
-    FolderPanel *fp = activePanel();
-    if (!fp) {
-        return;
-    }
-
-    int row = fp->fileTable()->currentIndex().row();
-    QString path = fp->fileTable()->item(row, 1)->text();
-    path = fp->dir()->absoluteFilePath(path);
-    path = QDir::toNativeSeparators(path);
-    QDesktopServices::openUrl(QUrl("file:///" + path));
+    qApp->quit();
 }
 
 ///
-/// \brief MainWindow::on_view_FromOther_triggered
+/// \brief MainWindow::onActionSetting
 ///
-/// 隣のパネルと同じフォルダを表示します(O)
-void MainWindow::on_view_FromOther_triggered()
+/// 環境設定ダイアログを表示します(Z)
+///
+void MainWindow::onActionSetting()
 {
-    this->onViewFromOther();
-}
-void MainWindow::onViewFromOther()
-{
-    FolderPanel *fp1 = activePanel();
-    FolderPanel *fp2 = inactivePanel();
-    if (fp1 == NULL || fp2 == NULL) {
-        return;
-    }
-
-    fp1->setCurrentFolder(fp2->dir()->absolutePath());
-}
-
-///
-/// \brief MainWindow::on_view_ToOther_triggered
-///
-/// 隣のパネルに同じフォルダを表示します(Ctrl + O)
-///
-void MainWindow::on_view_ToOther_triggered()
-{
-    FolderPanel *fp1 = activePanel();
-    FolderPanel *fp2 = inactivePanel();
-    if (fp1 == NULL || fp2 == NULL) {
-        return;
-    }
-
-    fp2->setCurrentFolder(fp1->dir()->absolutePath());
-}
-
-///
-/// \brief MainWindow::on_mark_Toggle_triggered
-///
-/// マークを設定または解除します
-///
-void MainWindow::on_mark_Toggle_triggered()
-{
-    this->onMarkToggle();
-}
-void MainWindow::onMarkToggle()
-{
-    FolderPanel *fp = activePanel();
-    if (fp == NULL) {
-        return;
-    }
-
-    int row = fp->fileTable()->currentIndex().row();
-    if (fp->fileTable()->item(row, 1)->text() == "..") {
-        // 何もしない
-    }
-    else if (fp->fileTable()->item(row, 0)->checkState() == Qt::Checked) {
-        fp->fileTable()->item(row, 0)->setCheckState(Qt::Unchecked);
-    }
-    else {
-        fp->fileTable()->item(row, 0)->setCheckState(Qt::Checked);
-    }
-    // 最終行でなければ、次のアイテムに移動する
-    if (row < fp->fileTable()->rowCount() - 1) {
-        QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
-        fp->fileTable()->setCurrentIndex(nextIndex);
-    }
+    QMessageBox::information(this, tr("情報"), tr("環境設定機能は未実装です。"));
 }
 
 ///
 /// \brief MainWindow::on_mark_All_triggered
 ///
-/// すべてマークします(Ctrl + A)
+/// すべてマークします(Shift + A)
 ///
-void MainWindow::on_mark_All_triggered()
+void MainWindow::onMarkAll()
 {
     FolderPanel *fp = activePanel();
     if (fp == NULL) {
@@ -188,14 +247,10 @@ void MainWindow::on_mark_All_triggered()
 }
 
 ///
-/// \brief MainWindow::on_mark_AllFiles_triggered
+/// \brief MainWindow::onMarkAllFiles
 ///
 /// すべての「ファイル」をマークします(A)
 ///
-void MainWindow::on_mark_AllFiles_triggered()
-{
-    this->onMarkAllFiles();
-}
 void MainWindow::onMarkAllFiles()
 {
     FolderPanel *fp = activePanel();
@@ -223,14 +278,10 @@ void MainWindow::onMarkAllFiles()
 }
 
 ///
-/// \brief MainWindow::on_mark_AllOff_triggered
+/// \brief MainWindow::onMarkAllOff
 ///
-/// すべてのマークを解除します(Shift + A)
+/// すべてのマークを解除します(U)
 ///
-void MainWindow::on_mark_AllOff_triggered()
-{
-    this->onMarkAllOff();
-}
 void MainWindow::onMarkAllOff()
 {
     FolderPanel *fp = activePanel();
@@ -249,14 +300,10 @@ void MainWindow::onMarkAllOff()
 }
 
 ///
-/// \brief MainWindow::on_mark_Invert_triggered
+/// \brief MainWindow::onMarkInvert
 ///
 /// マークを反転します(I)
 ///
-void MainWindow::on_mark_Invert_triggered()
-{
-    this->onMarkInvert();
-}
 void MainWindow::onMarkInvert()
 {
     FolderPanel *fp = activePanel();
@@ -281,13 +328,270 @@ void MainWindow::onMarkInvert()
 }
 
 ///
-/// \brief MainWindow::on_view_Swap_triggered
+/// \brief MainWindow::onMarkToggle
+///
+/// マークを設定または解除します(Space)
+///
+void MainWindow::onMarkToggle()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    int row = fp->fileTable()->currentIndex().row();
+    QTableWidgetItem *item = fp->fileTable()->item(row, 0);
+    if (fp->fileTable()->item(row, 1)->text() != "..") {
+       if (item->checkState() == Qt::Checked) {
+            item->setCheckState(Qt::Unchecked);
+       }
+        else {
+            item->setCheckState(Qt::Checked);
+       }
+    }
+    // 最終行でなければ、次のアイテムに移動する
+    if (row < fp->fileTable()->rowCount() - 1) {
+        QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
+        fp->fileTable()->setCurrentIndex(nextIndex);
+    }
+}
+
+///
+/// \brief MainWindow::onMoveCursorDown
+///
+/// カーソルを下に移動します(J)
+///
+void MainWindow::onMoveCursorDown()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    int row = fp->fileTable()->currentIndex().row();
+    if (row < fp->fileTable()->rowCount() - 1) {
+        QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
+        fp->fileTable()->setCurrentIndex(nextIndex);
+    }
+}
+
+///
+/// \brief MainWindow::onMoveCursorUp
+///
+/// カーソルを上に移動します(K)
+///
+void MainWindow::onMoveCursorUp()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    int row = fp->fileTable()->currentIndex().row();
+    if (row > 0) {
+        QModelIndex nextIndex = fp->fileTable()->model()->index(row - 1, 1);
+        fp->fileTable()->setCurrentIndex(nextIndex);
+    }
+}
+
+///
+/// \brief MainWindow::onMoveCursorBegin
+///
+/// カーソルを先頭に移動します(G)
+///
+void MainWindow::onMoveCursorBegin()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    QModelIndex nextIndex = fp->fileTable()->model()->index(0, 1);
+    fp->fileTable()->setCurrentIndex(nextIndex);
+}
+
+///
+/// \brief MainWindow::onMoveCursorEnd
+///
+/// カーソルを末尾に移動します(Shift + G)
+void MainWindow::onMoveCursorEnd()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    int row = fp->fileTable()->rowCount() - 1;
+    QModelIndex nextIndex = fp->fileTable()->model()->index(row, 1);
+    fp->fileTable()->setCurrentIndex(nextIndex);
+}
+
+///
+/// \brief MainWindow::onMoveBack
+///
+/// 前の履歴に戻ります(Alt + ←)
+///
+void MainWindow::onMoveBack()
+{
+    QMessageBox::information(this, tr("情報"), tr("履歴機能は未実装です。"));
+}
+
+///
+/// \brief MainWindow::onMoveForward
+///
+/// 次の履歴に進みます(Alt + →)
+///
+void MainWindow::onMoveForward()
+{
+    QMessageBox::information(this, tr("情報"), tr("履歴機能は未実装です。"));
+
+}
+
+///
+/// \brief MainWindow::onMoveHome
+///
+/// ホームフォルダに移動します(H)
+///
+void MainWindow::onMoveHome()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    fp->setCurrentFolder(QDir::homePath());
+}
+
+///
+/// \brief MainWindow::onMoveJump
+///
+/// フォルダを選択して移動します(Shift + J)
+void MainWindow::onMoveJump()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    QString path = QFileDialog::getExistingDirectory(
+                this,
+                tr("フォルダを選択"),
+                fp->dir()->absolutePath());
+    if (!path.isEmpty()) {
+        fp->setCurrentFolder(path);
+    }
+}
+
+///
+/// \brief MainWindow::onMoveOther
+///
+/// キーボードフォーカスを他方のパネルに移動します(TAB)
+///
+void MainWindow::onMoveOther()
+{
+    FolderPanel *fp = this->inactivePanel();
+    if (fp) {
+        fp->fileTable()->setFocus();
+    }
+}
+
+///
+/// \brief MainWindow::onMoveParent
+///
+/// 親フォルダに移動します(Backspace)
+///
+void MainWindow::onMoveParent()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    if (!fp->dir()->isRoot()) {
+        QString path = fp->dir()->absoluteFilePath("..");
+        fp->setCurrentFolder(path);
+    }
+}
+
+///
+/// \brief MainWindow::onMoveRoot
+///
+/// ルートフォルダに移動します()
+void MainWindow::onMoveRoot()
+{
+    FolderPanel *fp = activePanel();
+    if (fp == NULL) {
+        return;
+    }
+
+    if (!fp->dir()->isRoot()) {
+        fp->setCurrentFolder(QDir::rootPath());
+    }
+}
+
+///
+/// \brief MainWindow::onViewFromOther
+///
+/// 隣のパネルと同じフォルダを表示します(O)
+///
+void MainWindow::onViewFromOther()
+{
+    FolderPanel *fp1 = activePanel();
+    FolderPanel *fp2 = inactivePanel();
+    if (fp1 == NULL || fp2 == NULL) {
+        return;
+    }
+
+    fp1->setCurrentFolder(fp2->dir()->absolutePath());
+}
+
+///
+/// \brief MainWindow::onViewToOther
+///
+/// 隣のパネルに同じフォルダを表示します(Shift + O)
+///
+void MainWindow::onViewToOther()
+{
+    FolderPanel *fp1 = activePanel();
+    FolderPanel *fp2 = inactivePanel();
+    if (fp1 == NULL || fp2 == NULL) {
+        return;
+    }
+
+    fp2->setCurrentFolder(fp1->dir()->absolutePath());
+}
+
+///
+/// \brief MainWindow::onViewHidden
+///
+/// 隠しファイルの表示/非表示を切り替えます(Shift + H)
+void MainWindow::onViewHidden()
+{
+    QSettings settings;
+    bool checked = !settings.value("Common/ShowHidden", false).toBool();
+    settings.setValue("Common/ShowHidden", checked);
+
+    if (checked) {
+        ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() | QDir::Hidden);
+        ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() | QDir::Hidden);
+//        ui->view_Hidden->setIcon(QIcon(":/images/Show.png"));
+    }
+    else {
+        ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() ^ QDir::Hidden);
+        ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() ^ QDir::Hidden);
+//        ui->view_Hidden->setIcon(QIcon(":/images/Hide.png"));
+    }
+
+//    ui->view_Hidden->setIconVisibleInMenu(true);
+    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+}
+
+///
+/// \brief MainWindow::onViewSwap
 ///
 /// パネルの表示内容を交換します(W)
-void MainWindow::on_view_Swap_triggered()
-{
-    this->onViewSwap();
-}
+///
 void MainWindow::onViewSwap()
 {
     FolderPanel *fp1 = activePanel();
@@ -304,81 +608,61 @@ void MainWindow::onViewSwap()
 }
 
 ///
-/// \brief MainWindow::on_move_Down_triggered
+/// \brief MainWindow::onCmdRename
 ///
-/// カーソルを下に移動します(J)
+/// 名前を変更します
 ///
-void MainWindow::on_move_Down_triggered()
-{
-    this->onMoveDown();
-}
-void MainWindow::onMoveDown()
+void MainWindow::onCmdRename()
 {
     FolderPanel *fp = activePanel();
-    if (fp == NULL) {
+    if (!fp) {
         return;
     }
 
-    int row = fp->fileTable()->currentIndex().row();
-    if (row < fp->fileTable()->rowCount() - 1) {
-        QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
-        fp->fileTable()->setCurrentIndex(nextIndex);
+    QStringList list;
+    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
+        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
+            list << fp->fileTable()->item(n, 1)->text();
+        }
+    }
+
+    if (list.isEmpty()) {
+        int row = fp->fileTable()->currentIndex().row();
+        QString name = fp->fileTable()->item(row, 1)->text();
+        if (name == "..") {
+            return;
+        }
+        list << name;
+    }
+
+    int dlgResult;
+    if (list.size() == 1) {
+        RenameSingleDialog dlg(this);
+        dlg.setName(list.at(0));
+        dlg.setWorkingDirectory(fp->dir()->absolutePath());
+        dlgResult = dlg.exec();
+    }
+    else {
+
+    }
+
+    if (dlgResult == QDialog::Accepted) {
+        fp->setCurrentFolder(fp->dir()->absolutePath());
     }
 }
 
 ///
-/// \brief MainWindow::on_move_Up_triggered
+/// \brief MainWindow::onHelpAbout
 ///
-/// カーソルを上に移動します(K)
+/// アプリケーションの概要を表示します(?)
 ///
-void MainWindow::on_move_Up_triggered()
+void MainWindow::onHelpAbout()
 {
-    this->onMoveUp();
-}
-void MainWindow::onMoveUp()
-{
-    FolderPanel *fp = activePanel();
-    if (fp == NULL) {
-        return;
-    }
-
-    int row = fp->fileTable()->currentIndex().row();
-    if (row > 0) {
-        QModelIndex nextIndex = fp->fileTable()->model()->index(row - 1, 1);
-        fp->fileTable()->setCurrentIndex(nextIndex);
-    }
-}
-
-///
-/// \brief MainWindow::on_move_Parent_triggered
-///
-/// 親フォルダに移動します
-///
-void MainWindow::on_move_Parent_triggered()
-{
-    this->onMoveParent();
-}
-void MainWindow::onMoveParent()
-{
-    FolderPanel *fp = activePanel();
-    if (fp == NULL) {
-        return;
-    }
-
-    if (!fp->dir()->isRoot()) {
-        QString path = fp->dir()->absoluteFilePath("..");
-        fp->setCurrentFolder(path);
-    }
-}
-
-void MainWindow::on_move_Root_triggered()
-{
-    FolderPanel *fp = activePanel();
-    if (fp == NULL) {
-        return;
-    }
-
-    if (!fp->dir()->isRoot()) {
-        fp->setCurrentFolder(QDir::rootPath());
-    }
+    QMessageBox::about(
+                this,
+                tr("げふぅ について"),
+                tr("<h3>Gefu Ver0.00</h3>"
+                   "<center>Gefu is Experimental File Utility.<br/>"
+                   "（げふぅは実験的なファイルユーティリティです）</center>"
+                   "<p>Copyright 2014 @miyabi_satoh All rights reserved.</p>"));
 }

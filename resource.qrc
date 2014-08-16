@@ -246,5 +246,6 @@
         <file>images/Zoom auto.png</file>
         <file>images/Zoom in.png</file>
         <file>images/Zoom out.png</file>
+        <file>images/Gefu.png</file>
     </qresource>
 </RCC>

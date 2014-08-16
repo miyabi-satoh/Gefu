@@ -16,35 +16,41 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void onMarkToggle();
+public slots:
+    void onActionCommand();
+    void onActionExec();
+    void onActionOpen();
+    void onActionQuit();
+    void onActionSetting();
+
+    void onMarkAll();
     void onMarkAllFiles();
     void onMarkAllOff();
     void onMarkInvert();
+    void onMarkToggle();
 
-    void onMoveDown();
-    void onMoveUp();
-    void onMoveParent();
+    void onMoveCursorDown();
+    void onMoveCursorUp();
+    void onMoveCursorBegin();
+    void onMoveCursorEnd();
+    void onMoveBack();
+    void onMoveForward();
+    void onMoveHome();
+    void onMoveJump();
     void onMoveOther();
+    void onMoveParent();
+    void onMoveRoot();
 
     void onViewFromOther();
+    void onViewToOther();
+    void onViewHidden();
     void onViewSwap();
 
+    void onCmdRename();
+
+    void onHelpAbout();
+
 private slots:
-    void on_action_Quit_triggered();
-    void on_action_Open_triggered();
-    void on_action_Exec_triggered();
-    void on_view_FromOther_triggered();
-    void on_view_ToOther_triggered();
-    void on_mark_Toggle_triggered();
-    void on_mark_All_triggered();
-    void on_mark_AllFiles_triggered();
-    void on_mark_AllOff_triggered();
-    void on_mark_Invert_triggered();
-    void on_view_Swap_triggered();
-    void on_move_Down_triggered();
-    void on_move_Up_triggered();
-    void on_move_Parent_triggered();
-    void on_move_Root_triggered();
 
 private:
     Ui::MainWindow *ui;
