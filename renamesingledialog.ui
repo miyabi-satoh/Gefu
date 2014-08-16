@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>286</height>
+    <height>195</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,14 +26,11 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>名前を変更</string>
+   <string>ファイル名を変更</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>0</number>
-     </property>
      <item>
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
@@ -63,9 +60,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
      <item>
       <widget class="QLabel" name="label_2">
        <property name="sizePolicy">
@@ -101,68 +95,62 @@
      <property name="title">
       <string>変換オプション</string>
      </property>
-     <widget class="QWidget" name="">
-      <property name="geometry">
-       <rect>
-        <x>11</x>
-        <y>20</y>
-        <width>217</width>
-        <height>58</height>
-       </rect>
-      </property>
-      <layout class="QFormLayout" name="formLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>全体を...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QPushButton" name="btn_UpperAll">
-           <property name="text">
-            <string>大文字にする</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_LowerAll">
-           <property name="text">
-            <string>小文字にする</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>拡張子を...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QPushButton" name="btn_UpperExt">
-           <property name="text">
-            <string>大文字にする</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btn_LowerExt">
-           <property name="text">
-            <string>小文字にする</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>全体を...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="btn_UpperAll">
+            <property name="text">
+             <string>大文字にする</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_LowerAll">
+            <property name="text">
+             <string>小文字にする</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>拡張子を...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="btn_UpperExt">
+            <property name="text">
+             <string>大文字にする</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_LowerExt">
+            <property name="text">
+             <string>小文字にする</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -177,11 +165,6 @@
    </item>
   </layout>
   <zorder>buttonBox</zorder>
-  <zorder>label</zorder>
-  <zorder>nameBefore</zorder>
-  <zorder>label_2</zorder>
-  <zorder>nameAfter</zorder>
-  <zorder>nameAfter</zorder>
   <zorder>groupBox</zorder>
  </widget>
  <resources/>
@@ -219,8 +202,4 @@
    </hints>
   </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="groupAll"/>
-  <buttongroup name="groupExt"/>
- </buttongroups>
 </ui>

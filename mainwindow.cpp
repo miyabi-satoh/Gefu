@@ -1,5 +1,6 @@
 #include "commanddialog.h"
 #include "mainwindow.h"
+#include "renamemultidialog.h"
 #include "renamesingledialog.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
@@ -638,12 +639,15 @@ void MainWindow::onCmdRename()
     int dlgResult;
     if (list.size() == 1) {
         RenameSingleDialog dlg(this);
-        dlg.setName(list.at(0));
         dlg.setWorkingDirectory(fp->dir()->absolutePath());
+        dlg.setName(list.at(0));
         dlgResult = dlg.exec();
     }
     else {
-
+        RenameMultiDialog dlg(this);
+        dlg.setWorkingDirectory(fp->dir()->absolutePath());
+        dlg.setNames(list);
+        dlgResult = dlg.exec();
     }
 
     if (dlgResult == QDialog::Accepted) {

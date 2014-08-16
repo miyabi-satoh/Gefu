@@ -23,7 +23,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
 
     // ヘッダーラベルを設定する
     QStringList labels;
-    labels << tr("") << tr("Name") << tr("Size") << tr("Date");
+    labels << tr("") << tr("名前") << tr("サイズ") << tr("更新日時");
     ui->fileTable->setHorizontalHeaderLabels(labels);
 
     // イベントフィルタを設定する

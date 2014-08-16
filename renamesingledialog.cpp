@@ -5,14 +5,10 @@
 
 RenameSingleDialog::RenameSingleDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::RenameSingleDialog)
+    ui(new Ui::RenameSingleDialog),
+    m_dir()
 {
     ui->setupUi(this);
-
-    QSize size = this->size();
-//    size.setWidth(260);
-    size.setHeight(190);
-    this->resize(size);
 
     ui->nameAfter->setFocus();
 }
