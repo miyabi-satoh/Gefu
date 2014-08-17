@@ -27,13 +27,13 @@ private:
     Ui::OperationDialog *ui;
     IWorker *m_worker;
     bool m_Error;
-    bool m_Cancel;
 
 private slots:
     void onOperation(const QString &msg);
     void onSuccess(const QString &msg);
     void onError(const QString &msg);
     void onFinished();
+    void onCanceled();
     void on_btnCloseCancel_clicked();
     void on_btnShowDetail_clicked();
 };

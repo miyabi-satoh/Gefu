@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QFileInfo>
 #include <QMainWindow>
 class FolderPanel;
 
@@ -48,6 +49,7 @@ public slots:
     void onViewHidden();
     void onViewSwap();
 
+    void onCmdCopy();
     void onCmdDelete();
     void onCmdNewFile();
     void onCmdNewFolder();
@@ -56,12 +58,15 @@ public slots:
     void onHelpAbout();
 
 private slots:
+    void onAskOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
+                        QString *alias, const QString srcPath, const QString tgtPath);
 
 private:
     Ui::MainWindow *ui;
 
     FolderPanel* activePanel();
     FolderPanel* inactivePanel();
+    QStringList selectedItems(FolderPanel *fp);
 };
 
 #endif // MAINWINDOW_H

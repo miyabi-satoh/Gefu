@@ -29,6 +29,7 @@ protected:
     }
 
 signals:
+    void canceled();
     void finished();
     void operation(const QString &msg);
     void success(const QString &msg);

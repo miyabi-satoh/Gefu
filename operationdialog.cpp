@@ -6,8 +6,7 @@ OperationDialog::OperationDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::OperationDialog),
     m_worker(NULL),
-    m_Error(false),
-    m_Cancel(false)
+    m_Error(false)
 {
     ui->setupUi(this);
 }
@@ -27,13 +26,14 @@ void OperationDialog::showEvent(QShowEvent *)
     connect(thread, SIGNAL(started()), m_worker, SLOT(operate()));
     connect(m_worker, SIGNAL(finished()), thread, SLOT(quit()));
 
-    connect(thread, SIGNAL(finished()), this, SLOT(onFinished()));
     connect(thread, SIGNAL(finished()), m_worker, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
     connect(m_worker, SIGNAL(operation(QString)), this, SLOT(onOperation(QString)));
     connect(m_worker, SIGNAL(success(QString)), this, SLOT(onSuccess(QString)));
     connect(m_worker, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    connect(m_worker, SIGNAL(finished()), this, SLOT(onFinished()));
+    connect(m_worker, SIGNAL(canceled()), this, SLOT(onCanceled()));
 
     thread->start();
 }
@@ -61,15 +61,20 @@ void OperationDialog::onFinished()
     ui->btnCloseCancel->setText(tr("閉じる"));
 
     ui->textEdit->append("");
-    if (m_Cancel) {
-        ui->textEdit->append(tr("操作は途中でキャンセルされました。"));
+    ui->textEdit->append(tr("完了"));
+    if (!m_Error && ui->chkAutoClose->checkState() == Qt::Checked) {
+        QDialog::accept();
     }
-    else {
-        ui->textEdit->append(tr("完了"));
-        if (!m_Error && ui->chkAutoClose->checkState() == Qt::Checked) {
-            QDialog::accept();
-        }
-    }
+}
+
+void OperationDialog::onCanceled()
+{
+    ui->progressBar->setMaximum(1);
+    ui->progressBar->setValue(1);
+    ui->btnCloseCancel->setText(tr("閉じる"));
+
+    ui->textEdit->append("");
+    ui->textEdit->append(tr("操作は途中でキャンセルされました。"));
 }
 
 void OperationDialog::on_btnCloseCancel_clicked()
@@ -78,7 +83,6 @@ void OperationDialog::on_btnCloseCancel_clicked()
         QDialog::accept();
     }
     else {
-        m_Cancel = true;
         m_worker->requestStop();
     }
 }

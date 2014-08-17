@@ -15,9 +15,11 @@ void RenameWorker::operate()
     bool ret;
     int successCount = 0;
     int errorCount = 0;
+    QString msg;
     for (it = m_RenameMap->begin(); it != m_RenameMap->end(); it++) {
         if (isStopRequested()) {
-            break;
+            emit canceled();
+            return;
         }
 
         emit operation(tr("名前変更：")
@@ -33,14 +35,12 @@ void RenameWorker::operate()
             errorCount++;
             emit error(tr("失敗"));
         }
+        msg = tr("%1個の名前を変更しました。").arg(successCount);
+        if (errorCount > 0) {
+            msg += tr("%1個の名前を変更できませんでした。").arg(errorCount);
+        }
+        m_progressText->setText(msg);
     }
-
-    QString msg;
-    msg = tr("%1個の名前を変更しました。").arg(successCount);
-    if (errorCount > 0) {
-        msg += tr("%1個の名前を変更できませんでした。").arg(errorCount);
-    }
-    m_progressText->setText(msg);
 
     emit finished();
 }

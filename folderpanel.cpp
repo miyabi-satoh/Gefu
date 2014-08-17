@@ -71,240 +71,359 @@ MainWindow* FolderPanel::mainWindow()
 
 bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress) {
+    if (this->mainWindow() && event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         switch (keyEvent->key()) {
-        case Qt::Key_A: {
+        case Qt::Key_A:
             // A            すべてのファイルをマーク
             // Shift + A    すべてマーク
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onMarkAll();
-                }
-                else {
-                    mainWnd->onMarkAllFiles();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onMarkAll();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMarkAllFiles();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_D: {
+        case Qt::Key_C:
+            // Ctrl + C ファイルをコピー
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+                this->mainWindow()->onCmdCopy();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+            }
+            break;
+
+        case Qt::Key_D:
             // Ctrl + D ファイルを削除
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ControlModifier) {
-                    mainWnd->onCmdDelete();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+                this->mainWindow()->onCmdDelete();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+            }
+            break;
 
-        case Qt::Key_E: {
+        case Qt::Key_E:
             // E        エディタで開く
             // Ctrl + E ファイルを作成
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ControlModifier) {
-                    mainWnd->onCmdNewFile();
-                }
-                else {
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+                this->mainWindow()->onCmdNewFile();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+            }
+            break;
 
-        case Qt::Key_G: {
+        case Qt::Key_G:
             // G            カーソルを先頭に移動
             // Shift + G    カーソルを末尾に移動
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onMoveCursorEnd();
-                }
-                else {
-                    mainWnd->onMoveCursorBegin();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onMoveCursorEnd();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveCursorBegin();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_H: {
+        case Qt::Key_H:
             // H            ホームフォルダに移動
             // Shift + H    隠しファイルを表示/非表示
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onViewHidden();
-                }
-                else {
-                    mainWnd->onMoveHome();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onViewHidden();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveHome();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_I: {
+        case Qt::Key_I:
             // I    マークを反転
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onMarkInvert();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMarkInvert();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_J: {
+        case Qt::Key_J:
             // J            カーソルを下に移動
             // Shift + J    フォルダを選択して移動
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onMoveJump();
-                }
-                else {
-                    mainWnd->onMoveCursorDown();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onMoveJump();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveCursorDown();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_K: {
+        case Qt::Key_K:
             // K        カーソルを上に移動
             // Ctrl + K フォルダを作成
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ControlModifier) {
-                    mainWnd->onCmdNewFolder();
-                }
-                else {
-                    mainWnd->onMoveCursorUp();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+                this->mainWindow()->onCmdNewFolder();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveCursorUp();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_O: {
+        case Qt::Key_M:
+            // M            開く
+            // Shift + M    アプリケーションで開く
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onActionExec();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onActionOpen();
+                keyEvent->accept();
+                return true;
+            }
+            break;
+
+        case Qt::Key_O:
             // O            隣のパネルと同じフォルダを表示
             // Shift + O    隣のパネルに同じフォルダを表示
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onViewToOther();
-                }
-                else {
-                    mainWnd->onViewFromOther();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onViewToOther();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onViewFromOther();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Q: {
+        case Qt::Key_Q:
             // Q    アプリケーションを終了
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onActionQuit();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onActionQuit();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_R: {
+        case Qt::Key_R:
             // R        履歴を表示
             // Ctrl + R 名前を変更
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ControlModifier) {
-                    mainWnd->onCmdRename();
-                }
-                else {
-
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+                this->mainWindow()->onCmdRename();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+            }
+            break;
 
-        case Qt::Key_U: {
+        case Qt::Key_U:
             // U    すべてのマークを解除
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onMarkAllOff();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMarkAllOff();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_W: {
+        case Qt::Key_W:
             // W    表示フォルダを交換
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onViewSwap();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onViewSwap();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_X: {
+        case Qt::Key_X:
             // X     コマンドを実行
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onActionCommand();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onActionCommand();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Question: {
+        case Qt::Key_Question:
             // ?    アプリケーション情報を表示
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onHelpAbout();
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onHelpAbout();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Space: {
+        case Qt::Key_Space:
             // マーク/解除
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onMarkToggle();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMarkToggle();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Tab: {
+        case Qt::Key_Tab:
             // 隣のパネルに移動
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                mainWnd->onMoveOther();
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveOther();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Backspace: {
+        case Qt::Key_Backspace:
             // BS           親フォルダに移動
             // Shift + BS   ルートフォルダに移動
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onMoveRoot();
-                }
-                else {
-                    mainWnd->onMoveParent();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onMoveRoot();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onMoveParent();
+                keyEvent->accept();
+                return true;
+            }
+            break;
 
-        case Qt::Key_Return: {
+        case Qt::Key_Return:
             // RET          開く
             // Shift + RET  アプリケーションで開く
-            MainWindow *mainWnd = this->mainWindow();
-            if (mainWnd) {
-                if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                    mainWnd->onActionExec();
-                }
-                else {
-                    mainWnd->onActionOpen();
-                }
+            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                this->mainWindow()->onActionExec();
+                keyEvent->accept();
+                return true;
             }
-            keyEvent->accept();
-            return true; }
+            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            }
+            else if (keyEvent->modifiers() & Qt::AltModifier) {
+            }
+            else {
+                this->mainWindow()->onActionOpen();
+                keyEvent->accept();
+                return true;
+            }
+            break;
         }
     }
 

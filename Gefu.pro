@@ -21,7 +21,9 @@ SOURCES += main.cpp\
     irenamedialog.cpp \
     iworker.cpp \
     renameworker.cpp \
-    deleteworker.cpp
+    deleteworker.cpp \
+    copyworker.cpp \
+    overwritedialog.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -33,13 +35,16 @@ HEADERS  += mainwindow.h \
     irenamedialog.h \
     iworker.h \
     renameworker.h \
-    deleteworker.h
+    deleteworker.h \
+    copyworker.h \
+    overwritedialog.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \
     renamesingledialog.ui \
     renamemultidialog.ui \
-    operationdialog.ui
+    operationdialog.ui \
+    overwritedialog.ui
 
 RESOURCES += \
     resource.qrc

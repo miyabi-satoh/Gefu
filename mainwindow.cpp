@@ -1,6 +1,8 @@
+#include "copyworker.h"
 #include "deleteworker.h"
 #include "mainwindow.h"
 #include "operationdialog.h"
+#include "overwritedialog.h"
 #include "renamemultidialog.h"
 #include "renamesingledialog.h"
 #include "renameworker.h"
@@ -55,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(onViewHidden()));
     connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(onViewSwap()));
 
+    connect(ui->cmd_Copy, SIGNAL(triggered()), this, SLOT(onCmdCopy()));
     connect(ui->cmd_Delete, SIGNAL(triggered()), this, SLOT(onCmdDelete()));
     connect(ui->cmd_NewFile, SIGNAL(triggered()), this, SLOT(onCmdNewFile()));
     connect(ui->cmd_NewFolder, SIGNAL(triggered()), this, SLOT(onCmdNewFolder()));
@@ -639,6 +642,64 @@ void MainWindow::onViewSwap()
     fp2->setCurrentFolder(path1);
 }
 
+void MainWindow::onCmdCopy()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    QStringList list = selectedItems(fp);
+    if (list.isEmpty()) {
+        return;
+    }
+
+    CopyWorker *worker = new CopyWorker();
+    connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
+            this, SLOT(onAskOverWrite(bool*,int*,int*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(inactivePanel()->dir()->absolutePath());
+
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("コピー"));
+    opDlg.setWorker(worker);
+
+    ui->folderPanel_L->UninstallWatcher();
+    ui->folderPanel_R->UninstallWatcher();
+    opDlg.exec();
+    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+
+}
+
+void MainWindow::onAskOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
+                                QString *alias, const QString srcPath,
+                                const QString tgtPath)
+{
+    OverWriteDialog dlg;
+    dlg.setCopyMethod(*prevCopyMethod);
+    dlg.setSameMethodChecked(*copyMethod != OverWriteDialog::Undefined);
+    dlg.setFileInfo(srcPath, tgtPath);
+    if (dlg.exec() == QDialog::Rejected) {
+        *bOk = false;
+    }
+    else {
+        *prevCopyMethod = dlg.copyMethod();
+        if (dlg.isSameMethodChecked()) {
+            *copyMethod = *prevCopyMethod;
+        }
+        *alias = dlg.alias();
+        *bOk = true;
+    }
+    CopyWorker *worker = static_cast<CopyWorker*>(sender());
+    worker->endAsking();
+}
+
+///
+/// \brief MainWindow::onCmdDelete
+///
+/// ファイルを削除します
+///
 void MainWindow::onCmdDelete()
 {
     FolderPanel *fp = activePanel();
@@ -646,21 +707,9 @@ void MainWindow::onCmdDelete()
         return;
     }
 
-    QStringList list;
-    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
-        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
-            list << fp->dir()->absoluteFilePath(fp->fileTable()->item(n, 1)->text());
-        }
-    }
-
+    QStringList list = selectedItems(fp);
     if (list.isEmpty()) {
-//        int row = fp->fileTable()->currentIndex().row();
-        int row = fp->fileTable()->currentRow();
-        QString name = fp->fileTable()->item(row, 1)->text();
-        if (name == "..") {
-            return;
-        }
-        list << fp->dir()->absoluteFilePath(name);
+        return;
     }
 
     QString msg;
@@ -764,21 +813,9 @@ void MainWindow::onCmdRename()
         return;
     }
 
-    QStringList list;
-    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
-        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
-            list << fp->fileTable()->item(n, 1)->text();
-        }
-    }
-
+    QStringList list = selectedItems(fp);
     if (list.isEmpty()) {
-//        int row = fp->fileTable()->currentIndex().row();
-        int row = fp->fileTable()->currentRow();
-        QString name = fp->fileTable()->item(row, 1)->text();
-        if (name == "..") {
-            return;
-        }
-        list << name;
+        return;
     }
 
     IRenameDialog *dlg;
@@ -821,4 +858,24 @@ void MainWindow::onHelpAbout()
                    "<center>Gefu is Experimental File Utility.<br/>"
                    "（げふぅは実験的なファイルユーティリティです）</center>"
                    "<p>Copyright 2014 @miyabi_satoh All rights reserved.</p>"));
+}
+
+QStringList MainWindow::selectedItems(FolderPanel *fp)
+{
+    QStringList list;
+    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
+        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
+            list << fp->dir()->absoluteFilePath(fp->fileTable()->item(n, 1)->text());
+        }
+    }
+
+    if (list.isEmpty()) {
+        int row = fp->fileTable()->currentRow();
+        QString name = fp->fileTable()->item(row, 1)->text();
+        if (name != "..") {
+            list << fp->dir()->absoluteFilePath(name);
+        }
+    }
+
+    return list;
 }
