@@ -52,9 +52,9 @@ void DeleteWorker::operate()
             emit error(tr("失敗"));
         }
 
-        msg = tr("%1個のアイテムを削除しました。").arg(successCount);
+        msg = tr("%1アイテム成功。").arg(successCount);
         if (errorCount > 0) {
-            msg += tr("%1個のアイテムを削除できませんでした。").arg(errorCount);
+            msg += tr("%1アイテム失敗。").arg(errorCount);
         }
         m_progressText->setText(msg);
     }

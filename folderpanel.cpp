@@ -77,17 +77,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_A:
             // A            すべてのファイルをマーク
             // Shift + A    すべてマーク
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onMarkAll();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMarkAllFiles();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMarkAllFiles();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onMarkAll();
                 keyEvent->accept();
                 return true;
             }
@@ -95,64 +91,44 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_C:
             // Ctrl + C ファイルをコピー
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            if (keyEvent->modifiers() == Qt::ControlModifier) {
                 this->mainWindow()->onCmdCopy();
                 keyEvent->accept();
                 return true;
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
             }
             break;
 
         case Qt::Key_D:
             // Ctrl + D ファイルを削除
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            if (keyEvent->modifiers() == Qt::ControlModifier) {
                 this->mainWindow()->onCmdDelete();
                 keyEvent->accept();
                 return true;
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
             }
             break;
 
         case Qt::Key_E:
             // E        エディタで開く
             // Ctrl + E ファイルを作成
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            else if (keyEvent->modifiers() == Qt::ControlModifier) {
                 this->mainWindow()->onCmdNewFile();
                 keyEvent->accept();
                 return true;
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
             }
             break;
 
         case Qt::Key_G:
             // G            カーソルを先頭に移動
             // Shift + G    カーソルを末尾に移動
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onMoveCursorEnd();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMoveCursorBegin();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMoveCursorBegin();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onMoveCursorEnd();
                 keyEvent->accept();
                 return true;
             }
@@ -161,17 +137,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_H:
             // H            ホームフォルダに移動
             // Shift + H    隠しファイルを表示/非表示
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onViewHidden();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMoveHome();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMoveHome();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onViewHidden();
                 keyEvent->accept();
                 return true;
             }
@@ -179,13 +151,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_I:
             // I    マークを反転
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onMarkInvert();
                 keyEvent->accept();
                 return true;
@@ -195,17 +161,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_J:
             // J            カーソルを下に移動
             // Shift + J    フォルダを選択して移動
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onMoveJump();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMoveCursorDown();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMoveCursorDown();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onMoveJump();
                 keyEvent->accept();
                 return true;
             }
@@ -214,17 +176,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_K:
             // K        カーソルを上に移動
             // Ctrl + K フォルダを作成
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-                this->mainWindow()->onCmdNewFolder();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMoveCursorUp();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMoveCursorUp();
+            else if (keyEvent->modifiers() == Qt::ControlModifier) {
+                this->mainWindow()->onCmdNewFolder();
                 keyEvent->accept();
                 return true;
             }
@@ -233,17 +191,19 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_M:
             // M            開く
             // Shift + M    アプリケーションで開く
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+            // Ctrl + M     ファイルの移動
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onActionOpen();
+                keyEvent->accept();
+                return true;
+            }
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
                 this->mainWindow()->onActionExec();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onActionOpen();
+            else if (keyEvent->modifiers() == Qt::ControlModifier) {
+                this->mainWindow()->onCmdMove();
                 keyEvent->accept();
                 return true;
             }
@@ -252,17 +212,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_O:
             // O            隣のパネルと同じフォルダを表示
             // Shift + O    隣のパネルに同じフォルダを表示
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onViewToOther();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onViewFromOther();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onViewFromOther();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onViewToOther();
                 keyEvent->accept();
                 return true;
             }
@@ -270,13 +226,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_Q:
             // Q    アプリケーションを終了
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onActionQuit();
                 keyEvent->accept();
                 return true;
@@ -286,28 +236,18 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_R:
             // R        履歴を表示
             // Ctrl + R 名前を変更
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
+            else if (keyEvent->modifiers() == Qt::ControlModifier) {
                 this->mainWindow()->onCmdRename();
                 keyEvent->accept();
                 return true;
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
             }
             break;
 
         case Qt::Key_U:
             // U    すべてのマークを解除
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onMarkAllOff();
                 keyEvent->accept();
                 return true;
@@ -316,13 +256,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_W:
             // W    表示フォルダを交換
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onViewSwap();
                 keyEvent->accept();
                 return true;
@@ -331,13 +265,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_X:
             // X     コマンドを実行
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onActionCommand();
                 keyEvent->accept();
                 return true;
@@ -346,11 +274,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_Question:
             // ?    アプリケーション情報を表示
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onHelpAbout();
                 keyEvent->accept();
                 return true;
@@ -359,13 +283,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_Space:
             // マーク/解除
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onMarkToggle();
                 keyEvent->accept();
                 return true;
@@ -374,13 +292,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
         case Qt::Key_Tab:
             // 隣のパネルに移動
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
+            if (keyEvent->modifiers() == Qt::NoModifier) {
                 this->mainWindow()->onMoveOther();
                 keyEvent->accept();
                 return true;
@@ -390,17 +302,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Backspace:
             // BS           親フォルダに移動
             // Shift + BS   ルートフォルダに移動
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onMoveRoot();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onMoveParent();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onMoveParent();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onMoveRoot();
                 keyEvent->accept();
                 return true;
             }
@@ -409,17 +317,13 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
         case Qt::Key_Return:
             // RET          開く
             // Shift + RET  アプリケーションで開く
-            if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                this->mainWindow()->onActionExec();
+            if (keyEvent->modifiers() == Qt::NoModifier) {
+                this->mainWindow()->onActionOpen();
                 keyEvent->accept();
                 return true;
             }
-            else if (keyEvent->modifiers() & Qt::ControlModifier) {
-            }
-            else if (keyEvent->modifiers() & Qt::AltModifier) {
-            }
-            else {
-                this->mainWindow()->onActionOpen();
+            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
+                this->mainWindow()->onActionExec();
                 keyEvent->accept();
                 return true;
             }

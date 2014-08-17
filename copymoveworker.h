@@ -6,11 +6,11 @@
 
 #include <QFileInfo>
 
-class CopyWorker : public IWorker
+class CopyMoveWorker : public IWorker
 {
     Q_OBJECT
 public:
-    explicit CopyWorker(QObject *parent = 0);
+    explicit CopyMoveWorker(QObject *parent = 0);
 
     void setCopyList(const QStringList *list) {
         m_CopyList = list;
@@ -18,18 +18,21 @@ public:
     void setTargetDir(const QString &path) {
         m_tgtDir = path;
     }
+    void setMoveMode(bool move) {
+        m_Move = move;
+    }
 
     void endAsking() {
         QMutexLocker lock(&m_AskingMutex);
         m_Asking = false;
     }
 
-public slots:
-    void operate();
-
 signals:
     void askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod, QString *alias,
                       const QString srcPath, const QString tgtPath);
+
+public slots:
+    void operate();
 
 private:
     const QStringList *m_CopyList;
@@ -37,6 +40,7 @@ private:
     StringMap m_CopyMap;
     QMutex m_AskingMutex;
     bool m_Asking;
+    bool m_Move;
 
     bool isAsking() {
         QMutexLocker lock(&m_AskingMutex);

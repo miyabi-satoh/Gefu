@@ -49,6 +49,7 @@ public slots:
     void onViewHidden();
     void onViewSwap();
 
+    void onCmdMove();
     void onCmdCopy();
     void onCmdDelete();
     void onCmdNewFile();

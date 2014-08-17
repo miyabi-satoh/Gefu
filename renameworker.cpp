@@ -35,9 +35,9 @@ void RenameWorker::operate()
             errorCount++;
             emit error(tr("失敗"));
         }
-        msg = tr("%1個の名前を変更しました。").arg(successCount);
+        msg = tr("%1アイテム成功。").arg(successCount);
         if (errorCount > 0) {
-            msg += tr("%1個の名前を変更できませんでした。").arg(errorCount);
+            msg += tr("%1アイテム失敗。").arg(errorCount);
         }
         m_progressText->setText(msg);
     }

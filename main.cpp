@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     a.setApplicationName("Gefu");
     a.setWindowIcon(QIcon(":/images/Gefu.png"));
 
-    qRegisterMetaType<QFileInfo>();
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
     MainWindow w;

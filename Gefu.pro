@@ -22,8 +22,8 @@ SOURCES += main.cpp\
     iworker.cpp \
     renameworker.cpp \
     deleteworker.cpp \
-    copyworker.cpp \
-    overwritedialog.cpp
+    overwritedialog.cpp \
+    copymoveworker.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -36,8 +36,8 @@ HEADERS  += mainwindow.h \
     iworker.h \
     renameworker.h \
     deleteworker.h \
-    copyworker.h \
-    overwritedialog.h
+    overwritedialog.h \
+    copymoveworker.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \

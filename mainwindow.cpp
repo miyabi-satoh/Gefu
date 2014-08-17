@@ -1,4 +1,4 @@
-#include "copyworker.h"
+#include "copymoveworker.h"
 #include "deleteworker.h"
 #include "mainwindow.h"
 #include "operationdialog.h"
@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->cmd_Copy, SIGNAL(triggered()), this, SLOT(onCmdCopy()));
     connect(ui->cmd_Delete, SIGNAL(triggered()), this, SLOT(onCmdDelete()));
+    connect(ui->cmd_Move, SIGNAL(triggered()), this, SLOT(onCmdMove()));
     connect(ui->cmd_NewFile, SIGNAL(triggered()), this, SLOT(onCmdNewFile()));
     connect(ui->cmd_NewFolder, SIGNAL(triggered()), this, SLOT(onCmdNewFolder()));
     connect(ui->cmd_Rename, SIGNAL(triggered()), this, SLOT(onCmdRename()));
@@ -642,6 +643,37 @@ void MainWindow::onViewSwap()
     fp2->setCurrentFolder(path1);
 }
 
+void MainWindow::onCmdMove()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    QStringList list = selectedItems(fp);
+    if (list.isEmpty()) {
+        return;
+    }
+
+    CopyMoveWorker *worker = new CopyMoveWorker();
+    connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
+            this, SLOT(onAskOverWrite(bool*,int*,int*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(inactivePanel()->dir()->absolutePath());
+    worker->setMoveMode(true);
+
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("移動"));
+    opDlg.setWorker(worker);
+
+    ui->folderPanel_L->UninstallWatcher();
+    ui->folderPanel_R->UninstallWatcher();
+    opDlg.exec();
+    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+
+}
+
 void MainWindow::onCmdCopy()
 {
     FolderPanel *fp = activePanel();
@@ -654,11 +686,12 @@ void MainWindow::onCmdCopy()
         return;
     }
 
-    CopyWorker *worker = new CopyWorker();
+    CopyMoveWorker *worker = new CopyMoveWorker();
     connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
             this, SLOT(onAskOverWrite(bool*,int*,int*,QString*,QString,QString)));
     worker->setCopyList(&list);
     worker->setTargetDir(inactivePanel()->dir()->absolutePath());
+    worker->setMoveMode(false);
 
     OperationDialog opDlg(this);
     opDlg.setWindowTitle(tr("コピー"));
@@ -691,7 +724,7 @@ void MainWindow::onAskOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
         *alias = dlg.alias();
         *bOk = true;
     }
-    CopyWorker *worker = static_cast<CopyWorker*>(sender());
+    CopyMoveWorker *worker = static_cast<CopyMoveWorker*>(sender());
     worker->endAsking();
 }
 
