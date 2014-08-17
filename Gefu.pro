@@ -43,3 +43,7 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     resource.qrc
+
+mac {
+    ICON = ./images/Gefu.icns
+}

@@ -21,7 +21,7 @@ public:
     }
 
 protected:
-    void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *);
 
 private:
     Ui::OperationDialog *ui;

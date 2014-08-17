@@ -64,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v0.00"));
+    // ウィンドウアイコンを設定する
+    setWindowIcon(QIcon(":/images/Gefu.png"));
 
     // ウィンドウ初期サイズを設定する
     resize(800, 600);

@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("miyabi");
     a.setOrganizationDomain("rakusaba.jp");
     a.setApplicationName("Gefu");
+    a.setWindowIcon(QIcon(":/images/Gefu.png"));
 
     QSettings::setDefaultFormat(QSettings::IniFormat);
 

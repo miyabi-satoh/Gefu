@@ -17,7 +17,7 @@ OperationDialog::~OperationDialog()
     delete ui;
 }
 
-void OperationDialog::showEvent(QShowEvent *event)
+void OperationDialog::showEvent(QShowEvent *)
 {
     ui->textEdit->setVisible(false);
 
