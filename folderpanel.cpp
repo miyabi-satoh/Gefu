@@ -290,6 +290,21 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
             }
             keyEvent->accept();
             return true; }
+
+        case Qt::Key_Return: {
+            // RET          開く
+            // Shift + RET  アプリケーションで開く
+            MainWindow *mainWnd = this->mainWindow();
+            if (mainWnd) {
+                if (keyEvent->modifiers() & Qt::ShiftModifier) {
+                    mainWnd->onActionExec();
+                }
+                else {
+                    mainWnd->onActionOpen();
+                }
+            }
+            keyEvent->accept();
+            return true; }
         }
     }
 
