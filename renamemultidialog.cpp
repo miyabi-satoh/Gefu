@@ -1,13 +1,11 @@
 #include "renamemultidialog.h"
 #include "ui_renamemultidialog.h"
-
 #include <QFileIconProvider>
 #include <QMessageBox>
 
 RenameMultiDialog::RenameMultiDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::RenameMultiDialog),
-    m_dir()
+    IRenameDialog(parent),
+    ui(new Ui::RenameMultiDialog)
 {
     ui->setupUi(this);
 
@@ -15,6 +13,8 @@ RenameMultiDialog::RenameMultiDialog(QWidget *parent) :
     QStringList labels;
     labels << tr("変更前") << tr("変更後");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
+
+    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 
 RenameMultiDialog::~RenameMultiDialog()
@@ -39,11 +39,6 @@ void RenameMultiDialog::setNames(const QStringList &names)
     }
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->resizeRowsToContents();
-}
-
-void RenameMultiDialog::setWorkingDirectory(const QString &dir)
-{
-    m_dir.setPath(dir);
 }
 
 void RenameMultiDialog::on_btn_UpperAll_clicked()
@@ -164,18 +159,11 @@ void RenameMultiDialog::accept()
         QTableWidgetItem *iBefore = ui->tableWidget->item(n, 0);
         QTableWidgetItem *iAfter = ui->tableWidget->item(n, 1);
         if (iBefore->text() != iAfter->text()) {
-            bool ret = QFile::rename(
-                        m_dir.absoluteFilePath(iBefore->text()),
-                        m_dir.absoluteFilePath(iAfter->text()));
-            if (!ret) {
-                QMessageBox::critical(
-                            this,
-                            tr("エラー"),
-                            iBefore->text() + tr("のファイル名変更に失敗しました。"));
-            }
+            m_RenameMap.insert(m_dir.absoluteFilePath(iBefore->text()),
+                               m_dir.absoluteFilePath(iAfter->text()));
         }
     }
 
-    QDialog::accept();
+    IRenameDialog::accept();
 }
 

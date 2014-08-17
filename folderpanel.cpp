@@ -13,7 +13,8 @@ FolderPanel::FolderPanel(QWidget *parent) :
     ui(new Ui::FolderPanel),
     m_dir(),
     m_IconFactory(),
-    m_fsWatcher(new QFileSystemWatcher(this))
+    m_fsWatcher(new QFileSystemWatcher(this)),
+    m_bUpdating(false)
 {
     ui->setupUi(this);
 
@@ -44,7 +45,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
 
 FolderPanel::~FolderPanel()
 {
-    delete m_fsWatcher;
+    UninstallWatcher();
     delete ui;
 }
 
@@ -297,6 +298,7 @@ bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
 
 void FolderPanel::setCurrentFolder(const QString &path)
 {
+    mainWindow()->setStatusText(tr("ファイルリストを更新中..."));
     QString curDir = m_dir.absolutePath();
     m_dir.setPath(QDir::cleanPath(path));
     m_dir.canonicalPath();
@@ -309,17 +311,14 @@ void FolderPanel::setCurrentFolder(const QString &path)
                     tr("フォルダが存在しないか利用できません。"));
         m_dir.setPath(curDir);
         ui->locationField->setText(curDir);
+        mainWindow()->setStatusText(tr("レディ"));
         return;
     }
 
     // フォルダの変更監視
-    delete m_fsWatcher;
-    m_fsWatcher = new QFileSystemWatcher(this);
-    m_fsWatcher->addPath(m_dir.absolutePath());
-    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
-            this, SLOT(on_directoryChanged(QString)));
+    InstallWatcher();
 
-
+    m_bUpdating = true;
     ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
     for (int i = 0; i < list.size(); i++) {
         QFileInfo info = list.at(i);
@@ -384,6 +383,26 @@ void FolderPanel::setCurrentFolder(const QString &path)
     ui->fileTable->resizeRowsToContents();
 
     ui->locationField->setText(m_dir.absolutePath());
+    mainWindow()->setStatusText(tr("レディ"));
+    m_bUpdating = false;
+}
+
+void FolderPanel::InstallWatcher()
+{
+    UninstallWatcher();
+
+    m_fsWatcher = new QFileSystemWatcher(this);
+    m_fsWatcher->addPath(m_dir.absolutePath());
+    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
+            this, SLOT(on_directoryChanged(QString)));
+}
+
+void FolderPanel::UninstallWatcher()
+{
+    if (m_fsWatcher != NULL) {
+        delete m_fsWatcher;
+    }
+    m_fsWatcher = NULL;
 }
 
 void FolderPanel::on_fileTable_cellChanged(int row, int column)
@@ -423,4 +442,16 @@ void FolderPanel::on_directoryChanged(QString)
         row = ui->fileTable->rowCount() - 1;
     }
     ui->fileTable->selectRow(row);
+}
+
+void FolderPanel::on_fileTable_itemSelectionChanged()
+{
+    if (m_bUpdating) {
+        return;
+    }
+
+    int row = ui->fileTable->currentRow();
+    if (0 <= row && row < ui->fileTable->rowCount()) {
+        mainWindow()->setStatusText(ui->fileTable->item(row, 1)->text());
+    }
 }

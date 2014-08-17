@@ -16,6 +16,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void setStatusText(const QString &str);
+
 public slots:
     void onActionCommand();
     void onActionExec();

@@ -1,7 +1,9 @@
-#include "commanddialog.h"
+#include "deleteworker.h"
 #include "mainwindow.h"
+#include "operationdialog.h"
 #include "renamemultidialog.h"
 #include "renamesingledialog.h"
+#include "renameworker.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
 #include <QDebug>
@@ -11,6 +13,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
+#include <QThread>
 #include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -84,6 +87,11 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setStatusText(const QString &str)
+{
+    ui->statusBar->showMessage(str);
+}
+
 FolderPanel* MainWindow::activePanel()
 {
     if (ui->folderPanel_L->fileTable()->hasFocus()) {
@@ -140,7 +148,8 @@ void MainWindow::onActionCommand()
     }
 
     if (command.isEmpty()) {
-        int row = fp->fileTable()->currentIndex().row();
+//        int row = fp->fileTable()->currentIndex().row();
+        int row = fp->fileTable()->currentRow();
         QString path = fp->fileTable()->item(row, 1)->text();
         path = fp->dir()->absoluteFilePath(path);
         path = QDir::cleanPath(path);
@@ -149,10 +158,24 @@ void MainWindow::onActionCommand()
         command = "\"" + path + "\"";
     }
 
-    CommandDialog dlg(this);
-    dlg.setWorkingDirectory(fp->dir()->absolutePath());
-    dlg.setCommandLine(command);
-    dlg.exec();
+    QInputDialog dlg(this);
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.setLabelText(tr("コマンドを入力："));
+    dlg.setWindowTitle(tr("コマンドを実行"));
+    dlg.setTextValue(command);
+    dlg.resize(500, 100);
+    int ret = dlg.exec();
+    command = dlg.textValue();
+    if (ret == QDialog::Accepted && !command.isEmpty()) {
+        QProcess process(this);
+        process.setWorkingDirectory(fp->dir()->absolutePath());
+        if (!process.startDetached(command)) {
+            QMessageBox::critical(
+                        this,
+                        tr("エラー"),
+                        tr("コマンドの実行に失敗しました。<br/>") + command);
+        }
+    }
 }
 
 ///
@@ -179,7 +202,8 @@ void MainWindow::onActionExec()
     }
 
     if (count == 0) {
-        int row = fp->fileTable()->currentIndex().row();
+//        int row = fp->fileTable()->currentIndex().row();
+        int row = fp->fileTable()->currentRow();
         QString path = fp->fileTable()->item(row, 1)->text();
         path = fp->dir()->absoluteFilePath(path);
         path = QDir::toNativeSeparators(path);
@@ -199,7 +223,8 @@ void MainWindow::onActionOpen()
         return;
     }
 
-    int row = fp->fileTable()->currentIndex().row();
+//    int row = fp->fileTable()->currentIndex().row();
+    int row = fp->fileTable()->currentRow();
     QString path = fp->fileTable()->item(row, 1)->text();
     path = fp->dir()->absoluteFilePath(path);
     QFileInfo info(path);
@@ -344,7 +369,8 @@ void MainWindow::onMarkToggle()
         return;
     }
 
-    int row = fp->fileTable()->currentIndex().row();
+//    int row = fp->fileTable()->currentIndex().row();
+    int row = fp->fileTable()->currentRow();
     QTableWidgetItem *item = fp->fileTable()->item(row, 0);
     if (fp->fileTable()->item(row, 1)->text() != "..") {
        if (item->checkState() == Qt::Checked) {
@@ -373,7 +399,8 @@ void MainWindow::onMoveCursorDown()
         return;
     }
 
-    int row = fp->fileTable()->currentIndex().row();
+//    int row = fp->fileTable()->currentIndex().row();
+    int row = fp->fileTable()->currentRow();
     if (row < fp->fileTable()->rowCount() - 1) {
         QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
         fp->fileTable()->setCurrentIndex(nextIndex);
@@ -392,7 +419,8 @@ void MainWindow::onMoveCursorUp()
         return;
     }
 
-    int row = fp->fileTable()->currentIndex().row();
+//    int row = fp->fileTable()->currentIndex().row();
+    int row = fp->fileTable()->currentRow();
     if (row > 0) {
         QModelIndex nextIndex = fp->fileTable()->model()->index(row - 1, 1);
         fp->fileTable()->setCurrentIndex(nextIndex);
@@ -579,15 +607,12 @@ void MainWindow::onViewHidden()
     if (checked) {
         ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() | QDir::Hidden);
         ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() | QDir::Hidden);
-//        ui->view_Hidden->setIcon(QIcon(":/images/Show.png"));
     }
     else {
         ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() ^ QDir::Hidden);
         ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() ^ QDir::Hidden);
-//        ui->view_Hidden->setIcon(QIcon(":/images/Hide.png"));
     }
 
-//    ui->view_Hidden->setIconVisibleInMenu(true);
     ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
     ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
 }
@@ -622,22 +647,23 @@ void MainWindow::onCmdDelete()
     QStringList list;
     for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
         if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
-            list << fp->fileTable()->item(n, 1)->text();
+            list << fp->dir()->absoluteFilePath(fp->fileTable()->item(n, 1)->text());
         }
     }
 
     if (list.isEmpty()) {
-        int row = fp->fileTable()->currentIndex().row();
+//        int row = fp->fileTable()->currentIndex().row();
+        int row = fp->fileTable()->currentRow();
         QString name = fp->fileTable()->item(row, 1)->text();
         if (name == "..") {
             return;
         }
-        list << name;
+        list << fp->dir()->absoluteFilePath(name);
     }
 
     QString msg;
     if (list.size() == 1) {
-        msg = list.at(0);
+        msg = QFileInfo(list.at(0)).fileName();
     }
     else {
         msg = tr("%1個のアイテム").arg(list.size());
@@ -647,7 +673,18 @@ void MainWindow::onCmdDelete()
                 tr("確認"),
                 msg + tr("を削除します<br/>よろしいですか？"));
     if (ret == QMessageBox::Yes) {
-        qDebug() << "OK";
+        DeleteWorker *worker = new DeleteWorker();
+        worker->setDeleteList(&list);
+
+        OperationDialog opDlg(this);
+        opDlg.setWindowTitle(tr("削除"));
+        opDlg.setWorker(worker);
+
+        ui->folderPanel_L->UninstallWatcher();
+        ui->folderPanel_R->UninstallWatcher();
+        opDlg.exec();
+        ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+        ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
     }
 }
 
@@ -680,7 +717,6 @@ void MainWindow::onCmdNewFile()
         }
         else {
             file.close();
-            fp->setCurrentFolder(fp->dir()->absolutePath());
         }
     }
 }
@@ -711,9 +747,6 @@ void MainWindow::onCmdNewFolder()
                                   tr("エラー"),
                                   tr("フォルダの作成に失敗しました。"));
         }
-        else {
-            fp->setCurrentFolder(fp->dir()->absoluteFilePath(name));
-        }
     }
 }
 
@@ -737,7 +770,8 @@ void MainWindow::onCmdRename()
     }
 
     if (list.isEmpty()) {
-        int row = fp->fileTable()->currentIndex().row();
+//        int row = fp->fileTable()->currentIndex().row();
+        int row = fp->fileTable()->currentRow();
         QString name = fp->fileTable()->item(row, 1)->text();
         if (name == "..") {
             return;
@@ -745,22 +779,29 @@ void MainWindow::onCmdRename()
         list << name;
     }
 
-    int dlgResult;
+    IRenameDialog *dlg;
     if (list.size() == 1) {
-        RenameSingleDialog dlg(this);
-        dlg.setWorkingDirectory(fp->dir()->absolutePath());
-        dlg.setName(list.at(0));
-        dlgResult = dlg.exec();
+        dlg = new RenameSingleDialog(this);
     }
     else {
-        RenameMultiDialog dlg(this);
-        dlg.setWorkingDirectory(fp->dir()->absolutePath());
-        dlg.setNames(list);
-        dlgResult = dlg.exec();
+        dlg = new RenameMultiDialog(this);
     }
+    dlg->setWorkingDirectory(fp->dir()->absolutePath());
+    dlg->setNames(list);
+    int dlgResult = dlg->exec();
+    if (dlgResult == QDialog::Accepted && !dlg->renameMap().isEmpty()) {
+        RenameWorker *worker = new RenameWorker();
+        worker->setRenameMap(&dlg->renameMap());
 
-    if (dlgResult == QDialog::Accepted) {
-        fp->setCurrentFolder(fp->dir()->absolutePath());
+        OperationDialog opDlg(this);
+        opDlg.setWindowTitle(tr("名前を変更"));
+        opDlg.setWorker(worker);
+
+        ui->folderPanel_L->UninstallWatcher();
+        ui->folderPanel_R->UninstallWatcher();
+        opDlg.exec();
+        ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+        ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
     }
 }
 

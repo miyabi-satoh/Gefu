@@ -2,14 +2,13 @@
 #define RENAMEMULTIDIALOG_H
 
 #include <QAbstractButton>
-#include <QDialog>
-#include <QDir>
+#include "irenamedialog.h"
 
 namespace Ui {
 class RenameMultiDialog;
 }
 
-class RenameMultiDialog : public QDialog
+class RenameMultiDialog : public IRenameDialog
 {
     Q_OBJECT
 
@@ -18,7 +17,6 @@ public:
     ~RenameMultiDialog();
 
     void setNames(const QStringList &names);
-    void setWorkingDirectory(const QString &dir);
 
 private slots:
     void on_btn_UpperAll_clicked();
@@ -32,7 +30,6 @@ private slots:
 
 private:
     Ui::RenameMultiDialog *ui;
-    QDir m_dir;
 };
 
 #endif // RENAMEMULTIDIALOG_H

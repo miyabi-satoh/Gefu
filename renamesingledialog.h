@@ -1,14 +1,13 @@
 #ifndef RENAMESINGLEDIALOG_H
 #define RENAMESINGLEDIALOG_H
 
-#include <QDialog>
-#include <QDir>
+#include "irenamedialog.h"
 
 namespace Ui {
 class RenameSingleDialog;
 }
 
-class RenameSingleDialog : public QDialog
+class RenameSingleDialog : public IRenameDialog
 {
     Q_OBJECT
 
@@ -16,8 +15,7 @@ public:
     explicit RenameSingleDialog(QWidget *parent = 0);
     ~RenameSingleDialog();
 
-    void setName(const QString &name);
-    void setWorkingDirectory(const QString &dir);
+    void setNames(const QStringList &names);
 
 private slots:
     void on_btn_UpperAll_clicked();
@@ -28,7 +26,6 @@ private slots:
 
 private:
     Ui::RenameSingleDialog *ui;
-    QDir m_dir;
 };
 
 #endif // RENAMESINGLEDIALOG_H

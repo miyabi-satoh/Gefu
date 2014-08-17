@@ -27,12 +27,15 @@ public:
     const QDir* dir() const { return &m_dir; }
 
     void setCurrentFolder(const QString &path);
+    void InstallWatcher();
+    void UninstallWatcher();
 
 private:
     Ui::FolderPanel *ui;
     QDir m_dir;
     QFileIconProvider m_IconFactory;
     QFileSystemWatcher *m_fsWatcher;
+    bool m_bUpdating;
 
     MainWindow* mainWindow();
     bool eventFilter(QObject *, QEvent *);
@@ -41,6 +44,7 @@ private slots:
     void on_fileTable_cellChanged(int row, int column);
     void on_locationField_editingFinished();
     void on_directoryChanged(QString);
+    void on_fileTable_itemSelectionChanged();
 };
 
 #endif // FOLDERPANEL_H
