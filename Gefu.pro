@@ -44,6 +44,13 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     resource.qrc
 
+OTHER_FILES += \
+    Gefu.rc
+
 mac {
     ICON = ./images/Gefu.icns
+}
+
+win32 {
+    RC_FILE = Gefu.rc
 }
