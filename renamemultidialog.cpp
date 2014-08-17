@@ -25,16 +25,17 @@ RenameMultiDialog::~RenameMultiDialog()
 void RenameMultiDialog::setNames(const QStringList &names)
 {
     foreach (const QString &name, names) {
+        QFileInfo info(name);
+
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->insertRow(row);
 
-        QTableWidgetItem *iBefore = new QTableWidgetItem(name);
+        QTableWidgetItem *iBefore = new QTableWidgetItem(info.fileName());
         iBefore->setFlags(iBefore->flags() ^ Qt::ItemIsEditable);
-        QFileInfo info(m_dir.absoluteFilePath(name));
         iBefore->setIcon(QFileIconProvider().icon(info));
         ui->tableWidget->setItem(row, 0, iBefore);
 
-        QTableWidgetItem *iAfter = new QTableWidgetItem(name);
+        QTableWidgetItem *iAfter = new QTableWidgetItem(info.fileName());
         ui->tableWidget->setItem(row, 1, iAfter);
     }
     ui->tableWidget->resizeColumnsToContents();

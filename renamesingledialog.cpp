@@ -18,8 +18,9 @@ RenameSingleDialog::~RenameSingleDialog()
 
 void RenameSingleDialog::setNames(const QStringList &names)
 {
-    ui->nameBefore->setText(names.at(0));
-    ui->nameAfter->setText(names.at(0));
+    QFileInfo info(names.at(0));
+    ui->nameBefore->setText(info.fileName());
+    ui->nameAfter->setText(info.fileName());
 }
 
 void RenameSingleDialog::on_btn_UpperAll_clicked()
