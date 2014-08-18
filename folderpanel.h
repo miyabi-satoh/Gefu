@@ -31,8 +31,15 @@ public:
     void InstallWatcher();
     void UninstallWatcher();
 
-    void beginUpdate()      { m_bUpdating = true; }
-    void endUpdate()        { m_bUpdating = false; onUpdateMark(0, 0);}
+    void beginUpdate() {
+        m_bUpdating = true;
+//        setUpdatesEnabled(false);
+    }
+    void endUpdate() {
+        m_bUpdating = false;
+//        setUpdatesEnabled(true);
+        onUpdateMark(0, 0);
+    }
     bool isUpdating() const { return m_bUpdating; }
 
 private:

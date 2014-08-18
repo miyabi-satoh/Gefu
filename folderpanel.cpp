@@ -8,6 +8,10 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QSettings>
+#ifdef Q_OS_WIN32
+    #include <windows.h>
+#endif
 
 QString FilesizeToString(quint64 size)
 {
@@ -44,9 +48,18 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 
-    // フォルダの要素を表示
-    m_dir.setFilter(QDir::NoDot | QDir::AllEntries);
-    m_dir.setSorting(QDir::DirsFirst | QDir::Name);
+    QSettings settings;
+    // フィルタ初期化
+    m_dir.setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
+    if (settings.value(IniKey_ShowHidden, false).toBool()) {
+        m_dir.setFilter(m_dir.filter() | QDir::Hidden);
+    }
+    if (settings.value(IniKey_ShowSystem, false).toBool()) {
+        m_dir.setFilter(m_dir.filter() | QDir::System);
+    }
+
+    // ソート順初期化
+    m_dir.setSorting(QDir::DirsFirst | QDir::IgnoreCase);
 }
 
 FolderPanel::~FolderPanel()
@@ -67,10 +80,13 @@ const FileTableWidget *FolderPanel::fileTable() const
 
 void FolderPanel::setCurrentFolder(const QString &path)
 {
+    QSettings settings;
+
     getMainWnd()->setStatusText(tr("ファイルリストを更新中..."));
     QString curDir = m_dir.absolutePath();
     m_dir.setPath(QDir::cleanPath(path));
     m_dir.canonicalPath();
+
     QFileInfoList list = m_dir.entryInfoList();
 
     if (list.empty()) {
@@ -87,6 +103,11 @@ void FolderPanel::setCurrentFolder(const QString &path)
     // フォルダの変更監視
     InstallWatcher();
 
+    // QtはWindowsのシステムファイル属性をうまく判定できていないため、
+    // GetFileAttributes APIを使ってフィルタする
+    bool showSystem;
+    showSystem = settings.value(IniKey_ShowSystem, false).toBool();
+
     beginUpdate();
     ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
     for (int i = 0; i < list.size(); i++) {
@@ -94,6 +115,13 @@ void FolderPanel::setCurrentFolder(const QString &path)
         if (info.fileName() == ".." && m_dir.isRoot()) {
             continue;
         }
+
+#ifdef Q_OS_WIN32
+        DWORD dwFlags = ::GetFileAttributes(info.absoluteFilePath().toStdWString().c_str());
+        if (!showSystem && dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM)) {
+            continue;
+        }
+#endif
 
         int row = ui->fileTable->rowCount();
         ui->fileTable->insertRow(row);
@@ -117,24 +145,9 @@ void FolderPanel::setCurrentFolder(const QString &path)
         else {
             str = FilesizeToString(info.size());
         }
-#if 0
-        else if (info.size() >= 1024 * 1024 * 1024) {
-            str = tr("%1GB").arg(int(info.size() / (1024 * 1024 * 1024)));
-        }
-        else if (info.size() >= 1024 * 1024) {
-            str = tr("%1MB").arg(int(info.size() / (1024 * 1024)));
-        }
-        else if (info.size() >= 1024) {
-            str = tr("%1KB").arg(int(info.size() / 1024));
-        }
-        else {
-            str = tr("%1B").arg(info.size());
-        }
-#endif
         QTableWidgetItem *iSize = new QTableWidgetItem(str);
         iSize->setFlags(iSize->flags() ^ Qt::ItemIsEditable);
         iSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
         ui->fileTable->setItem(row, 2, iSize);
 
         // 最終更新日時

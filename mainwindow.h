@@ -47,7 +47,9 @@ public slots:
     void onViewFromOther();
     void onViewToOther();
     void onViewHidden();
+    void onViewSort();
     void onViewSwap();
+    void onViewSystem();
 
     void onCmdMove();
     void onCmdCopy();

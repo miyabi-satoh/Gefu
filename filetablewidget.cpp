@@ -168,6 +168,19 @@ void FileTableWidget::keyPressEvent(QKeyEvent *event)
         }
         break;
 
+    case Qt::Key_S:
+        // S            ソート方法を選択
+        // Shift + S    システムファイルを表示/非表示
+        if (event->modifiers() == Qt::NoModifier) {
+            getMainWnd()->onViewSort();
+            accepted = true;
+        }
+        else if (event->modifiers() == Qt::ShiftModifier) {
+            getMainWnd()->onViewSystem();
+            accepted = true;
+        }
+        break;
+
     case Qt::Key_U:
         // U    すべてのマークを解除
         if (event->modifiers() == Qt::NoModifier) {

@@ -6,6 +6,7 @@
 #include "renamemultidialog.h"
 #include "renamesingledialog.h"
 #include "renameworker.h"
+#include "sortdialog.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
 #include <QDebug>
@@ -25,8 +26,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     QSettings settings;
-    bool checked = settings.value("Common/ShowHidden", false).toBool();
-    ui->view_Hidden->setChecked(checked);
+    if (settings.value(IniKey_ShowHidden, false).toBool()) {
+        ui->view_Hidden->setChecked(true);
+    }
+    if (settings.value(IniKey_ShowSystem, false).toBool()) {
+        ui->view_System->setChecked(true);
+    }
 
     // メニューのシグナル/スロットを設定する
     connect(ui->action_Command, SIGNAL(triggered()), this, SLOT(onActionCommand()));
@@ -55,7 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->view_FromOther, SIGNAL(triggered()), this, SLOT(onViewFromOther()));
     connect(ui->view_ToOther, SIGNAL(triggered()), this, SLOT(onViewToOther()));
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(onViewHidden()));
+    connect(ui->view_Sort, SIGNAL(triggered()), this, SLOT(onViewSort()));
     connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(onViewSwap()));
+    connect(ui->view_System, SIGNAL(triggered()), this, SLOT(onViewSystem()));
 
     connect(ui->cmd_Copy, SIGNAL(triggered()), this, SLOT(onCmdCopy()));
     connect(ui->cmd_Delete, SIGNAL(triggered()), this, SLOT(onCmdDelete()));
@@ -67,19 +74,80 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
 
     // ウィンドウタイトルを設定する
-    setWindowTitle(tr("げふぅ v0.00"));
+    setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
     // ウィンドウアイコンを設定する
     setWindowIcon(QIcon(":/images/Gefu.png"));
 
     // ウィンドウ初期サイズを設定する
     resize(800, 600);
 
+
+    int sortBy, orderBy;
+    // 左ペインのソート初期値
+    QDir *dir;
+    dir = ui->folderPanel_L->dir();
+    dir->setSorting(QDir::Name);  // 0
+
+    sortBy = settings.value(IniKey_LeftSortBy, SortByName).toInt();
+    switch (sortBy) {
+    case SortByDate:    dir->setSorting(dir->sorting() | QDir::Time); break;
+    case SortBySize:    dir->setSorting(dir->sorting() | QDir::Size); break;
+    case SortByType:    dir->setSorting(dir->sorting() | QDir::Type); break;
+    default:            dir->setSorting(dir->sorting() | QDir::Name); break;
+    }
+
+    // デフォルトだと文字列は昇順で、数値は降順…orz
+    orderBy = settings.value(IniKey_LeftOrderBy, OrderByDesc).toInt();
+    if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
+        ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
+    {
+        dir->setSorting(dir->sorting() | QDir::Reversed);
+    }
+
+    switch (settings.value(IniKey_LeftPutDirs, PutDirsFirst).toInt()) {
+    case PutDirsFirst:  dir->setSorting(dir->sorting() | QDir::DirsFirst); break;
+    case PutDirsLast:   dir->setSorting(dir->sorting() | QDir::DirsLast); break;
+    }
+
+    if (settings.value(IniKey_LeftIgnoreCase, true).toBool()) {
+        dir->setSorting(dir->sorting() | QDir::IgnoreCase);
+    }
+
+    // 右ペインのソート初期値
+    dir = ui->folderPanel_R->dir();
+    dir->setSorting(QDir::Name);  // 0
+
+    sortBy = settings.value(IniKey_RightSortBy, SortByName).toInt();
+    switch (sortBy) {
+    case SortByDate:    dir->setSorting(dir->sorting() | QDir::Time); break;
+    case SortBySize:    dir->setSorting(dir->sorting() | QDir::Size); break;
+    case SortByType:    dir->setSorting(dir->sorting() | QDir::Type); break;
+    default:            dir->setSorting(dir->sorting() | QDir::Name); break;
+    }
+
+    // デフォルトだと文字列は昇順で、数値は降順…orz
+    orderBy = settings.value(IniKey_RightOrderBy, OrderByDesc).toInt();
+    if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
+        ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
+    {
+        dir->setSorting(dir->sorting() | QDir::Reversed);
+    }
+
+    switch (settings.value(IniKey_RightPutDirs, PutDirsFirst).toInt()) {
+    case PutDirsFirst:  dir->setSorting(dir->sorting() | QDir::DirsFirst); break;
+    case PutDirsLast:   dir->setSorting(dir->sorting() | QDir::DirsLast); break;
+    }
+
+    if (settings.value(IniKey_RightIgnoreCase, true).toBool()) {
+        dir->setSorting(dir->sorting() | QDir::IgnoreCase);
+    }
+
     QString path;
 
-    path = settings.value("Left/dir", QDir::homePath()).toString();
+    path = settings.value(IniKey_LeftDir, QDir::homePath()).toString();
     ui->folderPanel_L->setCurrentFolder(path);
 
-    path = settings.value("Right/dir", QDir::homePath()).toString();
+    path = settings.value(IniKey_RightDir, QDir::homePath()).toString();
     ui->folderPanel_R->setCurrentFolder(path);
 }
 
@@ -87,8 +155,8 @@ MainWindow::~MainWindow()
 {
     QSettings settings;
 
-    settings.setValue("Left/dir", ui->folderPanel_L->dir()->absolutePath());
-    settings.setValue("Right/dir", ui->folderPanel_R->dir()->absolutePath());
+    settings.setValue(IniKey_LeftDir, ui->folderPanel_L->dir()->absolutePath());
+    settings.setValue(IniKey_RightDir, ui->folderPanel_R->dir()->absolutePath());
 
     delete ui;
 }
@@ -608,12 +676,14 @@ void MainWindow::onViewToOther()
 /// \brief MainWindow::onViewHidden
 ///
 /// 隠しファイルの表示/非表示を切り替えます(Shift + H)
+///
 void MainWindow::onViewHidden()
 {
     QSettings settings;
-    bool checked = !settings.value("Common/ShowHidden", false).toBool();
-    settings.setValue("Common/ShowHidden", checked);
-
+    bool checked = !settings.value(IniKey_ShowHidden, false).toBool();
+    settings.setValue(IniKey_ShowHidden, checked);
+    ui->view_Hidden->setChecked(checked);
+#if 1
     if (checked) {
         ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() | QDir::Hidden);
         ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() | QDir::Hidden);
@@ -622,9 +692,60 @@ void MainWindow::onViewHidden()
         ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() ^ QDir::Hidden);
         ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() ^ QDir::Hidden);
     }
-
+#endif
     ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
     ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+}
+
+void MainWindow::onViewSort()
+{
+    FolderPanel *fp = activePanel();
+    if (!fp) {
+        return;
+    }
+
+    QString iniSec;
+    SortDialog dlg(this);
+    if (fp == ui->folderPanel_L) {
+        iniSec = IniSec_Left;
+    }
+    else {
+        iniSec = IniSec_Right;
+    }
+
+    dlg.setRightOrLeft(iniSec);
+    if (dlg.exec() == QDialog::Accepted) {
+        QSettings settings;
+        QDir *dir = fp->dir();
+        dir->setSorting(QDir::Name);  // 0
+
+        int sortBy = settings.value(iniSec + slash + IniKey_SortBy, 0).toInt();
+        switch (sortBy) {
+        case SortByDate:    dir->setSorting(dir->sorting() | QDir::Time); break;
+        case SortBySize:    dir->setSorting(dir->sorting() | QDir::Size); break;
+        case SortByType:    dir->setSorting(dir->sorting() | QDir::Type); break;
+        default:            dir->setSorting(dir->sorting() | QDir::Name); break;
+        }
+
+        // デフォルトだと文字列は昇順で、数値は降順…orz
+        int orderBy = settings.value(iniSec + slash + IniKey_OrderBy, 0).toInt();
+        if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
+            ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
+        {
+            dir->setSorting(dir->sorting() | QDir::Reversed);
+        }
+
+        switch (settings.value(iniSec + slash + IniKey_PutDirs, 0).toInt()) {
+        case PutDirsFirst:  dir->setSorting(dir->sorting() | QDir::DirsFirst); break;
+        case PutDirsLast:   dir->setSorting(dir->sorting() | QDir::DirsLast); break;
+        }
+
+        if (settings.value(iniSec + slash + IniKey_IgnoreCase, true).toBool()) {
+            dir->setSorting(dir->sorting() | QDir::IgnoreCase);
+        }
+
+        fp->setCurrentFolder(fp->dir()->absolutePath());
+    }
 }
 
 ///
@@ -645,6 +766,34 @@ void MainWindow::onViewSwap()
 
     fp1->setCurrentFolder(path2);
     fp2->setCurrentFolder(path1);
+}
+
+///
+/// \brief MainWindow::onViewSystem
+///
+/// システムファイルの表示/非表示を切り替えます(Shift + H)
+///
+void MainWindow::onViewSystem()
+{
+    QSettings settings;
+    bool checked = !settings.value(IniKey_ShowSystem, false).toBool();
+    settings.setValue(IniKey_ShowSystem, checked);
+    ui->view_System->setChecked(checked);
+#if 1
+    QDir *dirs[2];
+    dirs[0] = ui->folderPanel_L->dir();
+    dirs[1] = ui->folderPanel_R->dir();
+    for (int n = 0; n < 2; n++) {
+        if (checked) {
+            dirs[n]->setFilter(dirs[n]->filter() | QDir::System);
+        }
+        else {
+            dirs[n]->setFilter(dirs[n]->filter() ^ QDir::System);
+        }
+    }
+#endif
+    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
+    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
 }
 
 ///

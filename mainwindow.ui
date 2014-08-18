@@ -245,6 +245,8 @@
     <addaction name="view_Swap"/>
     <addaction name="separator"/>
     <addaction name="view_Hidden"/>
+    <addaction name="view_System"/>
+    <addaction name="separator"/>
     <addaction name="view_Sort"/>
    </widget>
    <widget class="QMenu" name="menu_Move">
@@ -771,6 +773,20 @@
    </property>
    <property name="menuRole">
     <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+  <action name="view_System">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>システムファイルを表示</string>
+   </property>
+   <property name="toolTip">
+    <string>システムファイルを表示</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+S</string>
    </property>
   </action>
  </widget>

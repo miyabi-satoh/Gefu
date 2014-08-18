@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     deleteworker.cpp \
     overwritedialog.cpp \
     copymoveworker.cpp \
-    filetablewidget.cpp
+    filetablewidget.cpp \
+    sortdialog.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -39,14 +40,16 @@ HEADERS  += mainwindow.h \
     deleteworker.h \
     overwritedialog.h \
     copymoveworker.h \
-    filetablewidget.h
+    filetablewidget.h \
+    sortdialog.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \
     renamesingledialog.ui \
     renamemultidialog.ui \
     operationdialog.ui \
-    overwritedialog.ui
+    overwritedialog.ui \
+    sortdialog.ui
 
 RESOURCES += \
     resource.qrc
