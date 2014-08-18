@@ -53,7 +53,7 @@ RESOURCES += \
 
 OTHER_FILES += \
     Gefu.rc \
-    History.txt
+    README.md
 
 mac {
     ICON = ./images/Gefu.icns
