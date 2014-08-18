@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     renameworker.cpp \
     deleteworker.cpp \
     overwritedialog.cpp \
-    copymoveworker.cpp
+    copymoveworker.cpp \
+    filetablewidget.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     renameworker.h \
     deleteworker.h \
     overwritedialog.h \
-    copymoveworker.h
+    copymoveworker.h \
+    filetablewidget.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \
@@ -50,7 +52,8 @@ RESOURCES += \
     resource.qrc
 
 OTHER_FILES += \
-    Gefu.rc
+    Gefu.rc \
+    History.txt
 
 mac {
     ICON = ./images/Gefu.icns

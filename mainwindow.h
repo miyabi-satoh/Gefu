@@ -70,4 +70,5 @@ private:
     QStringList selectedItems(FolderPanel *fp);
 };
 
+
 #endif // MAINWINDOW_H

@@ -154,7 +154,6 @@ void MainWindow::onActionCommand()
     }
 
     if (command.isEmpty()) {
-//        int row = fp->fileTable()->currentIndex().row();
         int row = fp->fileTable()->currentRow();
         QString path = fp->fileTable()->item(row, 1)->text();
         path = fp->dir()->absoluteFilePath(path);
@@ -196,24 +195,9 @@ void MainWindow::onActionExec()
         return;
     }
 
-    int count = 0;
-    for (int n = 0; n < fp->fileTable()->rowCount(); n++) {
-        if (fp->fileTable()->item(n, 0)->checkState() == Qt::Checked) {
-            QString path = fp->fileTable()->item(n, 1)->text();
-            path = fp->dir()->absoluteFilePath(path);
-            path = QDir::toNativeSeparators(path);
-            QDesktopServices::openUrl(QUrl("file:///" + path));
-            count++;
-        }
-    }
-
-    if (count == 0) {
-//        int row = fp->fileTable()->currentIndex().row();
-        int row = fp->fileTable()->currentRow();
-        QString path = fp->fileTable()->item(row, 1)->text();
-        path = fp->dir()->absoluteFilePath(path);
-        path = QDir::toNativeSeparators(path);
-        QDesktopServices::openUrl(QUrl("file:///" + path));
+    QStringList list = selectedItems(fp);
+    foreach (const QString &path, list) {
+        QDesktopServices::openUrl(QUrl("file:///" + QDir::toNativeSeparators(path)));
     }
 }
 
@@ -229,7 +213,6 @@ void MainWindow::onActionOpen()
         return;
     }
 
-//    int row = fp->fileTable()->currentIndex().row();
     int row = fp->fileTable()->currentRow();
     QString path = fp->fileTable()->item(row, 1)->text();
     path = fp->dir()->absoluteFilePath(path);
@@ -277,9 +260,15 @@ void MainWindow::onMarkAll()
         row++;
     }
 
-    for (; row < fp->fileTable()->rowCount(); row++) {
+    fp->beginUpdate();
+    int curRow = fp->fileTable()->currentRow();
+    int rowCount = fp->fileTable()->rowCount();
+    for (; row < rowCount; row++) {
         fp->fileTable()->item(row, 0)->setCheckState(Qt::Checked);
     }
+    fp->fileTable()->setCurrentIndex(
+                fp->fileTable()->model()->index(curRow, 1));
+    fp->endUpdate();
 }
 
 ///
@@ -299,7 +288,10 @@ void MainWindow::onMarkAllFiles()
         row++;
     }
 
-    for (; row < fp->fileTable()->rowCount(); row++) {
+    fp->beginUpdate();
+    int curRow = fp->fileTable()->currentRow();
+    int rowCount = fp->fileTable()->rowCount();
+    for (; row < rowCount; row++) {
         QString path = fp->fileTable()->item(row, 1)->text();
         path = fp->dir()->absoluteFilePath(path);
 
@@ -311,6 +303,9 @@ void MainWindow::onMarkAllFiles()
            fp->fileTable()->item(row, 0)->setCheckState(Qt::Checked);
         }
     }
+    fp->fileTable()->setCurrentIndex(
+                fp->fileTable()->model()->index(curRow, 1));
+    fp->endUpdate();
 }
 
 ///
@@ -330,9 +325,15 @@ void MainWindow::onMarkAllOff()
         row++;
     }
 
-    for (; row < fp->fileTable()->rowCount(); row++) {
+    fp->beginUpdate();
+    int curRow = fp->fileTable()->currentRow();
+    int rowCount = fp->fileTable()->rowCount();
+    for (; row < rowCount; row++) {
         fp->fileTable()->item(row, 0)->setCheckState(Qt::Unchecked);
     }
+    fp->fileTable()->setCurrentIndex(
+                fp->fileTable()->model()->index(curRow, 1));
+    fp->endUpdate();
 }
 
 ///
@@ -352,7 +353,10 @@ void MainWindow::onMarkInvert()
         row++;
     }
 
-    for (; row < fp->fileTable()->rowCount(); row++) {
+    fp->beginUpdate();
+    int curRow = fp->fileTable()->currentRow();
+    int rowCount = fp->fileTable()->rowCount();
+    for (; row < rowCount; row++) {
         QTableWidgetItem *item = fp->fileTable()->item(row, 0);
         if (item->checkState() == Qt::Checked) {
             item->setCheckState(Qt::Unchecked);
@@ -361,6 +365,9 @@ void MainWindow::onMarkInvert()
             item->setCheckState(Qt::Checked);
         }
     }
+    fp->fileTable()->setCurrentIndex(
+                fp->fileTable()->model()->index(curRow, 1));
+    fp->endUpdate();
 }
 
 ///
@@ -375,7 +382,6 @@ void MainWindow::onMarkToggle()
         return;
     }
 
-//    int row = fp->fileTable()->currentIndex().row();
     int row = fp->fileTable()->currentRow();
     QTableWidgetItem *item = fp->fileTable()->item(row, 0);
     if (fp->fileTable()->item(row, 1)->text() != "..") {
@@ -405,7 +411,6 @@ void MainWindow::onMoveCursorDown()
         return;
     }
 
-//    int row = fp->fileTable()->currentIndex().row();
     int row = fp->fileTable()->currentRow();
     if (row < fp->fileTable()->rowCount() - 1) {
         QModelIndex nextIndex = fp->fileTable()->model()->index(row + 1, 1);
@@ -425,7 +430,6 @@ void MainWindow::onMoveCursorUp()
         return;
     }
 
-//    int row = fp->fileTable()->currentIndex().row();
     int row = fp->fileTable()->currentRow();
     if (row > 0) {
         QModelIndex nextIndex = fp->fileTable()->model()->index(row - 1, 1);
@@ -643,6 +647,11 @@ void MainWindow::onViewSwap()
     fp2->setCurrentFolder(path1);
 }
 
+///
+/// \brief MainWindow::onCmdMove
+///
+/// ファイルを移動します(Ctrl + M)
+///
 void MainWindow::onCmdMove()
 {
     FolderPanel *fp = activePanel();
@@ -674,6 +683,11 @@ void MainWindow::onCmdMove()
 
 }
 
+///
+/// \brief MainWindow::onCmdCopy
+///
+/// ファイルをコピーします(Ctrl + C)
+///
 void MainWindow::onCmdCopy()
 {
     FolderPanel *fp = activePanel();
@@ -705,6 +719,17 @@ void MainWindow::onCmdCopy()
 
 }
 
+///
+/// \brief MainWindow::onAskOverWrite
+/// \param bOk
+/// \param prevCopyMethod
+/// \param copyMethod
+/// \param alias
+/// \param srcPath
+/// \param tgtPath
+///
+/// 上書き処理の方法をユーザに問い合わせます
+///
 void MainWindow::onAskOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
                                 QString *alias, const QString srcPath,
                                 const QString tgtPath)
@@ -887,12 +912,19 @@ void MainWindow::onHelpAbout()
     QMessageBox::about(
                 this,
                 tr("げふぅ について"),
-                tr("<h3>Gefu Ver0.00</h3>"
-                   "<center>Gefu is Experimental File Utility.<br/>"
+                tr("<h3>Gefu Ver%1</h3>").arg(VERSION_VALUE) +
+                tr("<center>Gefu is Experimental File Utility.<br/>"
                    "（げふぅは実験的なファイルユーティリティです）</center>"
                    "<p>Copyright 2014 @miyabi_satoh All rights reserved.</p>"));
 }
 
+///
+/// \brief MainWindow::selectedItems
+/// \param fp フォルダパネルへのポインタ
+/// \return 選択アイテムのフルパスのリスト
+///
+/// 選択アイテムのフルパスのリストを取得します
+///
 QStringList MainWindow::selectedItems(FolderPanel *fp)
 {
     QStringList list;
@@ -911,4 +943,21 @@ QStringList MainWindow::selectedItems(FolderPanel *fp)
     }
 
     return list;
+}
+
+///
+/// \brief getMainWnd
+/// \return メインウィンドウのポインタ
+///
+/// メインウィンドウを取得します
+///
+MainWindow* getMainWnd()
+{
+    foreach (QWidget *w, qApp->topLevelWidgets()) {
+        if (w->objectName() == "MainWindow") {
+            return static_cast<MainWindow*>(w);
+        }
+    }
+    qDebug() << "MainWindow not found !?";
+    return NULL;
 }

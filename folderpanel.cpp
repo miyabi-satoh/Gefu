@@ -1,3 +1,4 @@
+#include "common.h"
 #include "folderpanel.h"
 #include "mainwindow.h"
 #include "ui_folderpanel.h"
@@ -7,6 +8,20 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QDesktopServices>
+
+QString FilesizeToString(quint64 size)
+{
+    if (size >= 1024 * 1024 * 1024) {
+        return QString("%1GB").arg(int(10 * size / (1024 * 1024 * 1024)) / 10.0);
+    }
+    if (size >= 1024 * 1024) {
+        return QString("%1MB").arg(int(10 * size / (1024 * 1024)) / 10.0);
+    }
+    if (size >= 1024) {
+        return QString("%1KB").arg(int(10 * size / 1024) / 10.0);
+    }
+    return QString("%1B").arg(size);
+}
 
 FolderPanel::FolderPanel(QWidget *parent) :
     QWidget(parent),
@@ -18,25 +33,16 @@ FolderPanel::FolderPanel(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // MainWindowのスロットに接続する
-    MainWindow *mainWnd = this->mainWindow();
-    if (mainWnd) {
-        connect(ui->fileTable, SIGNAL(cellDoubleClicked(int,int)), mainWnd, SLOT(onActionOpen()));
-    }
-
-    // ヘッダーラベルを設定する
-    QStringList labels;
-    labels << tr("") << tr("名前") << tr("サイズ") << tr("更新日時");
-    ui->fileTable->setHorizontalHeaderLabels(labels);
-
-    // イベントフィルタを設定する
-    ui->fileTable->installEventFilter(this);
+    // セル(チェックボックス)の変更
+    connect(ui->fileTable, SIGNAL(cellChanged(int,int)),
+            this, SLOT(onUpdateMark(int,int)));
 
     // リサイズ時の動作を設定する
-    ui->fileTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    ui->fileTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    ui->fileTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    ui->fileTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    QHeaderView *header = ui->fileTable->horizontalHeader();
+    header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(1, QHeaderView::Stretch);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 
     // フォルダの要素を表示
     m_dir.setFilter(QDir::NoDot | QDir::AllEntries);
@@ -49,294 +55,19 @@ FolderPanel::~FolderPanel()
     delete ui;
 }
 
-QTableWidget* FolderPanel::fileTable()
+FileTableWidget* FolderPanel::fileTable()
 {
     return ui->fileTable;
 }
 
-const QTableWidget* FolderPanel::fileTable() const
+const FileTableWidget *FolderPanel::fileTable() const
 {
     return ui->fileTable;
-}
-
-MainWindow* FolderPanel::mainWindow()
-{
-    foreach (QWidget *w, qApp->topLevelWidgets()) {
-        if (w->objectName() == "MainWindow") {
-            return static_cast<MainWindow*>(w);
-        }
-    }
-    return NULL;
-}
-
-bool FolderPanel::eventFilter(QObject *obj, QEvent *event)
-{
-    if (this->mainWindow() && event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        switch (keyEvent->key()) {
-        case Qt::Key_A:
-            // A            すべてのファイルをマーク
-            // Shift + A    すべてマーク
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMarkAllFiles();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onMarkAll();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_C:
-            // Ctrl + C ファイルをコピー
-            if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdCopy();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_D:
-            // Ctrl + D ファイルを削除
-            if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdDelete();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_E:
-            // E        エディタで開く
-            // Ctrl + E ファイルを作成
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-            }
-            else if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdNewFile();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_G:
-            // G            カーソルを先頭に移動
-            // Shift + G    カーソルを末尾に移動
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveCursorBegin();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onMoveCursorEnd();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_H:
-            // H            ホームフォルダに移動
-            // Shift + H    隠しファイルを表示/非表示
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveHome();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onViewHidden();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_I:
-            // I    マークを反転
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMarkInvert();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_J:
-            // J            カーソルを下に移動
-            // Shift + J    フォルダを選択して移動
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveCursorDown();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onMoveJump();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_K:
-            // K        カーソルを上に移動
-            // Ctrl + K フォルダを作成
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveCursorUp();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdNewFolder();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_M:
-            // M            開く
-            // Shift + M    アプリケーションで開く
-            // Ctrl + M     ファイルの移動
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onActionOpen();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onActionExec();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdMove();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_O:
-            // O            隣のパネルと同じフォルダを表示
-            // Shift + O    隣のパネルに同じフォルダを表示
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onViewFromOther();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onViewToOther();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Q:
-            // Q    アプリケーションを終了
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onActionQuit();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_R:
-            // R        履歴を表示
-            // Ctrl + R 名前を変更
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-            }
-            else if (keyEvent->modifiers() == Qt::ControlModifier) {
-                this->mainWindow()->onCmdRename();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_U:
-            // U    すべてのマークを解除
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMarkAllOff();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_W:
-            // W    表示フォルダを交換
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onViewSwap();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_X:
-            // X     コマンドを実行
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onActionCommand();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Question:
-            // ?    アプリケーション情報を表示
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onHelpAbout();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Space:
-            // マーク/解除
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMarkToggle();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Tab:
-            // 隣のパネルに移動
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveOther();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Backspace:
-            // BS           親フォルダに移動
-            // Shift + BS   ルートフォルダに移動
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onMoveParent();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onMoveRoot();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-
-        case Qt::Key_Return:
-            // RET          開く
-            // Shift + RET  アプリケーションで開く
-            if (keyEvent->modifiers() == Qt::NoModifier) {
-                this->mainWindow()->onActionOpen();
-                keyEvent->accept();
-                return true;
-            }
-            else if (keyEvent->modifiers() == Qt::ShiftModifier) {
-                this->mainWindow()->onActionExec();
-                keyEvent->accept();
-                return true;
-            }
-            break;
-        }
-    }
-
-    return QWidget::eventFilter(obj, event);
 }
 
 void FolderPanel::setCurrentFolder(const QString &path)
 {
-    mainWindow()->setStatusText(tr("ファイルリストを更新中..."));
+    getMainWnd()->setStatusText(tr("ファイルリストを更新中..."));
     QString curDir = m_dir.absolutePath();
     m_dir.setPath(QDir::cleanPath(path));
     m_dir.canonicalPath();
@@ -349,14 +80,14 @@ void FolderPanel::setCurrentFolder(const QString &path)
                     tr("フォルダが存在しないか利用できません。"));
         m_dir.setPath(curDir);
         ui->locationField->setText(curDir);
-        mainWindow()->setStatusText(tr("レディ"));
+        getMainWnd()->setStatusText(tr("レディ"));
         return;
     }
 
     // フォルダの変更監視
     InstallWatcher();
 
-    m_bUpdating = true;
+    beginUpdate();
     ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
     for (int i = 0; i < list.size(); i++) {
         QFileInfo info = list.at(i);
@@ -383,6 +114,10 @@ void FolderPanel::setCurrentFolder(const QString &path)
         if (info.isDir()) {
             str = tr("<DIR>");
         }
+        else {
+            str = FilesizeToString(info.size());
+        }
+#if 0
         else if (info.size() >= 1024 * 1024 * 1024) {
             str = tr("%1GB").arg(int(info.size() / (1024 * 1024 * 1024)));
         }
@@ -395,6 +130,7 @@ void FolderPanel::setCurrentFolder(const QString &path)
         else {
             str = tr("%1B").arg(info.size());
         }
+#endif
         QTableWidgetItem *iSize = new QTableWidgetItem(str);
         iSize->setFlags(iSize->flags() ^ Qt::ItemIsEditable);
         iSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -421,8 +157,8 @@ void FolderPanel::setCurrentFolder(const QString &path)
     ui->fileTable->resizeRowsToContents();
 
     ui->locationField->setText(m_dir.absolutePath());
-    mainWindow()->setStatusText(tr("レディ"));
-    m_bUpdating = false;
+    getMainWnd()->setStatusText(tr("レディ"));
+    endUpdate();
 }
 
 void FolderPanel::InstallWatcher()
@@ -443,23 +179,44 @@ void FolderPanel::UninstallWatcher()
     m_fsWatcher = NULL;
 }
 
-void FolderPanel::on_fileTable_cellChanged(int row, int column)
+void FolderPanel::onUpdateMark(int, int column)
 {
-    if (column == 0) {
-        if (ui->fileTable->item(row, 0)->checkState() == Qt::Checked) {
-            for (int n = 0; n < 4; n++) {
-                ui->fileTable->item(row, n)->setForeground(Qt::red);
-                ui->fileTable->item(row, n)->setBackground(Qt::green);
-            }
+    if (column != 0 || isUpdating()) {
+        return;
+    }
+
+    // マークフォルダ数、ファイル数、サイズを計算する
+    int numFolders = 0;
+    int numFiles = 0;
+    quint64 sizeTotal = 0;
+    for (int n = 0; n < ui->fileTable->rowCount(); n++) {
+        if (ui->fileTable->item(n, 0)->checkState() != Qt::Checked) {
+            continue;
+        }
+        QString name = ui->fileTable->item(n, 1)->text();
+        QFileInfo info(m_dir.absoluteFilePath(name));
+        if (info.isDir()) {
+            numFolders++;
         }
         else {
-            for (int n = 0; n < 4; n++) {
-                ui->fileTable->item(row, n)->setForeground(Qt::black);
-                ui->fileTable->item(row, n)->setBackground(Qt::white);
-            }
+            numFiles++;
+            sizeTotal += info.size();
         }
-        ui->fileTable->selectRow(row);
     }
+
+    QString msg = "";
+    if (numFolders > 0) {
+        msg += tr("%1個のフォルダ ").arg(numFolders);
+    }
+    if (numFiles > 0) {
+        msg += tr("%1個のファイル ").arg(numFiles);
+    }
+    if (msg.length() > 0) {
+        msg += "を選択 合計 ";
+        msg += FilesizeToString(sizeTotal);
+    }
+
+    ui->label->setText(msg);
 }
 
 void FolderPanel::on_locationField_editingFinished()
@@ -484,12 +241,12 @@ void FolderPanel::on_directoryChanged(QString)
 
 void FolderPanel::on_fileTable_itemSelectionChanged()
 {
-    if (m_bUpdating) {
+    if (isUpdating()) {
         return;
     }
 
     int row = ui->fileTable->currentRow();
     if (0 <= row && row < ui->fileTable->rowCount()) {
-        mainWindow()->setStatusText(ui->fileTable->item(row, 1)->text());
+        getMainWnd()->setStatusText(ui->fileTable->item(row, 1)->text());
     }
 }

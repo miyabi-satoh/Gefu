@@ -6,6 +6,7 @@
 #include <QTableWidget>
 #include <QFileIconProvider>
 #include <QFileSystemWatcher>
+#include "filetablewidget.h"
 class MainWindow;
 
 namespace Ui {
@@ -20,8 +21,8 @@ public:
     explicit FolderPanel(QWidget *parent = 0);
     ~FolderPanel();
 
-    QTableWidget* fileTable();
-    const QTableWidget* fileTable() const;
+    FileTableWidget* fileTable();
+    const FileTableWidget* fileTable() const;
 
     QDir* dir() { return &m_dir; }
     const QDir* dir() const { return &m_dir; }
@@ -30,6 +31,10 @@ public:
     void InstallWatcher();
     void UninstallWatcher();
 
+    void beginUpdate()      { m_bUpdating = true; }
+    void endUpdate()        { m_bUpdating = false; onUpdateMark(0, 0);}
+    bool isUpdating() const { return m_bUpdating; }
+
 private:
     Ui::FolderPanel *ui;
     QDir m_dir;
@@ -37,11 +42,8 @@ private:
     QFileSystemWatcher *m_fsWatcher;
     bool m_bUpdating;
 
-    MainWindow* mainWindow();
-    bool eventFilter(QObject *, QEvent *);
-
 private slots:
-    void on_fileTable_cellChanged(int row, int column);
+    void onUpdateMark(int, int);
     void on_locationField_editingFinished();
     void on_directoryChanged(QString);
     void on_fileTable_itemSelectionChanged();

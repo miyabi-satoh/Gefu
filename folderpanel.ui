@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>280</width>
-    <height>275</height>
+    <width>256</width>
+    <height>238</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -47,7 +47,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QTableWidget" name="fileTable">
+    <widget class="FileTableWidget" name="fileTable">
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
@@ -78,10 +78,26 @@
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <column/>
-     <column/>
-     <column/>
-     <column/>
+     <column>
+      <property name="text">
+       <string/>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>名前</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>サイズ</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>更新日時</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
@@ -99,6 +115,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FileTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>filetablewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>fileTable</tabstop>
   <tabstop>locationField</tabstop>
