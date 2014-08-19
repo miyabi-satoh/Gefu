@@ -16,6 +16,9 @@ public slots:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+
+private:
+    const QString& side() const;
 };
 
 #endif // FILETABLEWIDGET_H

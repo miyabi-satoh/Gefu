@@ -42,12 +42,16 @@ public:
     }
     bool isUpdating() const { return m_bUpdating; }
 
+    void setSide(const QString &side) { m_Side = side; }
+    const QString& side() const { return m_Side; }
+
 private:
     Ui::FolderPanel *ui;
     QDir m_dir;
     QFileIconProvider m_IconFactory;
     QFileSystemWatcher *m_fsWatcher;
     bool m_bUpdating;
+    QString m_Side; // "Left" or "Right"
 
 private slots:
     void onUpdateMark(int, int);

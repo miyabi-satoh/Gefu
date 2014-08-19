@@ -36,6 +36,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
     m_bUpdating(false)
 {
     ui->setupUi(this);
+    qDebug() << objectName();
 
     // セル(チェックボックス)の変更
     connect(ui->fileTable, SIGNAL(cellChanged(int,int)),

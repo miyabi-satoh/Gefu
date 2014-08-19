@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->LPanel->setSide("Left");
+    ui->RPanel->setSide("Right");
 
     QSettings settings;
     if (settings.value(IniKey_ShowHidden, false).toBool()) {
@@ -85,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     int sortBy, orderBy;
     // 左ペインのソート初期値
     QDir *dir;
-    dir = ui->folderPanel_L->dir();
+    dir = ui->LPanel->dir();
     dir->setSorting(QDir::Name);  // 0
 
     sortBy = settings.value(IniKey_LeftSortBy, SortByName).toInt();
@@ -114,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     // 右ペインのソート初期値
-    dir = ui->folderPanel_R->dir();
+    dir = ui->RPanel->dir();
     dir->setSorting(QDir::Name);  // 0
 
     sortBy = settings.value(IniKey_RightSortBy, SortByName).toInt();
@@ -145,18 +147,18 @@ MainWindow::MainWindow(QWidget *parent) :
     QString path;
 
     path = settings.value(IniKey_LeftDir, QDir::homePath()).toString();
-    ui->folderPanel_L->setCurrentFolder(path);
+    ui->LPanel->setCurrentFolder(path);
 
     path = settings.value(IniKey_RightDir, QDir::homePath()).toString();
-    ui->folderPanel_R->setCurrentFolder(path);
+    ui->RPanel->setCurrentFolder(path);
 }
 
 MainWindow::~MainWindow()
 {
     QSettings settings;
 
-    settings.setValue(IniKey_LeftDir, ui->folderPanel_L->dir()->absolutePath());
-    settings.setValue(IniKey_RightDir, ui->folderPanel_R->dir()->absolutePath());
+    settings.setValue(IniKey_LeftDir, ui->LPanel->dir()->absolutePath());
+    settings.setValue(IniKey_RightDir, ui->RPanel->dir()->absolutePath());
 
     delete ui;
 }
@@ -168,11 +170,11 @@ void MainWindow::setStatusText(const QString &str)
 
 FolderPanel* MainWindow::activePanel()
 {
-    if (ui->folderPanel_L->fileTable()->hasFocus()) {
-        return ui->folderPanel_L;
+    if (ui->LPanel->fileTable()->hasFocus()) {
+        return ui->LPanel;
     }
-    if (ui->folderPanel_R->fileTable()->hasFocus()) {
-        return ui->folderPanel_R;
+    if (ui->RPanel->fileTable()->hasFocus()) {
+        return ui->RPanel;
     }
 
     return NULL;
@@ -181,11 +183,11 @@ FolderPanel* MainWindow::activePanel()
 FolderPanel* MainWindow::inactivePanel()
 {
     FolderPanel *fp = activePanel();
-    if (fp == ui->folderPanel_L) {
-        return ui->folderPanel_R;
+    if (fp == ui->LPanel) {
+        return ui->RPanel;
     }
-    if (fp == ui->folderPanel_R) {
-        return ui->folderPanel_L;
+    if (fp == ui->RPanel) {
+        return ui->LPanel;
     }
 
     return NULL;
@@ -685,16 +687,16 @@ void MainWindow::onViewHidden()
     ui->view_Hidden->setChecked(checked);
 #if 1
     if (checked) {
-        ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() | QDir::Hidden);
-        ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() | QDir::Hidden);
+        ui->LPanel->dir()->setFilter(ui->LPanel->dir()->filter() | QDir::Hidden);
+        ui->RPanel->dir()->setFilter(ui->RPanel->dir()->filter() | QDir::Hidden);
     }
     else {
-        ui->folderPanel_L->dir()->setFilter(ui->folderPanel_L->dir()->filter() ^ QDir::Hidden);
-        ui->folderPanel_R->dir()->setFilter(ui->folderPanel_R->dir()->filter() ^ QDir::Hidden);
+        ui->LPanel->dir()->setFilter(ui->LPanel->dir()->filter() ^ QDir::Hidden);
+        ui->RPanel->dir()->setFilter(ui->RPanel->dir()->filter() ^ QDir::Hidden);
     }
 #endif
-    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+    ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+    ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
 }
 
 void MainWindow::onViewSort()
@@ -706,7 +708,7 @@ void MainWindow::onViewSort()
 
     QString iniSec;
     SortDialog dlg(this);
-    if (fp == ui->folderPanel_L) {
+    if (fp == ui->LPanel) {
         iniSec = IniSec_Left;
     }
     else {
@@ -781,8 +783,8 @@ void MainWindow::onViewSystem()
     ui->view_System->setChecked(checked);
 #if 1
     QDir *dirs[2];
-    dirs[0] = ui->folderPanel_L->dir();
-    dirs[1] = ui->folderPanel_R->dir();
+    dirs[0] = ui->LPanel->dir();
+    dirs[1] = ui->RPanel->dir();
     for (int n = 0; n < 2; n++) {
         if (checked) {
             dirs[n]->setFilter(dirs[n]->filter() | QDir::System);
@@ -792,8 +794,8 @@ void MainWindow::onViewSystem()
         }
     }
 #endif
-    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+    ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+    ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
 }
 
 ///
@@ -824,11 +826,11 @@ void MainWindow::onCmdMove()
     opDlg.setWindowTitle(tr("移動"));
     opDlg.setWorker(worker);
 
-    ui->folderPanel_L->UninstallWatcher();
-    ui->folderPanel_R->UninstallWatcher();
+    ui->LPanel->UninstallWatcher();
+    ui->RPanel->UninstallWatcher();
     opDlg.exec();
-    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+    ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+    ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
 
 }
 
@@ -860,11 +862,11 @@ void MainWindow::onCmdCopy()
     opDlg.setWindowTitle(tr("コピー"));
     opDlg.setWorker(worker);
 
-    ui->folderPanel_L->UninstallWatcher();
-    ui->folderPanel_R->UninstallWatcher();
+    ui->LPanel->UninstallWatcher();
+    ui->RPanel->UninstallWatcher();
     opDlg.exec();
-    ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-    ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+    ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+    ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
 
 }
 
@@ -938,11 +940,11 @@ void MainWindow::onCmdDelete()
         opDlg.setWindowTitle(tr("削除"));
         opDlg.setWorker(worker);
 
-        ui->folderPanel_L->UninstallWatcher();
-        ui->folderPanel_R->UninstallWatcher();
+        ui->LPanel->UninstallWatcher();
+        ui->RPanel->UninstallWatcher();
         opDlg.exec();
-        ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-        ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+        ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+        ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
     }
 }
 
@@ -1043,11 +1045,11 @@ void MainWindow::onCmdRename()
         opDlg.setWindowTitle(tr("名前を変更"));
         opDlg.setWorker(worker);
 
-        ui->folderPanel_L->UninstallWatcher();
-        ui->folderPanel_R->UninstallWatcher();
+        ui->LPanel->UninstallWatcher();
+        ui->RPanel->UninstallWatcher();
         opDlg.exec();
-        ui->folderPanel_L->setCurrentFolder(ui->folderPanel_L->dir()->absolutePath());
-        ui->folderPanel_R->setCurrentFolder(ui->folderPanel_R->dir()->absolutePath());
+        ui->LPanel->setCurrentFolder(ui->LPanel->dir()->absolutePath());
+        ui->RPanel->setCurrentFolder(ui->RPanel->dir()->absolutePath());
     }
 }
 

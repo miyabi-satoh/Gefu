@@ -24,7 +24,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="FolderPanel" name="folderPanel_L" native="true">
+      <widget class="FolderPanel" name="LPanel" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -32,7 +32,7 @@
         </sizepolicy>
        </property>
       </widget>
-      <widget class="FolderPanel" name="folderPanel_R" native="true">
+      <widget class="FolderPanel" name="RPanel" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -210,7 +210,7 @@
      <x>0</x>
      <y>0</y>
      <width>662</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
