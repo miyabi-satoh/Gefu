@@ -191,7 +191,12 @@ void FileTableView::kickProcess()
     dlg.setWindowTitle(tr("コマンドを実行"));
     dlg.setLabelText(tr("コマンド："));
     dlg.setTextValue(command);
-    dlg.resize(500, 100);
+
+    QSize szMainWnd = getMainWnd()->size();
+    QSize szDialog = dlg.size();
+    szDialog.setWidth(szMainWnd.width() * 0.8);
+    dlg.resize(szDialog);
+
     int ret = dlg.exec();
     command = dlg.textValue();
     if (ret == QDialog::Accepted && !command.isEmpty()) {

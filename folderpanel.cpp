@@ -44,7 +44,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setDefaultSectionSize(header->minimumSectionSize());
 
     QHeaderView *vHeader = ui->fileTable->verticalHeader();
-    vHeader->setDefaultSectionSize(vHeader->minimumSectionSize());
+    vHeader->setDefaultSectionSize(vHeader->defaultSectionSize() * 0.75);
 }
 
 FolderPanel::~FolderPanel()

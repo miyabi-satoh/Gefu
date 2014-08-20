@@ -57,13 +57,20 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
     // ウィンドウアイコンを設定する
     setWindowIcon(QIcon(":/images/Gefu.png"));
-
-    // ウィンドウ初期サイズを設定する
-    resize(800, 600);
+    // ウィンドウサイズと位置を設定する
+    QRect rc = settings.value(IniKey_WindowGeometry, QRect()).toRect();
+    if (rc != QRect()) {
+        this->setGeometry(rc);
+    }
+    else {
+        this->resize(800, 600);
+    }
 }
 
 MainWindow::~MainWindow()
 {
+    QSettings settings;
+    settings.setValue(IniKey_WindowGeometry, this->geometry());
 
     delete ui;
 }

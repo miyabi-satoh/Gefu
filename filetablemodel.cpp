@@ -45,7 +45,7 @@ bool FileTableModel::setPath(const QString &path)
     else {
         QFileInfoList::iterator it;
         for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); ) {
-            if (QFileInfo(it->canonicalFilePath()).isRoot()) {
+            if (it->fileName() == ".." && m_dir.isRoot()) {
                 it = m_fileInfoList.erase(it);
                 continue;
             }
