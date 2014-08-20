@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QMainWindow>
 class FolderPanel;
+class FileTableView;
 
 namespace Ui {
 class MainWindow;
@@ -18,46 +19,15 @@ public:
     ~MainWindow();
 
     void setStatusText(const QString &str);
+    FileTableView* otherSideView(const FileTableView *view) const;
 
 public slots:
-    void onActionCommand();
-    void onActionExec();
-    void onActionOpen();
-    void onActionQuit();
     void onActionSetting();
-
-    void onMarkAll();
-    void onMarkAllFiles();
-    void onMarkAllOff();
-    void onMarkInvert();
-    void onMarkToggle();
-
-    void onMoveCursorDown();
-    void onMoveCursorUp();
-    void onMoveCursorBegin();
-    void onMoveCursorEnd();
-    void onMoveBack();
-    void onMoveForward();
-    void onMoveHome();
-    void onMoveJump();
-    void onMoveOther();
-    void onMoveParent();
-    void onMoveRoot();
-
     void onViewFromOther();
     void onViewToOther();
-    void onViewHidden();
-    void onViewSort();
     void onViewSwap();
-    void onViewSystem();
-
     void onCmdMove();
     void onCmdCopy();
-    void onCmdDelete();
-    void onCmdNewFile();
-    void onCmdNewFolder();
-    void onCmdRename();
-
     void onHelpAbout();
 
 private slots:
@@ -69,7 +39,6 @@ private:
 
     FolderPanel* activePanel();
     FolderPanel* inactivePanel();
-    QStringList selectedItems(FolderPanel *fp);
 };
 
 

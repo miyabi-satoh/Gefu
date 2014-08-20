@@ -14,7 +14,7 @@ public:
     const StringMap& renameMap() const { return m_RenameMap; }
 
     void setWorkingDirectory(const QString &path);
-    virtual void setNames(const QStringList &names) = 0;
+    virtual void setNames(const QFileInfoList &names) = 0;
 
 signals:
 

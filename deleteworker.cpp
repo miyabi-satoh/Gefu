@@ -14,12 +14,12 @@ void DeleteWorker::operate()
 {
     m_progressText->setText(tr("削除準備中..."));
 
-    foreach (const QString &path, *m_DeleteList) {
+    foreach (const QFileInfo &info, *m_DeleteList) {
         if (isStopRequested()) {
             emit canceled();
             return;
         }
-        Listup(path);
+        Listup(info.absolutePath());
     }
 
     bool ret;

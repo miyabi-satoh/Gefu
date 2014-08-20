@@ -1,4 +1,5 @@
 #include "common.h"
+#include "filetablemodel.h"
 #include "folderpanel.h"
 #include "mainwindow.h"
 #include "ui_folderpanel.h"
@@ -36,11 +37,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
     m_bUpdating(false)
 {
     ui->setupUi(this);
-    qDebug() << objectName();
-
-    // セル(チェックボックス)の変更
-    connect(ui->fileTable, SIGNAL(cellChanged(int,int)),
-            this, SLOT(onUpdateMark(int,int)));
+    ui->fileTable->setModel(new FileTableModel(this));
 
     // リサイズ時の動作を設定する
     QHeaderView *header = ui->fileTable->horizontalHeader();
@@ -48,19 +45,6 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setSectionResizeMode(1, QHeaderView::Stretch);
     header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-
-    QSettings settings;
-    // フィルタ初期化
-    m_dir.setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
-    if (settings.value(IniKey_ShowHidden, false).toBool()) {
-        m_dir.setFilter(m_dir.filter() | QDir::Hidden);
-    }
-    if (settings.value(IniKey_ShowSystem, false).toBool()) {
-        m_dir.setFilter(m_dir.filter() | QDir::System);
-    }
-
-    // ソート順初期化
-    m_dir.setSorting(QDir::DirsFirst | QDir::IgnoreCase);
 }
 
 FolderPanel::~FolderPanel()
@@ -69,12 +53,12 @@ FolderPanel::~FolderPanel()
     delete ui;
 }
 
-FileTableWidget* FolderPanel::fileTable()
+QTableView* FolderPanel::fileTable()
 {
     return ui->fileTable;
 }
 
-const FileTableWidget *FolderPanel::fileTable() const
+const QTableView *FolderPanel::fileTable() const
 {
     return ui->fileTable;
 }
@@ -110,63 +94,63 @@ void FolderPanel::setCurrentFolder(const QString &path)
     showSystem = settings.value(IniKey_ShowSystem, false).toBool();
 
     beginUpdate();
-    ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
-    for (int i = 0; i < list.size(); i++) {
-        QFileInfo info = list.at(i);
-        if (info.fileName() == ".." && m_dir.isRoot()) {
-            continue;
-        }
+//    ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
+//    for (int i = 0; i < list.size(); i++) {
+//        QFileInfo info = list.at(i);
+//        if (info.fileName() == ".." && m_dir.isRoot()) {
+//            continue;
+//        }
 
-#ifdef Q_OS_WIN32
-        DWORD dwFlags = ::GetFileAttributes(info.absoluteFilePath().toStdWString().c_str());
-        if (!showSystem && dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM)) {
-            continue;
-        }
-#endif
+//#ifdef Q_OS_WIN32
+//        DWORD dwFlags = ::GetFileAttributes(info.absoluteFilePath().toStdWString().c_str());
+//        if (!showSystem && dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM)) {
+//            continue;
+//        }
+//#endif
 
-        int row = ui->fileTable->rowCount();
-        ui->fileTable->insertRow(row);
+//        int row = ui->fileTable->rowCount();
+//        ui->fileTable->insertRow(row);
 
-        // ファイル名とアイコン
-        QTableWidgetItem *iName = new QTableWidgetItem(info.fileName());
-        iName->setFlags(iName->flags() ^ Qt::ItemIsEditable);
-        if (info.fileName() == "..") {
-            iName->setIcon(QIcon(":/images/Up.png"));
-        }
-        else {
-            iName->setIcon(m_IconFactory.icon(info));
-        }
-        ui->fileTable->setItem(row, 1, iName);
+//        // ファイル名とアイコン
+//        QTableWidgetItem *iName = new QTableWidgetItem(info.fileName());
+//        iName->setFlags(iName->flags() ^ Qt::ItemIsEditable);
+//        if (info.fileName() == "..") {
+//            iName->setIcon(QIcon(":/images/Up.png"));
+//        }
+//        else {
+//            iName->setIcon(m_IconFactory.icon(info));
+//        }
+//        ui->fileTable->setItem(row, 1, iName);
 
-        // サイズ
-        QString str;
-        if (info.isDir()) {
-            str = tr("<DIR>");
-        }
-        else {
-            str = FilesizeToString(info.size());
-        }
-        QTableWidgetItem *iSize = new QTableWidgetItem(str);
-        iSize->setFlags(iSize->flags() ^ Qt::ItemIsEditable);
-        iSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        ui->fileTable->setItem(row, 2, iSize);
+//        // サイズ
+//        QString str;
+//        if (info.isDir()) {
+//            str = tr("<DIR>");
+//        }
+//        else {
+//            str = FilesizeToString(info.size());
+//        }
+//        QTableWidgetItem *iSize = new QTableWidgetItem(str);
+//        iSize->setFlags(iSize->flags() ^ Qt::ItemIsEditable);
+//        iSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+//        ui->fileTable->setItem(row, 2, iSize);
 
-        // 最終更新日時
-        QTableWidgetItem *iDateTime = new QTableWidgetItem(
-                    info.lastModified().toString("yy/MM/dd hh:mm"));
-        iDateTime->setFlags(iDateTime->flags() ^ Qt::ItemIsEditable);
-        ui->fileTable->setItem(row, 3, iDateTime);
+//        // 最終更新日時
+//        QTableWidgetItem *iDateTime = new QTableWidgetItem(
+//                    info.lastModified().toString("yy/MM/dd hh:mm"));
+//        iDateTime->setFlags(iDateTime->flags() ^ Qt::ItemIsEditable);
+//        ui->fileTable->setItem(row, 3, iDateTime);
 
-        // シグナル処理の関係で、チェックボックスは最後に追加する
-        QTableWidgetItem *iCheck = new QTableWidgetItem(tr(""));
-        iCheck->setFlags(iCheck->flags() ^ Qt::ItemIsEditable);
-        if (info.fileName() != "..") {
-            iCheck->setFlags(iCheck->flags() | Qt::ItemIsUserCheckable);
-            iCheck->setCheckState(Qt::Unchecked);
-        }
-        ui->fileTable->setItem(row, 0, iCheck);
+//        // シグナル処理の関係で、チェックボックスは最後に追加する
+//        QTableWidgetItem *iCheck = new QTableWidgetItem(tr(""));
+//        iCheck->setFlags(iCheck->flags() ^ Qt::ItemIsEditable);
+//        if (info.fileName() != "..") {
+//            iCheck->setFlags(iCheck->flags() | Qt::ItemIsUserCheckable);
+//            iCheck->setCheckState(Qt::Unchecked);
+//        }
+//        ui->fileTable->setItem(row, 0, iCheck);
 
-    }
+//    }
     ui->fileTable->selectRow(0);
     ui->fileTable->resizeRowsToContents();
 
@@ -193,44 +177,82 @@ void FolderPanel::UninstallWatcher()
     m_fsWatcher = NULL;
 }
 
-void FolderPanel::onUpdateMark(int, int column)
+const QString FolderPanel::side() const
 {
-    if (column != 0 || isUpdating()) {
-        return;
-    }
+    return ui->fileTable->side();
+}
 
-    // マークフォルダ数、ファイル数、サイズを計算する
-    int numFolders = 0;
-    int numFiles = 0;
-    quint64 sizeTotal = 0;
-    for (int n = 0; n < ui->fileTable->rowCount(); n++) {
-        if (ui->fileTable->item(n, 0)->checkState() != Qt::Checked) {
-            continue;
-        }
-        QString name = ui->fileTable->item(n, 1)->text();
-        QFileInfo info(m_dir.absoluteFilePath(name));
-        if (info.isDir()) {
-            numFolders++;
-        }
-        else {
-            numFiles++;
-            sizeTotal += info.size();
-        }
-    }
+void FolderPanel::setSide(const QString &side)
+{
+    ui->fileTable->setSide(side);
 
+    QSettings settings;
+    FileTableModel *model = new FileTableModel();
+    connect(model, SIGNAL(rootChanged(QString)),
+            ui->locationField, SLOT(setText(QString)));
+    connect(model, SIGNAL(stateChanged(int,int,quint64)),
+            this, SLOT(onStateChanged(int,int,quint64)));
+
+    //>>>>> フィルタ初期化
+    model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
+    if (settings.value(IniKey_ShowHidden, false).toBool()) {
+        model->setFilter(model->filter() | QDir::Hidden);
+    }
+    if (settings.value(IniKey_ShowSystem, false).toBool()) {
+        model->setFilter(model->filter() | QDir::System);
+    }
+    //>>>>> ソート順初期化
+    model->setSorting(QDir::Name);  // 0
+    int sortBy = settings.value(side + slash + IniKey_SortBy, SortByName).toInt();
+    switch (sortBy) {
+    case SortByDate:    model->setSorting(model->sorting() | QDir::Time); break;
+    case SortBySize:    model->setSorting(model->sorting() | QDir::Size); break;
+    case SortByType:    model->setSorting(model->sorting() | QDir::Type); break;
+    default:            model->setSorting(model->sorting() | QDir::Name); break;
+    }
+    // デフォルトだと文字列は昇順で、数値は降順…orz
+    int orderBy = settings.value(side + slash + IniKey_OrderBy, OrderByDesc).toInt();
+    if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
+        ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
+    {
+        model->setSorting(model->sorting() | QDir::Reversed);
+    }
+    // フォルダの位置
+    switch (settings.value(side + slash + IniKey_PutDirs, PutDirsFirst).toInt()) {
+    case PutDirsFirst:  model->setSorting(model->sorting() | QDir::DirsFirst); break;
+    case PutDirsLast:   model->setSorting(model->sorting() | QDir::DirsLast); break;
+    }
+    // 大文字小文字の区別
+    if (settings.value(side + slash + IniKey_IgnoreCase, true).toBool()) {
+        model->setSorting(model->sorting() | QDir::IgnoreCase);
+    }
+    //>>>>> 監視フォルダ初期化
+    QString key = side + slash + IniKey_Dir;
+    QString path = settings.value(key, QDir::homePath()).toString();
+    model->setPath(path);
+
+    ui->fileTable->setModel(model);
+    ui->fileTable->selectRow(0);
+    ui->fileTable->resizeColumnsToContents();
+    ui->fileTable->resizeRowsToContents();
+}
+
+void FolderPanel::onStateChanged(int checkedFolders, int checkedFiles, quint64 totalSize)
+{
     QString msg = "";
-    if (numFolders > 0) {
-        msg += tr("%1個のフォルダ ").arg(numFolders);
+    if (checkedFolders > 0) {
+        msg += tr("%1個のフォルダ ").arg(checkedFolders);
     }
-    if (numFiles > 0) {
-        msg += tr("%1個のファイル ").arg(numFiles);
+    if (checkedFiles > 0) {
+        msg += tr("%1個のファイル ").arg(checkedFiles);
     }
     if (msg.length() > 0) {
         msg += "を選択 合計 ";
-        msg += FilesizeToString(sizeTotal);
+        msg += FilesizeToString(totalSize);
     }
 
     ui->label->setText(msg);
+
 }
 
 void FolderPanel::on_locationField_editingFinished()
@@ -245,22 +267,22 @@ void FolderPanel::on_locationField_editingFinished()
 
 void FolderPanel::on_directoryChanged(QString)
 {
-    int row = ui->fileTable->currentRow();
-    this->setCurrentFolder(m_dir.absolutePath());
-    if (row >= ui->fileTable->rowCount()) {
-        row = ui->fileTable->rowCount() - 1;
-    }
-    ui->fileTable->selectRow(row);
+//    int row = ui->fileTable->currentRow();
+//    this->setCurrentFolder(m_dir.absolutePath());
+//    if (row >= ui->fileTable->rowCount()) {
+//        row = ui->fileTable->rowCount() - 1;
+//    }
+//    ui->fileTable->selectRow(row);
 }
 
-void FolderPanel::on_fileTable_itemSelectionChanged()
-{
-    if (isUpdating()) {
-        return;
-    }
+//void FolderPanel::on_fileTable_itemSelectionChanged()
+//{
+//    if (isUpdating()) {
+//        return;
+//    }
 
-    int row = ui->fileTable->currentRow();
-    if (0 <= row && row < ui->fileTable->rowCount()) {
-        getMainWnd()->setStatusText(ui->fileTable->item(row, 1)->text());
-    }
-}
+//    int row = ui->fileTable->currentRow();
+//    if (0 <= row && row < ui->fileTable->rowCount()) {
+//        getMainWnd()->setStatusText(ui->fileTable->item(row, 1)->text());
+//    }
+//}

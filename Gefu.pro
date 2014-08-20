@@ -24,8 +24,9 @@ SOURCES += main.cpp\
     deleteworker.cpp \
     overwritedialog.cpp \
     copymoveworker.cpp \
-    filetablewidget.cpp \
-    sortdialog.cpp
+    sortdialog.cpp \
+    filetablemodel.cpp \
+    filetableview.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -40,8 +41,9 @@ HEADERS  += mainwindow.h \
     deleteworker.h \
     overwritedialog.h \
     copymoveworker.h \
-    filetablewidget.h \
-    sortdialog.h
+    sortdialog.h \
+    filetablemodel.h \
+    filetableview.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \

@@ -68,6 +68,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>PushButton</string>
         </property>
@@ -80,6 +83,9 @@
           <width>1</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
          <string>PushButton</string>
@@ -110,6 +116,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>PushButton</string>
         </property>
@@ -122,6 +131,9 @@
           <width>1</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
          <string>PushButton</string>
@@ -210,7 +222,7 @@
      <x>0</x>
      <y>0</y>
      <width>662</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -264,6 +276,8 @@
     <addaction name="separator"/>
     <addaction name="move_Down"/>
     <addaction name="move_Up"/>
+    <addaction name="move_Begin"/>
+    <addaction name="move_End"/>
    </widget>
    <widget class="QMenu" name="menu_Operate">
     <property name="title">

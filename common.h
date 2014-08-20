@@ -15,6 +15,7 @@ extern QString FilesizeToString(quint64 size);
 #define VERSION_VALUE   0.01
 
 #define slash   QString("/")
+#define QQ(x)   ("\"" + (x) + "\"")
 
 #define IniKey_ShowHidden       "Common/ShowHidden"
 #define IniKey_ShowSystem       "Common/ShowSystem"

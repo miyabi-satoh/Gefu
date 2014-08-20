@@ -22,11 +22,9 @@ RenameMultiDialog::~RenameMultiDialog()
     delete ui;
 }
 
-void RenameMultiDialog::setNames(const QStringList &names)
+void RenameMultiDialog::setNames(const QFileInfoList &names)
 {
-    foreach (const QString &name, names) {
-        QFileInfo info(name);
-
+    foreach (const QFileInfo &info, names) {
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->insertRow(row);
 

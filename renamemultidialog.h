@@ -16,7 +16,7 @@ public:
     explicit RenameMultiDialog(QWidget *parent = 0);
     ~RenameMultiDialog();
 
-    void setNames(const QStringList &names);
+    void setNames(const QFileInfoList &names);
 
 private slots:
     void on_btn_UpperAll_clicked();

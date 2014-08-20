@@ -6,7 +6,7 @@
 #include <QTableWidget>
 #include <QFileIconProvider>
 #include <QFileSystemWatcher>
-#include "filetablewidget.h"
+#include "filetableview.h"
 class MainWindow;
 
 namespace Ui {
@@ -21,8 +21,8 @@ public:
     explicit FolderPanel(QWidget *parent = 0);
     ~FolderPanel();
 
-    FileTableWidget* fileTable();
-    const FileTableWidget* fileTable() const;
+    QTableView *fileTable();
+    const QTableView* fileTable() const;
 
     QDir* dir() { return &m_dir; }
     const QDir* dir() const { return &m_dir; }
@@ -38,12 +38,12 @@ public:
     void endUpdate() {
         m_bUpdating = false;
 //        setUpdatesEnabled(true);
-        onUpdateMark(0, 0);
+        //onUpdateMark(0, 0);
     }
     bool isUpdating() const { return m_bUpdating; }
 
-    void setSide(const QString &side) { m_Side = side; }
-    const QString& side() const { return m_Side; }
+    const QString side() const;
+    void setSide(const QString &side);
 
 private:
     Ui::FolderPanel *ui;
@@ -51,13 +51,12 @@ private:
     QFileIconProvider m_IconFactory;
     QFileSystemWatcher *m_fsWatcher;
     bool m_bUpdating;
-    QString m_Side; // "Left" or "Right"
 
 private slots:
-    void onUpdateMark(int, int);
+    void onStateChanged(int checkedFolders, int checkedFiles, quint64 totalSize);
     void on_locationField_editingFinished();
     void on_directoryChanged(QString);
-    void on_fileTable_itemSelectionChanged();
+//    void on_fileTable_itemSelectionChanged();
 };
 
 #endif // FOLDERPANEL_H

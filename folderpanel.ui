@@ -47,7 +47,7 @@
     </layout>
    </item>
    <item>
-    <widget class="FileTableWidget" name="fileTable">
+    <widget class="FileTableView" name="fileTable">
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
@@ -69,35 +69,12 @@
      <property name="wordWrap">
       <bool>false</bool>
      </property>
-     <property name="columnCount">
-      <number>4</number>
-     </property>
      <attribute name="horizontalHeaderHighlightSections">
       <bool>false</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <column>
-      <property name="text">
-       <string/>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>名前</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>サイズ</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>更新日時</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item>
@@ -117,9 +94,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FileTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>filetablewidget.h</header>
+   <class>FileTableView</class>
+   <extends>QTableView</extends>
+   <header>filetableview.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
