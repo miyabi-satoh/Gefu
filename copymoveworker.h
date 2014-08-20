@@ -5,6 +5,7 @@
 #include "iworker.h"
 
 #include <QFileInfo>
+#include <QMap>
 
 class CopyMoveWorker : public IWorker
 {
@@ -12,7 +13,7 @@ class CopyMoveWorker : public IWorker
 public:
     explicit CopyMoveWorker(QObject *parent = 0);
 
-    void setCopyList(const QStringList *list) {
+    void setCopyList(const QFileInfoList *list) {
         m_CopyList = list;
     }
     void setTargetDir(const QString &path) {
@@ -29,13 +30,13 @@ public:
 
 signals:
     void askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod, QString *alias,
-                      const QString srcPath, const QString tgtPath);
+                      const QString &srcPath, const QString &tgtPath);
 
 public slots:
     void operate();
 
 private:
-    const QStringList *m_CopyList;
+    const QFileInfoList *m_CopyList;
     QString m_tgtDir;
     StringMap m_CopyMap;
     QMutex m_AskingMutex;

@@ -19,7 +19,7 @@ void DeleteWorker::operate()
             emit canceled();
             return;
         }
-        Listup(info.absolutePath());
+        Listup(info.absoluteFilePath());
     }
 
     bool ret;

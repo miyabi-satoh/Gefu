@@ -30,11 +30,7 @@ QString FilesizeToString(quint64 size)
 
 FolderPanel::FolderPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FolderPanel),
-    m_dir(),
-    m_IconFactory(),
-    m_fsWatcher(new QFileSystemWatcher(this)),
-    m_bUpdating(false)
+    ui(new Ui::FolderPanel)
 {
     ui->setupUi(this);
     ui->fileTable->setModel(new FileTableModel(this));
@@ -45,11 +41,12 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setSectionResizeMode(1, QHeaderView::Stretch);
     header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+
+    header->setDefaultSectionSize(header->minimumSectionSize());
 }
 
 FolderPanel::~FolderPanel()
 {
-    UninstallWatcher();
     delete ui;
 }
 
@@ -61,120 +58,6 @@ QTableView* FolderPanel::fileTable()
 const QTableView *FolderPanel::fileTable() const
 {
     return ui->fileTable;
-}
-
-void FolderPanel::setCurrentFolder(const QString &path)
-{
-    QSettings settings;
-
-    getMainWnd()->setStatusText(tr("ファイルリストを更新中..."));
-    QString curDir = m_dir.absolutePath();
-    m_dir.setPath(QDir::cleanPath(path));
-    m_dir.canonicalPath();
-
-    QFileInfoList list = m_dir.entryInfoList();
-
-    if (list.empty()) {
-        QMessageBox::critical(
-                    this,
-                    tr("エラー"),
-                    tr("フォルダが存在しないか利用できません。"));
-        m_dir.setPath(curDir);
-        ui->locationField->setText(curDir);
-        getMainWnd()->setStatusText(tr("レディ"));
-        return;
-    }
-
-    // フォルダの変更監視
-    InstallWatcher();
-
-    // QtはWindowsのシステムファイル属性をうまく判定できていないため、
-    // GetFileAttributes APIを使ってフィルタする
-    bool showSystem;
-    showSystem = settings.value(IniKey_ShowSystem, false).toBool();
-
-    beginUpdate();
-//    ui->fileTable->model()->removeRows(0, ui->fileTable->rowCount());
-//    for (int i = 0; i < list.size(); i++) {
-//        QFileInfo info = list.at(i);
-//        if (info.fileName() == ".." && m_dir.isRoot()) {
-//            continue;
-//        }
-
-//#ifdef Q_OS_WIN32
-//        DWORD dwFlags = ::GetFileAttributes(info.absoluteFilePath().toStdWString().c_str());
-//        if (!showSystem && dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM)) {
-//            continue;
-//        }
-//#endif
-
-//        int row = ui->fileTable->rowCount();
-//        ui->fileTable->insertRow(row);
-
-//        // ファイル名とアイコン
-//        QTableWidgetItem *iName = new QTableWidgetItem(info.fileName());
-//        iName->setFlags(iName->flags() ^ Qt::ItemIsEditable);
-//        if (info.fileName() == "..") {
-//            iName->setIcon(QIcon(":/images/Up.png"));
-//        }
-//        else {
-//            iName->setIcon(m_IconFactory.icon(info));
-//        }
-//        ui->fileTable->setItem(row, 1, iName);
-
-//        // サイズ
-//        QString str;
-//        if (info.isDir()) {
-//            str = tr("<DIR>");
-//        }
-//        else {
-//            str = FilesizeToString(info.size());
-//        }
-//        QTableWidgetItem *iSize = new QTableWidgetItem(str);
-//        iSize->setFlags(iSize->flags() ^ Qt::ItemIsEditable);
-//        iSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-//        ui->fileTable->setItem(row, 2, iSize);
-
-//        // 最終更新日時
-//        QTableWidgetItem *iDateTime = new QTableWidgetItem(
-//                    info.lastModified().toString("yy/MM/dd hh:mm"));
-//        iDateTime->setFlags(iDateTime->flags() ^ Qt::ItemIsEditable);
-//        ui->fileTable->setItem(row, 3, iDateTime);
-
-//        // シグナル処理の関係で、チェックボックスは最後に追加する
-//        QTableWidgetItem *iCheck = new QTableWidgetItem(tr(""));
-//        iCheck->setFlags(iCheck->flags() ^ Qt::ItemIsEditable);
-//        if (info.fileName() != "..") {
-//            iCheck->setFlags(iCheck->flags() | Qt::ItemIsUserCheckable);
-//            iCheck->setCheckState(Qt::Unchecked);
-//        }
-//        ui->fileTable->setItem(row, 0, iCheck);
-
-//    }
-    ui->fileTable->selectRow(0);
-    ui->fileTable->resizeRowsToContents();
-
-    ui->locationField->setText(m_dir.absolutePath());
-    getMainWnd()->setStatusText(tr("レディ"));
-    endUpdate();
-}
-
-void FolderPanel::InstallWatcher()
-{
-    UninstallWatcher();
-
-    m_fsWatcher = new QFileSystemWatcher(this);
-    m_fsWatcher->addPath(m_dir.absolutePath());
-    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
-            this, SLOT(on_directoryChanged(QString)));
-}
-
-void FolderPanel::UninstallWatcher()
-{
-    if (m_fsWatcher != NULL) {
-        delete m_fsWatcher;
-    }
-    m_fsWatcher = NULL;
 }
 
 const QString FolderPanel::side() const
@@ -260,29 +143,7 @@ void FolderPanel::on_locationField_editingFinished()
     ui->locationField->blockSignals(true);
 
     QString path = ui->locationField->text();
-    setCurrentFolder(path);
+    ui->fileTable->setRootPath(path);
 
     ui->locationField->blockSignals(false);
 }
-
-void FolderPanel::on_directoryChanged(QString)
-{
-//    int row = ui->fileTable->currentRow();
-//    this->setCurrentFolder(m_dir.absolutePath());
-//    if (row >= ui->fileTable->rowCount()) {
-//        row = ui->fileTable->rowCount() - 1;
-//    }
-//    ui->fileTable->selectRow(row);
-}
-
-//void FolderPanel::on_fileTable_itemSelectionChanged()
-//{
-//    if (isUpdating()) {
-//        return;
-//    }
-
-//    int row = ui->fileTable->currentRow();
-//    if (0 <= row && row < ui->fileTable->rowCount()) {
-//        getMainWnd()->setStatusText(ui->fileTable->item(row, 1)->text());
-//    }
-//}

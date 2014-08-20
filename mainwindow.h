@@ -18,28 +18,23 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void setStatusText(const QString &str);
     FileTableView* otherSideView(const FileTableView *view) const;
 
+signals:
+    void showHiddenFiles(bool show);
+    void showSystemFiles(bool show);
+
 public slots:
+    void setStatusText(const QString &str);
     void onActionSetting();
-    void onViewFromOther();
-    void onViewToOther();
-    void onViewSwap();
-    void onCmdMove();
-    void onCmdCopy();
     void onHelpAbout();
 
 private slots:
-    void onAskOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
-                        QString *alias, const QString srcPath, const QString tgtPath);
+    void toggleShowHiddenFiles();
+    void toggleShowSystemFiles();
 
 private:
     Ui::MainWindow *ui;
-
-    FolderPanel* activePanel();
-    FolderPanel* inactivePanel();
 };
-
 
 #endif // MAINWINDOW_H

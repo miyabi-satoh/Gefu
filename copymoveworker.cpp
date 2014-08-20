@@ -26,12 +26,12 @@ void CopyMoveWorker::operate()
         m_progressText->setText(tr("コピー準備中..."));
     }
 
-    foreach (const QString &srcPath, *m_CopyList) {
+    foreach (const QFileInfo &info, *m_CopyList) {
         if (isStopRequested()) {
             emit canceled();
             return;
         }
-        Listup(srcPath, m_tgtDir);
+        Listup(info.absoluteFilePath(), m_tgtDir);
     }
 
     bool ret;

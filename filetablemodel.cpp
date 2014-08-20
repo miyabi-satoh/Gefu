@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QBrush>
 #ifdef Q_OS_WIN32
     #include <windows.h>
 #endif
@@ -85,7 +86,16 @@ Qt::CheckState FileTableModel::checkState(const QModelIndex &index) const
 
 void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState state)
 {
+    beginResetModel();
     m_checkStates[index.row()] = state;
+    if (state == Qt::Checked && index.row() == 0 &&
+        m_fileInfoList[0].fileName() == "..")
+    {
+        m_checkStates[0] = Qt::Unchecked;
+    }
+    endResetModel();;
+    emit dataChanged(index, this->index(index.row(), 3));
+
     stateChanged();
 }
 
@@ -93,6 +103,11 @@ void FileTableModel::setCheckStateAll(Qt::CheckState state)
 {
     beginResetModel();
     m_checkStates.fill(state);
+    if (state == Qt::Checked && m_fileInfoList.size() > 1 &&
+        m_fileInfoList[0].fileName() == "..")
+    {
+        m_checkStates[0] = Qt::Unchecked;
+    }
     endResetModel();
 
     stateChanged();
@@ -211,6 +226,18 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
         }
         break;
 
+    case Qt::BackgroundRole:
+        if (checked) {
+            return QBrush(QColor(0, 196, 0));
+        }
+        break;
+
+    case Qt::ForegroundRole:
+        if (checked) {
+            return QBrush(QColor(196, 0, 0));
+        }
+        break;
+
     case Qt::CheckStateRole:
         if (index.column() == 0 && info.fileName() != "..") {
             return checked;
@@ -248,10 +275,15 @@ Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
 
 bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (!index.isValid()) {
+        return false;
+    }
+
     switch (role) {
     case Qt::CheckStateRole:
         if (index.column() == 0) {
             m_checkStates[index.row()] = static_cast<Qt::CheckState>(value.toInt());
+            emit dataChanged(index, this->index(index.row(), 3));
             stateChanged();
             return true;
         }
