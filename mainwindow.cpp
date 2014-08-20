@@ -64,12 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-}
 
-void MainWindow::setStatusText(const QString &str)
-{
-    ui->statusBar->showMessage(str);
+    delete ui;
 }
 
 FileTableView *MainWindow::otherSideView(const FileTableView *view) const

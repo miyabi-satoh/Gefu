@@ -25,7 +25,6 @@ signals:
     void showSystemFiles(bool show);
 
 public slots:
-    void setStatusText(const QString &str);
     void onActionSetting();
     void onHelpAbout();
 

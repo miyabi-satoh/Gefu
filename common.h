@@ -15,6 +15,10 @@ extern QString FilesizeToString(quint64 size);
 
 #define IniKey_ShowHidden       "Common/ShowHidden"
 #define IniKey_ShowSystem       "Common/ShowSystem"
+#define IniKey_WindowX          "Window/X"
+#define IniKey_WindowY          "Window/Y"
+#define IniKey_WindowCX         "Window/CX"
+#define IniKey_WindowCY         "Window/CY"
 #define IniSec_Left             "Left"
 #define IniSec_Right            "Right"
 #define IniKey_Dir              "dir"

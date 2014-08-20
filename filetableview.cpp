@@ -3,6 +3,7 @@
 #include "deleteworker.h"
 #include "filetablemodel.h"
 #include "filetableview.h"
+#include "historydialog.h"
 #include "mainwindow.h"
 #include "operationdialog.h"
 #include "overwritedialog.h"
@@ -21,6 +22,7 @@
 #include <QSettings>
 #include <QFileDialog>
 #include <QKeyEvent>
+#include <QStatusBar>
 
 #define CHECK_FOCUS {                   \
         if (!hasFocus()) { return; }    \
@@ -32,7 +34,9 @@
     getMainWnd()->findChild<QAction*>(#x), SIGNAL(toggled(bool))
 
 FileTableView::FileTableView(QWidget *parent) :
-    QTableView(parent)
+    QTableView(parent),
+    m_side(),
+    m_history()
 {
     // シグナル/スロットを設定する
     connect(MENU_TRRIGGERED(action_Open), this, SLOT(setPath()));
@@ -77,9 +81,6 @@ FileTableView::FileTableView(QWidget *parent) :
 
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(setRootIndex(QModelIndex)));
-
-    connect(this, SIGNAL(indexChanged(QString)),
-            getMainWnd(), SLOT(setStatusText(QString)));
 }
 
 FileTableView::~FileTableView()
@@ -98,9 +99,14 @@ QString FileTableView::side() const
 void FileTableView::setSide(const QString &side)
 {
     m_side = side;
+
+    // コンストラクタではステータスバーが生成されていないため
+    // このタイミングでconnectする
+    connect(this, SIGNAL(indexChanged(QString)),
+            getMainWnd()->statusBar(), SLOT(showMessage(QString)));
 }
 
-void FileTableView::setRootPath(const QString &path)
+void FileTableView::setRootPath(const QString &path, bool addHistory)
 {
     FileTableModel *m = static_cast<FileTableModel*>(model());
     QFileInfo info(path);
@@ -108,6 +114,11 @@ void FileTableView::setRootPath(const QString &path)
         setUpdatesEnabled(false);
         m->setPath(info.absoluteFilePath());
         setUpdatesEnabled(true);
+
+        if (addHistory) {
+            m_history.add(info.absoluteFilePath());
+        }
+        updateMenu();
 
         setCurrentIndex(m->index(0, 0));
     }
@@ -125,6 +136,21 @@ QFileInfoList FileTableView::selectedItems() const
     }
 
     return list;
+}
+
+void FileTableView::updateMenu()
+{
+    if (m_history.isEmpty()) {
+        getMainWnd()->findChild<QAction*>("move_Back")->setEnabled(false);
+        getMainWnd()->findChild<QAction*>("move_Forward")->setEnabled(false);
+
+    }
+    else {
+        getMainWnd()->findChild<QAction*>("move_Back")
+                ->setEnabled(!m_history.isBegin());
+        getMainWnd()->findChild<QAction*>("move_Forward")
+                ->setEnabled(!m_history.isEnd());
+    }
 }
 
 void FileTableView::setPath()
@@ -187,11 +213,6 @@ void FileTableView::toggleChecked()
     FileTableModel *m = static_cast<FileTableModel*>(model());
 
     QModelIndex index = currentIndex();
-
-    qDebug() << "row = " << index.row();
-    qDebug() << "rowCount = " << m->rowCount();
-
-
 
     QFileInfo info = m->fileInfo(index);
     if (info.fileName() != "..") {
@@ -290,7 +311,7 @@ void FileTableView::setPathFromOther()
 
     FileTableModel *mOther = static_cast<FileTableModel*>(other->model());
 
-    setRootPath(mOther->absolutePath());
+    setRootPath(mOther->absolutePath(), true);
 }
 
 void FileTableView::setPathToOther()
@@ -304,7 +325,7 @@ void FileTableView::setPathToOther()
 
     FileTableModel *m = static_cast<FileTableModel*>(model());
 
-    other->setRootPath(m->absolutePath());
+    other->setRootPath(m->absolutePath(), true);
 }
 
 void FileTableView::swapPath()
@@ -322,8 +343,8 @@ void FileTableView::swapPath()
     QString path = m->absolutePath();
     QString pathOther = mOther->absolutePath();
 
-    setRootPath(pathOther);
-    other->setRootPath(path);
+    setRootPath(pathOther, true);
+    other->setRootPath(path, true);
 }
 
 void FileTableView::showHiddenFiles(bool show)
@@ -401,23 +422,65 @@ void FileTableView::setSort()
 void FileTableView::back()
 {
     CHECK_FOCUS;
+
+    if (!m_history.isBegin()) {
+        const QString &path = m_history.back();
+        setRootPath(path, false);
+
+        updateMenu();
+    }
 }
 
 void FileTableView::forward()
 {
     CHECK_FOCUS;
+
+    if (!m_history.isEnd()) {
+        const QString &path = m_history.forward();
+        setRootPath(path, false);
+
+        updateMenu();
+    }
 }
 
 void FileTableView::showHidtory()
 {
     CHECK_FOCUS;
+
+    FileTableView *other = getMainWnd()->otherSideView(this);
+
+    HistoryDialog dlg(this);
+    if (side() == "Left") {
+        dlg.setDefaultLeft(true);
+        dlg.setHistory(&m_history, other->history());
+    }
+    else {
+        dlg.setDefaultLeft(false);
+        dlg.setHistory(other->history(), &m_history);
+    }
+
+    QSize szMainWnd = getMainWnd()->size();
+    QSize szDialog = dlg.size();
+    szDialog.setWidth(szMainWnd.width() * 0.8);
+    dlg.resize(szDialog);
+    if (dlg.exec() == QDialog::Accepted) {
+        if (side() == dlg.selectedSide()) {
+            m_history.setAt(dlg.selectedIndex());
+            setRootPath(m_history.current(), false);
+        }
+        else {
+            setRootPath(other->history()->at(dlg.selectedIndex()), true);
+        }
+        updateMenu();
+        qDebug() << dlg.selectedIndex();
+    }
 }
 
 void FileTableView::jumpToHome()
 {
     CHECK_FOCUS;
 
-    setRootPath(QDir::homePath());
+    setRootPath(QDir::homePath(), true);
 }
 
 void FileTableView::jumpToParent()
@@ -428,14 +491,14 @@ void FileTableView::jumpToParent()
     QDir dir(m->absolutePath());
     dir.cdUp();
 
-    setRootPath(dir.absolutePath());
+    setRootPath(dir.absolutePath(), true);
 }
 
 void FileTableView::jumpToRoot()
 {
     CHECK_FOCUS;
 
-    setRootPath(QDir::rootPath());
+    setRootPath(QDir::rootPath(), true);
 }
 
 void FileTableView::jumpTo()
@@ -446,7 +509,7 @@ void FileTableView::jumpTo()
     QString path = QFileDialog::getExistingDirectory(
                 this, tr("フォルダを選択"), m->absolutePath());
     if (!path.isEmpty()) {
-        setRootPath(path);
+        setRootPath(path, true);
     }
 }
 
@@ -676,7 +739,7 @@ void FileTableView::setRootIndex(const QModelIndex &index)
     FileTableModel *m = static_cast<FileTableModel*>(model());
 
     if (m->isDir(index)) {
-        setRootPath(m->absoluteFilePath(index));
+        setRootPath(m->absoluteFilePath(index), true);
     }
 }
 
@@ -715,6 +778,13 @@ void FileTableView::keyPressEvent(QKeyEvent *event)
     QTableView::keyPressEvent(event);
 }
 
+void FileTableView::focusInEvent(QFocusEvent *event)
+{
+    updateMenu();
+
+    QTableView::focusInEvent(event);
+}
+
 void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_UNUSED(previous);
@@ -724,3 +794,5 @@ void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex
     const FileTableModel *m = static_cast<const FileTableModel*>(current.model());
     emit indexChanged(m->fileInfo(current).absoluteFilePath());
 }
+
+

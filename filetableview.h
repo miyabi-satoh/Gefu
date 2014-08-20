@@ -1,6 +1,8 @@
 #ifndef FILETABLEVIEW_H
 #define FILETABLEVIEW_H
 
+#include "history.h"
+
 #include <QFileInfoList>
 #include <QTableView>
 
@@ -13,12 +15,17 @@ public:
 
     QString side() const;
     void setSide(const QString &side);
-    void setRootPath(const QString &path);
+
+    History* history() { return &m_history; }
+
+    void setRootPath(const QString &path, bool addHistory);
 
 private:
     QString m_side;
+    History m_history;
 
     QFileInfoList selectedItems() const;
+    void updateMenu();
 
 signals:
     void indexChanged(const QString &text);
@@ -74,6 +81,7 @@ public slots:
     // QWidget interface
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void focusInEvent(QFocusEvent *event);
 
     // QAbstractItemView interface
 protected slots:

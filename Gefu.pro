@@ -26,7 +26,9 @@ SOURCES += main.cpp\
     copymoveworker.cpp \
     sortdialog.cpp \
     filetablemodel.cpp \
-    filetableview.cpp
+    filetableview.cpp \
+    history.cpp \
+    historydialog.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -43,7 +45,9 @@ HEADERS  += mainwindow.h \
     copymoveworker.h \
     sortdialog.h \
     filetablemodel.h \
-    filetableview.h
+    filetableview.h \
+    history.h \
+    historydialog.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \
@@ -51,7 +55,8 @@ FORMS    += mainwindow.ui \
     renamemultidialog.ui \
     operationdialog.ui \
     overwritedialog.ui \
-    sortdialog.ui
+    sortdialog.ui \
+    historydialog.ui
 
 RESOURCES += \
     resource.qrc

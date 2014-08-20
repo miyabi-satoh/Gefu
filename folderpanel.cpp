@@ -41,8 +41,10 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setSectionResizeMode(1, QHeaderView::Stretch);
     header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-
     header->setDefaultSectionSize(header->minimumSectionSize());
+
+    QHeaderView *vHeader = ui->fileTable->verticalHeader();
+    vHeader->setDefaultSectionSize(vHeader->minimumSectionSize());
 }
 
 FolderPanel::~FolderPanel()
@@ -112,12 +114,10 @@ void FolderPanel::setSide(const QString &side)
     //>>>>> 監視フォルダ初期化
     QString key = side + slash + IniKey_Dir;
     QString path = settings.value(key, QDir::homePath()).toString();
-    model->setPath(path);
 
     ui->fileTable->setModel(model);
+    ui->fileTable->setRootPath(path, true);
     ui->fileTable->selectRow(0);
-    ui->fileTable->resizeColumnsToContents();
-    ui->fileTable->resizeRowsToContents();
 }
 
 void FolderPanel::onStateChanged(int checkedFolders, int checkedFiles, quint64 totalSize)
@@ -143,7 +143,7 @@ void FolderPanel::on_locationField_editingFinished()
     ui->locationField->blockSignals(true);
 
     QString path = ui->locationField->text();
-    ui->fileTable->setRootPath(path);
+    ui->fileTable->setRootPath(path, true);
 
     ui->locationField->blockSignals(false);
 }

@@ -42,24 +42,29 @@ bool FileTableModel::setPath(const QString &path)
         qDebug() << "ファイルリストを取得できません";
         qDebug() << path;
     }
-#ifdef Q_OS_WIN32
-    else if (!(filter() & QDir::System)){
+    else {
         QFileInfoList::iterator it;
         for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); ) {
-            DWORD dwFlags = ::GetFileAttributes(
-                        it->absoluteFilePath().toStdWString().c_str());
-            if (dwFlags != DWORD(-1) && it->fileName() != ".." &&
-                ((dwFlags & FILE_ATTRIBUTE_SYSTEM) == FILE_ATTRIBUTE_SYSTEM))
-            {
-                qDebug() << it->fileName() << " is system file.";
+            if (QFileInfo(it->canonicalFilePath()).isRoot()) {
                 it = m_fileInfoList.erase(it);
+                continue;
             }
-            else {
-                it++;
+#ifdef Q_OS_WIN32
+            if (!(filter() & QDir::System)){
+                DWORD dwFlags = ::GetFileAttributes(
+                            it->absoluteFilePath().toStdWString().c_str());
+                if (dwFlags != DWORD(-1) && it->fileName() != ".." &&
+                    ((dwFlags & FILE_ATTRIBUTE_SYSTEM) == FILE_ATTRIBUTE_SYSTEM))
+                {
+                    qDebug() << it->fileName() << " is system file.";
+                    it = m_fileInfoList.erase(it);
+                    continue;
+                }
             }
+#endif
+            it++;
         }
     }
-#endif
     m_checkStates.resize(m_fileInfoList.size());
     m_checkStates.fill(Qt::Unchecked);
 
