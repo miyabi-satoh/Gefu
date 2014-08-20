@@ -793,11 +793,12 @@ void FileTableView::focusInEvent(QFocusEvent *event)
 void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     Q_UNUSED(previous);
-    selectRow(current.row());
+//    qDebug() << "CurrentChanged";
+//    qDebug() << " row = " << current.row();
+
+    FileTableModel *m = static_cast<FileTableModel*>(model());
+//    qDebug() << m->absoluteFilePath(current);
+    emit indexChanged(m->absoluteFilePath(current));
+
     QTableView::currentChanged(current, previous);
-
-    const FileTableModel *m = static_cast<const FileTableModel*>(current.model());
-    emit indexChanged(m->fileInfo(current).absoluteFilePath());
 }
-
-
