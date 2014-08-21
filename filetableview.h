@@ -83,6 +83,8 @@ public slots:
 protected:
     void keyPressEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *event);
+//    void dropEvent(QDropEvent *event);
+//    void dragEnterEvent(QDragEnterEvent *event);
 
     // QAbstractItemView interface
 protected slots:

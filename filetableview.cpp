@@ -82,6 +82,12 @@ FileTableView::FileTableView(QWidget *parent) :
 
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(setRootIndex(QModelIndex)));
+
+    // Drag & Drop
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
+//    setDragDropMode(QAbstractItemView::DragDrop);
 }
 
 FileTableView::~FileTableView()
@@ -815,3 +821,16 @@ void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex
 
     QTableView::currentChanged(current, previous);
 }
+
+
+//void FileTableView::dropEvent(QDropEvent *event)
+//{
+//    foreach (const QString &str, event->mimeData()->formats()) {
+//        qDebug() << str;
+//    }
+//}
+
+//void FileTableView::dragEnterEvent(QDragEnterEvent *event)
+//{
+//    event->acceptProposedAction();
+//}

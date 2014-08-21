@@ -42,7 +42,7 @@ FolderPanel::FolderPanel(QWidget *parent) :
     header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
     header->setDefaultSectionSize(header->minimumSectionSize());
-
+    // 行の高さを75%に調整
     QHeaderView *vHeader = ui->fileTable->verticalHeader();
     vHeader->setDefaultSectionSize(vHeader->defaultSectionSize() * 0.75);
 }

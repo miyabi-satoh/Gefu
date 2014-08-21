@@ -6,6 +6,9 @@
 #include <QApplication>
 #include <QSettings>
 #include <QMenuBar>
+#include <QMimeData>
+#include <QUrl>
+#include <QMessageBox>
 #ifdef Q_OS_WIN32
     #include <windows.h>
 #endif
@@ -341,9 +344,16 @@ QVariant FileTableModel::headerData(int section, Qt::Orientation orientation, in
 Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    if (index.column() == 0 && m_fileInfoList[index.row()].fileName() != "..")
-    {
-        flags |= Qt::ItemIsUserCheckable;
+    if (!index.isValid()) {
+        flags |= Qt::ItemIsDropEnabled;
+    }
+    else if (m_fileInfoList[index.row()].fileName() != "..") {
+        if (index.column() == 0) {
+            flags |= Qt::ItemIsUserCheckable;
+        }
+//        TODO
+//        flags |= Qt::ItemIsDragEnabled;
+        flags |= Qt::ItemIsDropEnabled;
     }
     return flags;
 }
@@ -366,4 +376,44 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
     }
 
     return false;
+}
+
+Qt::DropActions FileTableModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+QStringList FileTableModel::mimeTypes() const
+{
+    QStringList types;
+
+    types << "text/uri-list";
+
+    return types;
+}
+
+bool FileTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    Q_UNUSED(parent);
+
+    qDebug() << action << row << column;
+
+    if (action == Qt::IgnoreAction)
+        return true;
+
+    if (!data->hasFormat("text/uri-list"))
+        return false;
+
+    if (column > 0)
+        return false;
+
+    QString msg;
+    msg = "ドロップを検知しました。<br/>";
+    foreach (const QUrl &url, data->urls()) {
+        msg += url.toLocalFile() + "<br/>";
+        qDebug() << url.toLocalFile();
+    }
+    QMessageBox::information(NULL, "info", msg);
+
+    return true;
 }
