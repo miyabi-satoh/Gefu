@@ -3,7 +3,9 @@
 
 #include <QDateTime>
 #include <QDebug>
-#include <QBrush>
+#include <QApplication>
+#include <QSettings>
+#include <QMenuBar>
 #ifdef Q_OS_WIN32
     #include <windows.h>
 #endif
@@ -14,7 +16,15 @@ FileTableModel::FileTableModel(QObject *parent) :
     m_fileInfoList(),
     m_checkStates(),
     m_IconFactory(),
-    m_fsWatcher(NULL)
+    m_fsWatcher(NULL),
+    m_font(),
+    m_NormalBrush(),
+    m_NormalTextBrush(),
+    m_MarkBrush(),
+    m_MarkTextBrush(),
+    m_SystemBrush(),
+    m_HiddenBrush(),
+    m_ReadonlyBrush()
 {
 }
 
@@ -134,6 +144,27 @@ QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
     return m_fileInfoList[index.row()];
 }
 
+#define Brush(x, y, z)  QBrush((x).value((y), (z)).value<QColor>());
+
+
+void FileTableModel::updateAppearance()
+{
+    QSettings settings;
+    QPalette palette(QApplication::palette("QTableView"));
+
+    m_font = settings.value(IniKey_ViewFont, QApplication::font()).value<QFont>();
+    m_NormalBrush = Brush(settings, IniKey_ViewColorBgNormal, palette.base());
+    m_NormalTextBrush = Brush(settings, IniKey_ViewColorFgNormal, palette.text());
+    m_MarkBrush = Brush(settings, IniKey_ViewColorBgMark, DefaultMarkBgColor);
+    m_MarkTextBrush = Brush(settings, IniKey_ViewColorFgMark, DefaultMarkFgColor);
+    m_SystemBrush = Brush(settings, IniKey_ViewColorFgSystem, DefaultSystemColor);
+    m_HiddenBrush = Brush(settings, IniKey_ViewColorFgHidden, DefaultHiddenColor);
+    m_ReadonlyBrush = Brush(settings, IniKey_ViewColorFgReadonly, DefaultReadonlyColor);
+
+    beginResetModel();
+    endResetModel();
+}
+
 void FileTableModel::stateChanged()
 {
     int numFolder = 0;
@@ -220,6 +251,9 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
         }
         break;
 
+    case Qt::FontRole:
+        return m_font;
+
     case Qt::TextAlignmentRole:
         switch (index.column()) {
         case 0:
@@ -233,15 +267,31 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
 
     case Qt::BackgroundRole:
         if (checked) {
-            return QBrush(QColor(0, 196, 0));
+            return m_MarkBrush;
         }
-        break;
+        return m_NormalBrush;
 
     case Qt::ForegroundRole:
         if (checked) {
-            return QBrush(QColor(196, 0, 0));
+            return m_MarkTextBrush;
         }
-        break;
+#ifdef Q_OS_WIN32
+        {
+            DWORD dwFlags = ::GetFileAttributes(
+                        info.absoluteFilePath().toStdWString().c_str());
+            if (dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM) == FILE_ATTRIBUTE_SYSTEM))
+            {
+                return m_SystemBrush;
+            }
+        }
+#endif
+        if (info.isHidden() && info.fileName() != "..") {
+            return m_HiddenBrush;
+        }
+        if (!info.isWritable()) {
+            return m_ReadonlyBrush;
+        }
+        return m_NormalTextBrush;
 
     case Qt::CheckStateRole:
         if (index.column() == 0 && info.fileName() != "..") {

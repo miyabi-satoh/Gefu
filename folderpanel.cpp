@@ -115,9 +115,40 @@ void FolderPanel::setSide(const QString &side)
     QString key = side + slash + IniKey_Dir;
     QString path = settings.value(key, QDir::homePath()).toString();
 
+    model->updateAppearance();
     ui->fileTable->setModel(model);
     ui->fileTable->setRootPath(path, true);
     ui->fileTable->selectRow(0);
+}
+
+void FolderPanel::updateAppearance()
+{
+    QSettings settings;
+    QPalette palette;
+    QFont font;
+
+    font = ui->locationField->font();
+    font = settings.value(IniKey_BoxFont, font).value<QFont>();
+    palette = ui->locationField->palette();
+    palette.setColor(
+                QPalette::Base,
+                settings.value(IniKey_BoxColorBg, palette.base()).value<QColor>());
+    palette.setColor(
+                QPalette::Text,
+                settings.value(IniKey_BoxColorFg, palette.text()).value<QColor>());
+    ui->locationField->setFont(font);
+    ui->locationField->setPalette(palette);
+
+    palette = ui->fileTable->palette();
+    palette.setColor(
+                QPalette::Base,
+                settings.value(IniKey_ViewColorBgNormal, palette.base()).value<QColor>());
+    ui->fileTable->setPalette(palette);
+
+    FileTableModel *model = static_cast<FileTableModel*>(ui->fileTable->model());
+    if (model) {
+        model->updateAppearance();
+    }
 }
 
 void FolderPanel::onStateChanged(int checkedFolders, int checkedFiles, quint64 totalSize)

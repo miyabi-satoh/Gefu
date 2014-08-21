@@ -7,6 +7,7 @@
 #include "renamesingledialog.h"
 #include "renameworker.h"
 #include "sortdialog.h"
+#include "preferencedialog.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
 #include <QDebug>
@@ -18,6 +19,8 @@
 #include <QProcess>
 #include <QThread>
 #include <QInputDialog>
+#include <QCheckBox>
+#include <QDesktopWidget>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->RPanel->setSide("Right");
     ui->LPanel->setSide("Left");
+    ui->LPanel->updateAppearance();
+    ui->RPanel->updateAppearance();
     ui->LPanel->fileTable()->setFocus();
 
     QSettings settings;
@@ -48,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // シグナル/スロットを設定する
     connect(ui->action_Setting, SIGNAL(triggered()), this, SLOT(onActionSetting()));
-    connect(ui->action_Quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(ui->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(toggleShowHiddenFiles()));
     connect(ui->view_System, SIGNAL(triggered()), this, SLOT(toggleShowSystemFiles()));
@@ -57,21 +62,49 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
     // ウィンドウアイコンを設定する
     setWindowIcon(QIcon(":/images/Gefu.png"));
-    // ウィンドウサイズと位置を設定する
-    QRect rc = settings.value(IniKey_WindowGeometry, QRect()).toRect();
-    if (rc != QRect()) {
-        this->setGeometry(rc);
+    //>>>>> ウィンドウサイズと位置を設定する
+    QString strValue;
+    QPoint point = this->geometry().topLeft();
+    QSize size = this->geometry().size();
+    //>>>> 前回の位置・サイズ・状態を復元する
+    restoreGeometry(settings.value(IniKey_WindowGeometry).toByteArray());
+    restoreState(settings.value(iniKey_WindowState).toByteArray());
+    //>>>> INIファイルの設定から復元する
+    //>>> サイズ
+    strValue = settings.value(IniKey_BootSizeSpec, "").toString();
+    if (strValue == "sizeAbsolute") {
+        size = settings.value(IniKey_BootSizeAbs).toSize();
+    }
+    else if (strValue == "sizeRelative") {
+        size = settings.value(IniKey_BootSizeRel).toSize();
+        size.setWidth(size.width() * QApplication::desktop()->width() / 100.0);
+        size.setHeight(size.height() * QApplication::desktop()->height() / 100.0);
+    }
+    else if (strValue == "sizeLast") {
+        size = this->geometry().size();
+    }
+    //>>> 位置
+    strValue = settings.value(IniKey_BootPosSpec, "").toString();
+    if (strValue == "posAbsolute") {
+        point = settings.value(IniKey_BootPosAbs).toPoint();
+    }
+    else if (strValue == "posRelative") {
+        point = settings.value(IniKey_BootPosRel).toPoint();
+        point.setX(point.x() * QApplication::desktop()->width() / 100.0);
+        point.setY(point.y() * QApplication::desktop()->height() / 100.0);
+    }
+    else if (strValue == "posLast") {
+        point = this->geometry().topLeft();
     }
     else {
-        this->resize(800, 600);
+        point.setX((QApplication::desktop()->width() - size.width()) / 2);
+        point.setY((QApplication::desktop()->height() - size.height()) / 2);
     }
+    this->setGeometry(QRect(point, size));
 }
 
 MainWindow::~MainWindow()
 {
-    QSettings settings;
-    settings.setValue(IniKey_WindowGeometry, this->geometry());
-
     delete ui;
 }
 
@@ -91,7 +124,12 @@ FileTableView *MainWindow::otherSideView(const FileTableView *view) const
 
 void MainWindow::onActionSetting()
 {
-    QMessageBox::information(this, tr("情報"), tr("環境設定機能は未実装です。"));
+    PreferenceDialog dlg(this);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        ui->LPanel->updateAppearance();
+        ui->RPanel->updateAppearance();
+    }
 }
 
 void MainWindow::toggleShowHiddenFiles()
@@ -140,4 +178,31 @@ MainWindow* getMainWnd()
     }
     qDebug() << "MainWindow not found !?";
     return NULL;
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    qDebug() << "closeEvent();";
+
+    QSettings settings;
+
+    if (settings.value(IniKey_ConfirmExit, true).toBool()) {
+        QMessageBox msgBox;
+        QCheckBox *checkBox = new QCheckBox();
+        checkBox->setText(tr("次回以降は確認しない"));
+        msgBox.setCheckBox(checkBox);
+        msgBox.setText(tr("終了しますか？"));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+        if (msgBox.exec() == QMessageBox::No) {
+            event->ignore();
+            return;
+        }
+        settings.setValue(IniKey_ConfirmExit, !checkBox->isChecked());
+    }
+
+    settings.setValue(IniKey_WindowGeometry, saveGeometry());
+    settings.setValue(iniKey_WindowState, saveState());
+    QMainWindow::closeEvent(event);
 }

@@ -5,6 +5,8 @@
 #include <QDir>
 #include <QFileIconProvider>
 #include <QFileSystemWatcher>
+#include <QBrush>
+#include <QFont>
 
 class FileTableModel : public QAbstractTableModel
 {
@@ -30,6 +32,8 @@ public:
     QFileInfoList checkedItems() const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
+    void updateAppearance();
+
 signals:
     void rootChanged(const QString &root);
     void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
@@ -43,6 +47,14 @@ private:
     QVector<Qt::CheckState> m_checkStates;
     QFileIconProvider m_IconFactory;
     QFileSystemWatcher *m_fsWatcher;
+    QFont m_font;
+    QBrush m_NormalBrush;
+    QBrush m_NormalTextBrush;
+    QBrush m_MarkBrush;
+    QBrush m_MarkTextBrush;
+    QBrush m_SystemBrush;
+    QBrush m_HiddenBrush;
+    QBrush m_ReadonlyBrush;
 
     void stateChanged();
 

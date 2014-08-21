@@ -10,9 +10,14 @@ public:
     explicit ClickableLabel(QWidget *parent = 0);
 
 signals:
+    void clicked();
 
 public slots:
 
+
+    // QWidget interface
+protected:
+    void mouseReleaseEvent(QMouseEvent *);
 };
 
 #endif // CLICKABLELABEL_H

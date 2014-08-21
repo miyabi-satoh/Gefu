@@ -28,7 +28,10 @@ SOURCES += main.cpp\
     filetablemodel.cpp \
     filetableview.cpp \
     history.cpp \
-    historydialog.cpp
+    historydialog.cpp \
+    preferencedialog.cpp \
+    clickablelabel.cpp \
+    colorsamplemodel.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -47,7 +50,10 @@ HEADERS  += mainwindow.h \
     filetablemodel.h \
     filetableview.h \
     history.h \
-    historydialog.h
+    historydialog.h \
+    preferencedialog.h \
+    clickablelabel.h \
+    colorsamplemodel.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \
@@ -56,7 +62,8 @@ FORMS    += mainwindow.ui \
     operationdialog.ui \
     overwritedialog.ui \
     sortdialog.ui \
-    historydialog.ui
+    historydialog.ui \
+    preferencedialog.ui
 
 RESOURCES += \
     resource.qrc

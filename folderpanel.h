@@ -27,6 +27,8 @@ public:
     const QString side() const;
     void setSide(const QString &side);
 
+    void updateAppearance();
+
 private:
     Ui::FolderPanel *ui;
 
