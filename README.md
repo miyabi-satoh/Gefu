@@ -1,7 +1,7 @@
 Gefu
 ====
 
-Gefu is Experimental File Utility.
+Gefu is an Experimental File Utility.
 
 ### TODO
 - 初期表示時にカーソルがハイライトされないorz
