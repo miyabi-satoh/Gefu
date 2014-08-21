@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,6 +49,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="chkAutoClose">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text">
         <string>成功時、自動的に閉じる</string>
        </property>
@@ -69,6 +72,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnCloseCancel">
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="text">
         <string>キャンセル</string>
        </property>
@@ -123,6 +129,9 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="text">
         <string>詳細を表示</string>

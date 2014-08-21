@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>589</width>
-    <height>443</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,6 +22,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_7">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="currentIndex">
       <number>1</number>
      </property>
@@ -32,6 +35,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QCheckBox" name="confirmExit">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>終了時に確認ダイアログを表示する</string>
          </property>
@@ -39,6 +45,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="bootSize">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>起動時のウィンドウサイズを指定する</string>
          </property>
@@ -70,6 +79,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="sizeAbsolute">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>絶対指定</string>
            </property>
@@ -166,6 +178,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="sizeRelative">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>相対指定</string>
            </property>
@@ -262,6 +277,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="sizeLast">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>前回終了時のサイズ</string>
            </property>
@@ -274,6 +292,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="bootPos">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>起動時のウィンドウ位置を指定する</string>
          </property>
@@ -305,6 +326,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="posAbsolute">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>絶対指定</string>
            </property>
@@ -401,6 +425,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="posRelative">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>相対指定</string>
            </property>
@@ -497,6 +524,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="posCenter">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>画面中央</string>
            </property>
@@ -530,6 +560,9 @@
          </item>
          <item>
           <widget class="QRadioButton" name="posLast">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>前回終了時の位置</string>
            </property>
@@ -542,6 +575,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="resetOnBoot">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>次回起動時に設定ファイルをクリアする</string>
          </property>
@@ -605,6 +641,9 @@
             </item>
             <item>
              <widget class="QCheckBox" name="boxFontBold">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
               <property name="text">
                <string>太字</string>
               </property>
@@ -635,6 +674,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
               <property name="text">
                <string>文字色</string>
               </property>
@@ -642,6 +684,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="boxClrBg">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
               <property name="text">
                <string>背景色</string>
               </property>
@@ -693,6 +738,9 @@
             </item>
             <item>
              <widget class="QCheckBox" name="viewFontBold">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
               <property name="text">
                <string>太字</string>
               </property>
@@ -729,6 +777,9 @@
                     <layout class="QHBoxLayout" name="horizontalLayout_19">
                      <item>
                       <widget class="QPushButton" name="clrFgNormal">
+                       <property name="focusPolicy">
+                        <enum>Qt::StrongFocus</enum>
+                       </property>
                        <property name="text">
                         <string>通常</string>
                        </property>
@@ -736,6 +787,9 @@
                      </item>
                      <item>
                       <widget class="QPushButton" name="clrFgMark">
+                       <property name="focusPolicy">
+                        <enum>Qt::StrongFocus</enum>
+                       </property>
                        <property name="text">
                         <string>マーク</string>
                        </property>
@@ -747,6 +801,9 @@
                     <layout class="QHBoxLayout" name="horizontalLayout_20">
                      <item>
                       <widget class="QPushButton" name="clrFgSystem">
+                       <property name="focusPolicy">
+                        <enum>Qt::StrongFocus</enum>
+                       </property>
                        <property name="text">
                         <string>システム</string>
                        </property>
@@ -754,6 +811,9 @@
                      </item>
                      <item>
                       <widget class="QPushButton" name="clrFgHidden">
+                       <property name="focusPolicy">
+                        <enum>Qt::StrongFocus</enum>
+                       </property>
                        <property name="text">
                         <string>隠し属性</string>
                        </property>
@@ -761,6 +821,9 @@
                      </item>
                      <item>
                       <widget class="QPushButton" name="clrFgReadonly">
+                       <property name="focusPolicy">
+                        <enum>Qt::StrongFocus</enum>
+                       </property>
                        <property name="text">
                         <string>読取専用</string>
                        </property>
@@ -779,6 +842,9 @@
                   <layout class="QHBoxLayout" name="horizontalLayout_18">
                    <item>
                     <widget class="QPushButton" name="clrBgNormal">
+                     <property name="focusPolicy">
+                      <enum>Qt::StrongFocus</enum>
+                     </property>
                      <property name="text">
                       <string>通常</string>
                      </property>
@@ -786,6 +852,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="clrBgMark">
+                     <property name="focusPolicy">
+                      <enum>Qt::StrongFocus</enum>
+                     </property>
                      <property name="text">
                       <string>マーク</string>
                      </property>
@@ -811,6 +880,9 @@
                 <width>100</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
               </property>
               <attribute name="horizontalHeaderVisible">
                <bool>false</bool>
@@ -844,6 +916,9 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -874,12 +949,23 @@
   <tabstop>relativeTop</tabstop>
   <tabstop>posCenter</tabstop>
   <tabstop>posLast</tabstop>
+  <tabstop>resetOnBoot</tabstop>
   <tabstop>boxFont</tabstop>
   <tabstop>boxFontSize</tabstop>
   <tabstop>boxFontBold</tabstop>
+  <tabstop>boxClrFg</tabstop>
+  <tabstop>boxClrBg</tabstop>
+  <tabstop>sampleEdit</tabstop>
   <tabstop>viewFont</tabstop>
   <tabstop>viewFontSize</tabstop>
   <tabstop>viewFontBold</tabstop>
+  <tabstop>clrFgNormal</tabstop>
+  <tabstop>clrFgMark</tabstop>
+  <tabstop>clrFgSystem</tabstop>
+  <tabstop>clrFgHidden</tabstop>
+  <tabstop>clrFgReadonly</tabstop>
+  <tabstop>clrBgNormal</tabstop>
+  <tabstop>clrBgMark</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -917,7 +1003,7 @@
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="sizeOptions"/>
   <buttongroup name="posOptions"/>
+  <buttongroup name="sizeOptions"/>
  </buttongroups>
 </ui>

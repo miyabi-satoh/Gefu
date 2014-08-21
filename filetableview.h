@@ -47,6 +47,7 @@ public slots:
     void showHiddenFiles(bool show);
     void showSystemFiles(bool show);
     void setSort();
+    void refresh();
 
     void back();
     void forward();

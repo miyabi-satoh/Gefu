@@ -72,7 +72,7 @@ OTHER_FILES += \
     Gefu.rc \
     README.md
 
-mac {
+macx {
     ICON = ./images/Gefu.icns
 }
 

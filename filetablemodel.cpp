@@ -53,11 +53,17 @@ bool FileTableModel::setPath(const QString &path)
         qDebug() << path;
     }
     else {
-        QFileInfoList::iterator it;
+        QFileInfoList::iterator it, itRoot = m_fileInfoList.end();
         for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); ) {
-            if (it->fileName() == ".." && m_dir.isRoot()) {
-                it = m_fileInfoList.erase(it);
-                continue;
+            if (it->fileName() == "..") {
+                if (m_dir.isRoot()) {
+                   it = m_fileInfoList.erase(it);
+                    itRoot = m_fileInfoList.end();
+                    continue;
+                }
+                else {
+                    itRoot = it;
+                }
             }
 #ifdef Q_OS_WIN32
             if (!(filter() & QDir::System)){
@@ -74,7 +80,14 @@ bool FileTableModel::setPath(const QString &path)
 #endif
             it++;
         }
+        // ソート方法によらず、".."は必ず先頭にする
+        if (itRoot != m_fileInfoList.begin() && itRoot != m_fileInfoList.end()) {
+            QFileInfo info(*itRoot);
+            m_fileInfoList.erase(itRoot);
+            m_fileInfoList.push_front(info);
+        }
     }
+
     m_checkStates.resize(m_fileInfoList.size());
     m_checkStates.fill(Qt::Unchecked);
 
@@ -84,7 +97,8 @@ bool FileTableModel::setPath(const QString &path)
     m_fsWatcher = new QFileSystemWatcher(this);
     m_fsWatcher->addPath(path);
     connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
-            this, SLOT(refresh()));
+//            this, SLOT(refresh()));
+            this, SIGNAL(listUpdated()));
 
     endResetModel();
 
@@ -164,6 +178,12 @@ void FileTableModel::updateAppearance()
     beginResetModel();
     endResetModel();
 }
+
+//void FileTableModel::refresh()
+//{
+//    setPath(m_dir.absolutePath());
+
+//}
 
 void FileTableModel::stateChanged()
 {

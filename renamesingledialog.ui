@@ -109,6 +109,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="btn_UpperAll">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>大文字にする</string>
             </property>
@@ -116,6 +119,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_LowerAll">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>小文字にする</string>
             </property>
@@ -134,6 +140,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QPushButton" name="btn_UpperExt">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>大文字にする</string>
             </property>
@@ -141,6 +150,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="btn_LowerExt">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>小文字にする</string>
             </property>
@@ -155,6 +167,9 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

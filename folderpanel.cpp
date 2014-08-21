@@ -77,6 +77,8 @@ void FolderPanel::setSide(const QString &side)
             ui->locationField, SLOT(setText(QString)));
     connect(model, SIGNAL(stateChanged(int,int,quint64)),
             this, SLOT(onStateChanged(int,int,quint64)));
+    connect(model, SIGNAL(listUpdated()),
+            ui->fileTable, SLOT(refresh()));
 
     //>>>>> フィルタ初期化
     model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
@@ -96,7 +98,7 @@ void FolderPanel::setSide(const QString &side)
     default:            model->setSorting(model->sorting() | QDir::Name); break;
     }
     // デフォルトだと文字列は昇順で、数値は降順…orz
-    int orderBy = settings.value(side + slash + IniKey_OrderBy, OrderByDesc).toInt();
+    int orderBy = settings.value(side + slash + IniKey_OrderBy, OrderByAsc).toInt();
     if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
         ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
     {
@@ -118,7 +120,6 @@ void FolderPanel::setSide(const QString &side)
     model->updateAppearance();
     ui->fileTable->setModel(model);
     ui->fileTable->setRootPath(path, true);
-    ui->fileTable->selectRow(0);
 }
 
 void FolderPanel::updateAppearance()
@@ -178,3 +179,4 @@ void FolderPanel::on_locationField_editingFinished()
 
     ui->locationField->blockSignals(false);
 }
+

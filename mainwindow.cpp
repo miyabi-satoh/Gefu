@@ -51,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent) :
     shortcuts.append(QKeySequence("Shift+M"));
     ui->action_Exec->setShortcuts(shortcuts);
 
+    shortcuts = ui->help_About->shortcuts();
+    shortcuts.append(QKeySequence("Shift+?"));  // マヂで！？
+    ui->help_About->setShortcuts(shortcuts);
+
     // シグナル/スロットを設定する
     connect(ui->action_Setting, SIGNAL(triggered()), this, SLOT(onActionSetting()));
     connect(ui->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
@@ -61,7 +65,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
     // ウィンドウアイコンを設定する
+#if defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACX)
+    setWindowIcon(QIcon(":/images/Gefu.icns"));
+#else
     setWindowIcon(QIcon(":/images/Gefu.png"));
+#endif
     //>>>>> ウィンドウサイズと位置を設定する
     QString strValue;
     QPoint point = this->geometry().topLeft();
@@ -164,9 +172,10 @@ void MainWindow::onHelpAbout()
                 this,
                 tr("げふぅ について"),
                 tr("<h3>Gefu Ver%1</h3>").arg(VERSION_VALUE) +
-                tr("<center>Gefu is Experimental File Utility.<br/>"
-                   "（げふぅは実験的なファイルユーティリティです）</center>"
-                   "<p>Copyright 2014 @miyabi_satoh All rights reserved.</p>"));
+                tr("<center>Gefu is an Experimental File Utility.<br/>"
+                   "<small>（げふぅは実験的なファイルユーティリティです）</small></center>"
+                   "<p>最新版の情報は<a href='http://miyabi.rakusaba.jp'>喫茶・雅</a>で公開しています。</p>"
+                   "<p><small>Copyright 2014 @miyabi_satoh All rights reserved.</small></p>"));
 }
 
 MainWindow* getMainWnd()

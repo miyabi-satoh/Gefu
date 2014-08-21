@@ -37,9 +37,10 @@ public:
 signals:
     void rootChanged(const QString &root);
     void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
+    void listUpdated();
 
 public slots:
-    void refresh() { setPath(m_dir.absolutePath()); }
+//    void refresh();
 
 private:
     QDir m_dir;

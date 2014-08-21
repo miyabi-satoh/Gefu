@@ -218,6 +218,8 @@
    <addaction name="mark_AllFiles"/>
    <addaction name="mark_AllOff"/>
    <addaction name="separator"/>
+   <addaction name="view_Refresh"/>
+   <addaction name="separator"/>
    <addaction name="move_Back"/>
    <addaction name="move_Forward"/>
    <addaction name="move_Root"/>
@@ -240,7 +242,7 @@
      <x>0</x>
      <y>0</y>
      <width>662</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -273,6 +275,7 @@
     <addaction name="view_FromOther"/>
     <addaction name="view_ToOther"/>
     <addaction name="view_Swap"/>
+    <addaction name="view_Refresh"/>
     <addaction name="separator"/>
     <addaction name="view_Hidden"/>
     <addaction name="view_System"/>
@@ -819,6 +822,21 @@
    </property>
    <property name="shortcut">
     <string>Shift+S</string>
+   </property>
+  </action>
+  <action name="view_Refresh">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Refresh.png</normaloff>:/images/Refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>最新の情報に更新</string>
+   </property>
+   <property name="toolTip">
+    <string>最新の情報に更新</string>
+   </property>
+   <property name="shortcut">
+    <string>L</string>
    </property>
   </action>
  </widget>

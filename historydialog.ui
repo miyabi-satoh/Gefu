@@ -19,7 +19,7 @@
      <item>
       <widget class="QRadioButton" name="leftPane">
        <property name="focusPolicy">
-        <enum>Qt::TabFocus</enum>
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="text">
         <string>左ペイン</string>
@@ -32,7 +32,7 @@
      <item>
       <widget class="QRadioButton" name="rightPane">
        <property name="focusPolicy">
-        <enum>Qt::TabFocus</enum>
+        <enum>Qt::StrongFocus</enum>
        </property>
        <property name="text">
         <string>右ペイン</string>
@@ -47,14 +47,14 @@
    <item>
     <widget class="QListWidget" name="listWidget">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::StrongFocus</enum>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="focusPolicy">
-      <enum>Qt::TabFocus</enum>
+      <enum>Qt::StrongFocus</enum>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

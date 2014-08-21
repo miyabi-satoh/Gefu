@@ -77,6 +77,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>大文字にする</string>
             </property>
@@ -89,6 +92,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
             </property>
             <property name="text">
              <string>小文字にする</string>
@@ -114,6 +120,9 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
             <property name="text">
              <string>大文字にする</string>
             </property>
@@ -126,6 +135,9 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
             </property>
             <property name="text">
              <string>小文字にする</string>
@@ -234,6 +246,9 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
           </property>
           <property name="text">
            <string>設定</string>
@@ -391,6 +406,9 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
           <property name="text">
            <string>設定</string>
           </property>
@@ -403,6 +421,9 @@
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
