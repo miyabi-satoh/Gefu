@@ -279,7 +279,7 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
         {
             DWORD dwFlags = ::GetFileAttributes(
                         info.absoluteFilePath().toStdWString().c_str());
-            if (dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM) == FILE_ATTRIBUTE_SYSTEM))
+            if (dwFlags != DWORD(-1) && (dwFlags & FILE_ATTRIBUTE_SYSTEM) == FILE_ATTRIBUTE_SYSTEM)
             {
                 return m_SystemBrush;
             }

@@ -112,7 +112,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     palette = QPalette();
     // 背景色
     color = settings.value(IniKey_BoxColorBg, QPalette().base().color()).value<QColor>();
-    palette.setColor(QPalette::Background, color);
+    palette.setColor(QPalette::Base, color);
     // 文字色
     color = settings.value(IniKey_BoxColorFg, QPalette().text().color()).value<QColor>();
     palette.setColor(QPalette::Text, color);
