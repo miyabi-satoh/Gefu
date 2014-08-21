@@ -38,6 +38,7 @@ signals:
     void rootChanged(const QString &root);
     void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
     void listUpdated();
+    void filesDropped(const QFileInfoList &list);
 
 public slots:
 //    void refresh();

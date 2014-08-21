@@ -188,7 +188,7 @@ void CopyMoveWorker::Listup(const QString &srcPath, const QString &tgtPath)
     QDir tgtDir(tgtPath);
 
     m_CopyMap.insert(srcPath, tgtDir.absoluteFilePath(info.fileName()));
-//    qDebug() << srcPath << " -> " << tgtDir.absoluteFilePath(info.fileName());
+    qDebug() << srcPath << " -> " << tgtDir.absoluteFilePath(info.fileName());
     if (info.isDir()) {
         QDir srcDir(srcPath);
         foreach (QFileInfo info2, srcDir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {

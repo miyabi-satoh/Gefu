@@ -74,6 +74,7 @@ private slots:
     void askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
                       QString *alias, const QString &srcPath,
                       const QString &tgtPath);
+    void acceptDrops(const QFileInfoList &list);
 
     // QAbstractItemView interface
 public slots:
@@ -83,8 +84,6 @@ public slots:
 protected:
     void keyPressEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *event);
-//    void dropEvent(QDropEvent *event);
-//    void dragEnterEvent(QDragEnterEvent *event);
 
     // QAbstractItemView interface
 protected slots:

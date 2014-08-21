@@ -9,18 +9,13 @@
 #include "sortdialog.h"
 #include "preferencedialog.h"
 #include "ui_mainwindow.h"
-#include <QFileSystemModel>
-#include <QDebug>
-#include <QKeyEvent>
-#include <QDesktopServices>
-#include <QSettings>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProcess>
-#include <QThread>
-#include <QInputDialog>
+
 #include <QCheckBox>
+#include <QCloseEvent>
+#include <QDebug>
 #include <QDesktopWidget>
+#include <QMessageBox>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -156,7 +151,7 @@ void MainWindow::toggleShowHiddenFiles()
 void MainWindow::toggleShowSystemFiles()
 {
     // キーボードがトリガーの場合、メニュー項目のチェック状態は
-    // 変わらないので、QSettingsを使う
+    // 変わらない(Mac)ので、QSettingsを使う
     QSettings settings;
     bool show = !settings.value(IniKey_ShowSystem, false).toBool();
     settings.setValue(IniKey_ShowSystem, show);
@@ -174,7 +169,7 @@ void MainWindow::onHelpAbout()
                 tr("<h3>Gefu Ver%1</h3>").arg(VERSION_VALUE) +
                 tr("<center>Gefu is an Experimental File Utility.<br/>"
                    "<small>（げふぅは実験的なファイルユーティリティです）</small></center>"
-                   "<p>最新版の情報は<a href='http://miyabi.rakusaba.jp'>喫茶・雅</a>で公開しています。</p>"
+                   "<p>最新版の情報は<a href='http://miyabi.rakusaba.jp'>喫茶[雅]</a>で公開しています。</p>"
                    "<p><small>Copyright 2014 @miyabi_satoh All rights reserved.</small></p>"));
 }
 

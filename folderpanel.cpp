@@ -3,16 +3,8 @@
 #include "folderpanel.h"
 #include "mainwindow.h"
 #include "ui_folderpanel.h"
-#include <QCheckBox>
-#include <QMessageBox>
-#include <QKeyEvent>
-#include <QDebug>
-#include <QDateTime>
-#include <QDesktopServices>
+
 #include <QSettings>
-#ifdef Q_OS_WIN32
-    #include <windows.h>
-#endif
 
 QString FilesizeToString(quint64 size)
 {
@@ -79,6 +71,9 @@ void FolderPanel::setSide(const QString &side)
             this, SLOT(onStateChanged(int,int,quint64)));
     connect(model, SIGNAL(listUpdated()),
             ui->fileTable, SLOT(refresh()));
+    connect(model, SIGNAL(filesDropped(QFileInfoList)),
+            ui->fileTable, SLOT(acceptDrops(QFileInfoList)));
+
 
     //>>>>> フィルタ初期化
     model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);

@@ -14,7 +14,7 @@ void History::add(const QString &path)
     }
     // 現在位置と異なるパスであれば追加する
     if (isEmpty() || (m_list[m_pos] != path)) {
-        m_list.push_back(path);
+        m_list << path;
     }
     m_pos = m_list.size() - 1;
 }

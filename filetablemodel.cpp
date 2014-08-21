@@ -398,22 +398,37 @@ bool FileTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 
     qDebug() << action << row << column;
 
-    if (action == Qt::IgnoreAction)
+    if (action == Qt::IgnoreAction) {
         return true;
-
-    if (!data->hasFormat("text/uri-list"))
-        return false;
-
-    if (column > 0)
-        return false;
-
-    QString msg;
-    msg = "ドロップを検知しました。<br/>";
-    foreach (const QUrl &url, data->urls()) {
-        msg += url.toLocalFile() + "<br/>";
-        qDebug() << url.toLocalFile();
     }
-    QMessageBox::information(NULL, "info", msg);
+
+    if (!data->hasFormat("text/uri-list")) {
+        return false;
+    }
+
+    if (column > 0) {
+        return false;
+    }
+
+    QFileInfoList list;
+    foreach (const QUrl &url, data->urls()) {
+        QFileInfo info(url.toLocalFile());
+        QString path = info.canonicalFilePath();
+        if (!path.isEmpty()) {
+            qDebug() << path;
+            list << path;
+        }
+        else {
+            qDebug() << "path is empty.";
+            qDebug() << url;
+        }
+    }
+
+    if (list.isEmpty()) {
+        return false;
+    }
+
+    emit filesDropped(list);
 
     return true;
 }

@@ -755,7 +755,28 @@ void FileTableView::askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod
      }
      CopyMoveWorker *worker = static_cast<CopyMoveWorker*>(sender());
      worker->endAsking();
- }
+}
+
+void FileTableView::acceptDrops(const QFileInfoList &list)
+{
+    if (list.isEmpty()) {
+        return;
+    }
+
+    FileTableModel *m = static_cast<FileTableModel*>(model());
+    CopyMoveWorker *worker = new CopyMoveWorker();
+    connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
+            this, SLOT(askOverWrite(bool*,int*,int*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(m->absolutePath());
+    worker->setMoveMode(false);
+
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("コピー"));
+    opDlg.setWorker(worker);
+
+    opDlg.exec();
+}
 
 void FileTableView::setRootIndex(const QModelIndex &index)
 {
@@ -821,16 +842,3 @@ void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex
 
     QTableView::currentChanged(current, previous);
 }
-
-
-//void FileTableView::dropEvent(QDropEvent *event)
-//{
-//    foreach (const QString &str, event->mimeData()->formats()) {
-//        qDebug() << str;
-//    }
-//}
-
-//void FileTableView::dragEnterEvent(QDragEnterEvent *event)
-//{
-//    event->acceptProposedAction();
-//}
