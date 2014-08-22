@@ -1,13 +1,7 @@
-#include "copymoveworker.h"
-#include "deleteworker.h"
+#include "common.h"
 #include "mainwindow.h"
-#include "operationdialog.h"
-#include "overwritedialog.h"
-#include "renamemultidialog.h"
-#include "renamesingledialog.h"
-#include "renameworker.h"
-#include "sortdialog.h"
 #include "preferencedialog.h"
+#include "filetableview.h"
 #include "ui_mainwindow.h"
 
 #include <QCheckBox>
@@ -26,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->LPanel->setSide("Left");
     ui->LPanel->updateAppearance();
     ui->RPanel->updateAppearance();
-    ui->LPanel->fileTable()->setFocus();
 
     QSettings settings;
     // メニュー項目のチェック状態を初期化する
@@ -138,7 +131,7 @@ void MainWindow::onActionSetting()
 void MainWindow::toggleShowHiddenFiles()
 {
     // キーボードがトリガーの場合、メニュー項目のチェック状態は
-    // 変わらないので、QSettingsを使う
+    // 変わらない(Mac)ので、QSettingsを使う
     QSettings settings;
     bool show = !settings.value(IniKey_ShowHidden, false).toBool();
     settings.setValue(IniKey_ShowHidden, show);
@@ -187,8 +180,6 @@ MainWindow* getMainWnd()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "closeEvent();";
-
     QSettings settings;
 
     if (settings.value(IniKey_ConfirmExit, true).toBool()) {

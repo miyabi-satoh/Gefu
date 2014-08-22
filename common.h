@@ -8,7 +8,7 @@ class MainWindow;
 extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
 
-#define VERSION_VALUE   0.05
+#define VERSION_VALUE   0.06
 
 #define slash   QString("/")
 #define QQ(x)   ("\"" + (x) + "\"")

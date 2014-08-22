@@ -2,12 +2,6 @@
 #define FOLDERPANEL_H
 
 #include <QWidget>
-#include <QDir>
-#include <QTableWidget>
-#include <QFileIconProvider>
-#include <QFileSystemWatcher>
-#include "filetableview.h"
-class MainWindow;
 
 namespace Ui {
 class FolderPanel;
@@ -20,9 +14,6 @@ class FolderPanel : public QWidget
 public:
     explicit FolderPanel(QWidget *parent = 0);
     ~FolderPanel();
-
-    QTableView *fileTable();
-    const QTableView* fileTable() const;
 
     const QString side() const;
     void setSide(const QString &side);

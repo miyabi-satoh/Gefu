@@ -23,6 +23,9 @@
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QStatusBar>
+#include <QMimeData>
+#include <QDrag>
+#include <QApplication>
 
 #define CHECK_FOCUS {                   \
         if (!hasFocus()) { return; }    \
@@ -36,7 +39,9 @@
 FileTableView::FileTableView(QWidget *parent) :
     QTableView(parent),
     m_side(),
-    m_history()
+    m_history(),
+    m_dragStartPos(),
+    m_dragging(false)
 {
     // シグナル/スロットを設定する
     connect(MENU_TRRIGGERED(action_Open), this, SLOT(setPath()));
@@ -87,7 +92,6 @@ FileTableView::FileTableView(QWidget *parent) :
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
-//    setDragDropMode(QAbstractItemView::DragDrop);
 }
 
 FileTableView::~FileTableView()
@@ -201,11 +205,7 @@ void FileTableView::kickProcess()
     dlg.setWindowTitle(tr("コマンドを実行"));
     dlg.setLabelText(tr("コマンド："));
     dlg.setTextValue(command);
-
-    QSize szMainWnd = getMainWnd()->size();
-    QSize szDialog = dlg.size();
-    szDialog.setWidth(szMainWnd.width() * 0.8);
-    dlg.resize(szDialog);
+    dlg.resize(getMainWnd()->width() * 0.8, dlg.height());
 
     int ret = dlg.exec();
     command = dlg.textValue();
@@ -243,7 +243,6 @@ void FileTableView::toggleChecked()
         setCurrentIndex(index);
     }
     else if (index.row() < m->rowCount() - 1) {
-        qDebug() << "set = " << index.row() + 1;
         setCurrentIndex(m->index(index.row() + 1, 1));
     }
 }
@@ -486,10 +485,6 @@ void FileTableView::showHidtory()
         dlg.setHistory(other->history(), &m_history);
     }
 
-    QSize szMainWnd = getMainWnd()->size();
-    QSize szDialog = dlg.size();
-    szDialog.setWidth(szMainWnd.width() * 0.8);
-    dlg.resize(szDialog);
     if (dlg.exec() == QDialog::Accepted) {
         if (side() == dlg.selectedSide()) {
             m_history.setAt(dlg.selectedIndex());
@@ -499,7 +494,6 @@ void FileTableView::showHidtory()
             setRootPath(other->history()->at(dlg.selectedIndex()), true);
         }
         updateMenu();
-        qDebug() << dlg.selectedIndex();
     }
 }
 
@@ -757,27 +751,6 @@ void FileTableView::askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod
      worker->endAsking();
 }
 
-void FileTableView::acceptDrops(const QFileInfoList &list)
-{
-    if (list.isEmpty()) {
-        return;
-    }
-
-    FileTableModel *m = static_cast<FileTableModel*>(model());
-    CopyMoveWorker *worker = new CopyMoveWorker();
-    connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
-            this, SLOT(askOverWrite(bool*,int*,int*,QString*,QString,QString)));
-    worker->setCopyList(&list);
-    worker->setTargetDir(m->absolutePath());
-    worker->setMoveMode(false);
-
-    OperationDialog opDlg(this);
-    opDlg.setWindowTitle(tr("コピー"));
-    opDlg.setWorker(worker);
-
-    opDlg.exec();
-}
-
 void FileTableView::setRootIndex(const QModelIndex &index)
 {
     if (!index.isValid()) {
@@ -841,4 +814,107 @@ void FileTableView::currentChanged(const QModelIndex &current, const QModelIndex
     emit indexChanged(m->absoluteFilePath(current));
 
     QTableView::currentChanged(current, previous);
+}
+
+
+void FileTableView::dropEvent(QDropEvent *event)
+{
+    if (m_dragging) {
+        event->ignore();
+        return;
+    }
+
+    QFileInfoList list;
+    foreach (const QUrl &url, event->mimeData()->urls()) {
+        QFileInfo info(url.toLocalFile());
+        QString path = info.canonicalFilePath();
+        if (!path.isEmpty()) {
+            list << path;
+        }
+        else {
+            qDebug() << "path is empty.";
+        }
+    }
+
+    if (list.isEmpty()) {
+        event->ignore();
+        return;
+    }
+    event->acceptProposedAction();
+
+    FileTableModel *m = static_cast<FileTableModel*>(model());
+    CopyMoveWorker *worker = new CopyMoveWorker();
+    connect(worker, SIGNAL(askOverWrite(bool*,int*,int*,QString*,QString,QString)),
+            this, SLOT(askOverWrite(bool*,int*,int*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(m->absolutePath());
+    worker->setMoveMode(false);
+
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("コピー"));
+    opDlg.setWorker(worker);
+
+    opDlg.exec();
+}
+
+
+void FileTableView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+        return;
+    }
+
+    QTableView::dragEnterEvent(event);
+}
+
+void FileTableView::mousePressEvent(QMouseEvent *event)
+{
+    if ((event->buttons() & Qt::LeftButton) || (event->buttons() & Qt::RightButton))
+    {
+        m_dragStartPos = event->pos();
+    }
+
+    QTableView::mousePressEvent(event);
+}
+
+void FileTableView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton) &&
+        !(event->buttons() & Qt::RightButton))
+    {
+        QTableView::mouseMoveEvent(event);
+        return;
+    }
+    if ((event->pos() - m_dragStartPos).manhattanLength()
+            < QApplication::startDragDistance())
+    {
+        QTableView::mouseMoveEvent(event);
+        return;
+    }
+
+    QFileInfoList list = selectedItems();
+    if (list.isEmpty()) {
+        QTableView::mousePressEvent(event);
+        return;
+    }
+
+    QList<QUrl> urls;
+    foreach (const QFileInfo &info, list) {
+        urls << QUrl::fromLocalFile(info.absoluteFilePath());
+    }
+
+    QDrag *drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setUrls(urls);
+    drag->setMimeData(mimeData);
+
+    m_dragging = true;
+    if (event->buttons() & Qt::RightButton) {
+        drag->exec(Qt::CopyAction | Qt::MoveAction);
+    }
+    else {
+        drag->exec(Qt::CopyAction);
+    }
+    m_dragging = false;
 }

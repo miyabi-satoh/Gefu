@@ -1,3 +1,5 @@
+#include "common.h"
+#include "mainwindow.h"
 #include "historydialog.h"
 #include "ui_historydialog.h"
 
@@ -9,7 +11,7 @@ HistoryDialog::HistoryDialog(QWidget *parent) :
     m_displaying(NULL)
 {
     ui->setupUi(this);
-
+    resize(getMainWnd()->width() * 0.8, height());
 }
 
 HistoryDialog::~HistoryDialog()

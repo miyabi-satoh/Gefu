@@ -38,10 +38,8 @@ signals:
     void rootChanged(const QString &root);
     void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
     void listUpdated();
-    void filesDropped(const QFileInfoList &list);
 
 public slots:
-//    void refresh();
 
 private:
     QDir m_dir;
@@ -70,9 +68,6 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     Qt::DropActions supportedDropActions() const;
     QStringList mimeTypes() const;
-    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 };
-
-
 
 #endif // FILETABLEMODEL_H

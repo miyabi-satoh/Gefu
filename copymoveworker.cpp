@@ -101,11 +101,21 @@ void CopyMoveWorker::operate()
                 }
 
                 if (prevCopyMethod == OverWriteDialog::OverWrite) {
+                    if (srcInfo.absoluteFilePath() == tgtInfo.absoluteFilePath()) {
+                        emit success(tr("同一ファイルへの操作のためスキップ"));
+                        skipCount++;
+                        break;
+                    }
                     QFile(tgtInfo.absoluteFilePath()).remove();
                 }
                 else if (prevCopyMethod == OverWriteDialog::OverWriteIfNew) {
                     if (srcInfo.lastModified() <= tgtInfo.lastModified()) {
-                        emit success(tr("スキップ"));
+                        emit success(tr("古いファイルのためスキップ"));
+                        skipCount++;
+                        break;
+                    }
+                    if (srcInfo.absoluteFilePath() == tgtInfo.absoluteFilePath()) {
+                        emit success(tr("同一ファイルへの操作のためスキップ"));
                         skipCount++;
                         break;
                     }
@@ -138,7 +148,7 @@ void CopyMoveWorker::operate()
             if (ret) {
                 successCount++;
                 emit success(tr("成功"));
-                if (m_Move) {
+                if (m_Move && srcInfo.absoluteFilePath() != tgtInfo.absoluteFilePath()) {
                     ret = QFile(srcInfo.absoluteFilePath()).remove();
                     if (!ret) {
                         errDelCount++;

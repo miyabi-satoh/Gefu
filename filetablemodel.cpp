@@ -5,10 +5,7 @@
 #include <QDebug>
 #include <QApplication>
 #include <QSettings>
-#include <QMenuBar>
-#include <QMimeData>
-#include <QUrl>
-#include <QMessageBox>
+#include <QPalette>
 #ifdef Q_OS_WIN32
     #include <windows.h>
 #endif
@@ -100,7 +97,6 @@ bool FileTableModel::setPath(const QString &path)
     m_fsWatcher = new QFileSystemWatcher(this);
     m_fsWatcher->addPath(path);
     connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
-//            this, SLOT(refresh()));
             this, SIGNAL(listUpdated()));
 
     endResetModel();
@@ -181,12 +177,6 @@ void FileTableModel::updateAppearance()
     beginResetModel();
     endResetModel();
 }
-
-//void FileTableModel::refresh()
-//{
-//    setPath(m_dir.absolutePath());
-
-//}
 
 void FileTableModel::stateChanged()
 {
@@ -351,8 +341,6 @@ Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
         if (index.column() == 0) {
             flags |= Qt::ItemIsUserCheckable;
         }
-//        TODO
-//        flags |= Qt::ItemIsDragEnabled;
         flags |= Qt::ItemIsDropEnabled;
     }
     return flags;
@@ -390,45 +378,4 @@ QStringList FileTableModel::mimeTypes() const
     types << "text/uri-list";
 
     return types;
-}
-
-bool FileTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
-{
-    Q_UNUSED(parent);
-
-    qDebug() << action << row << column;
-
-    if (action == Qt::IgnoreAction) {
-        return true;
-    }
-
-    if (!data->hasFormat("text/uri-list")) {
-        return false;
-    }
-
-    if (column > 0) {
-        return false;
-    }
-
-    QFileInfoList list;
-    foreach (const QUrl &url, data->urls()) {
-        QFileInfo info(url.toLocalFile());
-        QString path = info.canonicalFilePath();
-        if (!path.isEmpty()) {
-            qDebug() << path;
-            list << path;
-        }
-        else {
-            qDebug() << "path is empty.";
-            qDebug() << url;
-        }
-    }
-
-    if (list.isEmpty()) {
-        return false;
-    }
-
-    emit filesDropped(list);
-
-    return true;
 }

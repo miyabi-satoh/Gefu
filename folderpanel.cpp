@@ -44,16 +44,6 @@ FolderPanel::~FolderPanel()
     delete ui;
 }
 
-QTableView* FolderPanel::fileTable()
-{
-    return ui->fileTable;
-}
-
-const QTableView *FolderPanel::fileTable() const
-{
-    return ui->fileTable;
-}
-
 const QString FolderPanel::side() const
 {
     return ui->fileTable->side();
@@ -71,9 +61,6 @@ void FolderPanel::setSide(const QString &side)
             this, SLOT(onStateChanged(int,int,quint64)));
     connect(model, SIGNAL(listUpdated()),
             ui->fileTable, SLOT(refresh()));
-    connect(model, SIGNAL(filesDropped(QFileInfoList)),
-            ui->fileTable, SLOT(acceptDrops(QFileInfoList)));
-
 
     //>>>>> フィルタ初期化
     model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
@@ -174,4 +161,3 @@ void FolderPanel::on_locationField_editingFinished()
 
     ui->locationField->blockSignals(false);
 }
-
