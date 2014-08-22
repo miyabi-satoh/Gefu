@@ -149,6 +149,10 @@ bool FileTableModel::isDir(const QModelIndex &index) const
 
 const QString FileTableModel::absoluteFilePath(const QModelIndex &index) const
 {
+    if (!index.isValid()) {
+        qDebug() << "index is invalid.";
+        return QString();
+    }
     return m_dir.absoluteFilePath(m_fileInfoList[index.row()].fileName());
 }
 
@@ -157,22 +161,20 @@ QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
     return m_fileInfoList[index.row()];
 }
 
-#define Brush(x, y, z)  QBrush((x).value((y), (z)).value<QColor>());
-
-
 void FileTableModel::updateAppearance()
 {
     QSettings settings;
     QPalette palette(QApplication::palette("QTableView"));
 
-    m_font = settings.value(IniKey_ViewFont, QApplication::font()).value<QFont>();
-    m_NormalBrush = Brush(settings, IniKey_ViewColorBgNormal, palette.base());
-    m_NormalTextBrush = Brush(settings, IniKey_ViewColorFgNormal, palette.text());
-    m_MarkBrush = Brush(settings, IniKey_ViewColorBgMark, DefaultMarkBgColor);
-    m_MarkTextBrush = Brush(settings, IniKey_ViewColorFgMark, DefaultMarkFgColor);
-    m_SystemBrush = Brush(settings, IniKey_ViewColorFgSystem, DefaultSystemColor);
-    m_HiddenBrush = Brush(settings, IniKey_ViewColorFgHidden, DefaultHiddenColor);
-    m_ReadonlyBrush = Brush(settings, IniKey_ViewColorFgReadonly, DefaultReadonlyColor);
+    m_font = settings.value(IniKey_ViewFont).value<QFont>();
+    m_NormalBrush = QBrush(settings.value(IniKey_ViewColorBgNormal).value<QColor>());
+    m_NormalTextBrush = QBrush(settings.value(IniKey_ViewColorFgNormal).value<QColor>());
+    m_MarkBrush = QBrush(settings.value(IniKey_ViewColorBgMark).value<QColor>());
+    m_MarkTextBrush = QBrush(settings.value(IniKey_ViewColorFgMark).value<QColor>());
+    m_SystemBrush = QBrush(settings.value(IniKey_ViewColorFgSystem).value<QColor>());
+    m_HiddenBrush = QBrush(settings.value(IniKey_ViewColorFgHidden).value<QColor>());
+    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
+    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
 
     beginResetModel();
     endResetModel();

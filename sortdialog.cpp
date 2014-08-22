@@ -22,9 +22,7 @@ void SortDialog::setRightOrLeft(const QString &s)
     QSettings settings;
 
     m_RightOrLeft = s;
-    int sortBy = settings.value(
-                m_RightOrLeft + slash + IniKey_SortBy,
-                SortByName).toInt();
+    int sortBy = settings.value(m_RightOrLeft + slash + IniKey_SortBy).toInt();
     if (sortBy == SortByType) {
         ui->sortByType->setChecked(true);
     }
@@ -38,9 +36,7 @@ void SortDialog::setRightOrLeft(const QString &s)
         ui->sortByName->setChecked(true);
     }
 
-    int orderBy = settings.value(
-                m_RightOrLeft + slash + IniKey_OrderBy,
-                OrderByAsc).toInt();
+    int orderBy = settings.value(m_RightOrLeft + slash + IniKey_OrderBy).toInt();
     if (orderBy == OrderByDesc) {
         ui->orderDesc->setChecked(true);
     }
@@ -48,9 +44,7 @@ void SortDialog::setRightOrLeft(const QString &s)
         ui->orderAsc->setChecked(true);
     }
 
-    int putDirs = settings.value(
-                m_RightOrLeft + slash + IniKey_PutDirs,
-                PutDirsFirst).toInt();
+    int putDirs = settings.value(m_RightOrLeft + slash + IniKey_PutDirs).toInt();
     if (putDirs == PutDirsDefault) {
         ui->dirsDefault->setChecked(true);
     }
@@ -61,8 +55,7 @@ void SortDialog::setRightOrLeft(const QString &s)
         ui->dirsFirst->setChecked(true);
     }
 
-    bool ignoreCase = settings.value(
-                m_RightOrLeft + slash + IniKey_IgnoreCase, true).toBool();
+    bool ignoreCase = settings.value(m_RightOrLeft + slash + IniKey_IgnoreCase).toBool();
     ui->ignoreCase->setChecked(ignoreCase);
 }
 

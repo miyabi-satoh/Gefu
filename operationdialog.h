@@ -19,6 +19,8 @@ public:
     void setWorker(IWorker *worker) {
         m_worker = worker;
     }
+    void setAutoClose(bool yes);
+    bool autoClose() const;
 
 protected:
     void showEvent(QShowEvent *);

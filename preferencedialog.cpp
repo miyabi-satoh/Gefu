@@ -8,8 +8,7 @@
 #include <QSettings>
 #include <QDebug>
 #include <QDir>
-
-
+#include <QFileDialog>
 
 PreferenceDialog::PreferenceDialog(QWidget *parent) :
     QDialog(parent),
@@ -21,8 +20,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     ui->setupUi(this);
     ui->tabWidget->setCurrentIndex(0);
-    ui->tabWidget->setTabText(0, "起動と終了");
-    ui->tabWidget->setTabText(1, "色とフォント");
     ui->sampleEdit->setText(QDir::homePath());
     ui->sampleTable->setModel(&m_model);
     ui->sampleTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -54,6 +51,9 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     connect(ui->viewFontBold, SIGNAL(clicked()), this, SLOT(changeFont()));
     connect(ui->viewFontSize, SIGNAL(valueChanged(int)), this, SLOT(changeFont()));
 
+    connect(ui->termBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
+    connect(ui->editorBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
+
     QSettings settings;
     QString strValue;
     QSize size;
@@ -65,9 +65,9 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     //>>>>> 起動と終了
     // 終了時の確認ダイアログ
-    ui->confirmExit->setChecked(settings.value(IniKey_ConfirmExit, true).toBool());
+    ui->confirmExit->setChecked(settings.value(IniKey_ConfirmExit).toBool());
     // 起動時のサイズ
-    strValue = settings.value(IniKey_BootSizeSpec, "sizeLast").toString();
+    strValue = settings.value(IniKey_BootSizeSpec).toString();
     if (strValue.isEmpty()) {
         ui->bootSize->setChecked(false);
     }
@@ -79,14 +79,14 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
         }
         radioBtn->setChecked(true);
     }
-    size = settings.value(IniKey_BootSizeAbs, QSize(800, 600)).toSize();
+    size = settings.value(IniKey_BootSizeAbs).toSize();
     ui->absoluteWidth->setValue(size.width());
     ui->absoluteHeight->setValue(size.height());
-    size = settings.value(IniKey_BootSizeRel, QSize(50, 50)).toSize();
+    size = settings.value(IniKey_BootSizeRel).toSize();
     ui->relativeWidth->setValue(size.width());
     ui->relativeHeight->setValue(size.height());
     // 起動時の位置
-    strValue = settings.value(IniKey_BootPosSpec, "posLast").toString();
+    strValue = settings.value(IniKey_BootPosSpec).toString();
     if (strValue.isEmpty()) {
         ui->bootPos->setChecked(false);
     }
@@ -98,27 +98,26 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
         }
         radioBtn->setChecked(true);
     }
-    point = settings.value(IniKey_BootPosAbs, QPoint(0, 0)).toPoint();
+    point = settings.value(IniKey_BootPosAbs).toPoint();
     ui->absoluteLeft->setValue(point.x());
     ui->absoluteTop->setValue(point.y());
-    point = settings.value(IniKey_BootPosRel, QPoint(0, 0)).toPoint();
+    point = settings.value(IniKey_BootPosRel).toPoint();
     ui->relativeLeft->setValue(point.x());
     ui->relativeTop->setValue(point.y());
     // 起動時の設定削除
-    ui->resetOnBoot->setChecked(settings.value(IniKey_ResetOnBoot, false).toBool());
+    ui->resetOnBoot->setChecked(settings.value(IniKey_ResetOnBoot).toBool());
 
     //>>>>> 色とフォント
     //>>>> アドレスボックス
     palette = QPalette();
     // 背景色
-    color = settings.value(IniKey_BoxColorBg, QPalette().base().color()).value<QColor>();
+    color = settings.value(IniKey_BoxColorBg).value<QColor>();
     palette.setColor(QPalette::Base, color);
     // 文字色
-    color = settings.value(IniKey_BoxColorFg, QPalette().text().color()).value<QColor>();
+    color = settings.value(IniKey_BoxColorFg).value<QColor>();
     palette.setColor(QPalette::Text, color);
     // フォント
-    QFont defaultFont = ui->sampleEdit->font();
-    font = settings.value(IniKey_BoxFont, defaultFont).value<QFont>();
+    font = settings.value(IniKey_BoxFont).value<QFont>();
     ui->boxFont->setCurrentText(font.family());
     ui->boxFontBold->setChecked(font.bold());
     ui->boxFontSize->setValue(font.pointSize());
@@ -127,30 +126,61 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     ui->sampleEdit->setFont(font);
     //>>>> ファイルビュー
     // 背景色
-    color = settings.value(IniKey_ViewColorBgMark, DefaultMarkBgColor).value<QColor>();
+    color = settings.value(IniKey_ViewColorBgMark).value<QColor>();
     m_colorMap["clrBgMark"] = color;
-    color = settings.value(IniKey_ViewColorBgNormal, QPalette().base().color()).value<QColor>();
+    color = settings.value(IniKey_ViewColorBgNormal).value<QColor>();
     m_colorMap["clrBgNormal"] = color;
     // 文字色
-    color = settings.value(IniKey_ViewColorFgHidden, DefaultHiddenColor).value<QColor>();
+    color = settings.value(IniKey_ViewColorFgHidden).value<QColor>();
     m_colorMap["clrFgHidden"] = color;
-    color = settings.value(IniKey_ViewColorFgMark, DefaultMarkFgColor).value<QColor>();
+    color = settings.value(IniKey_ViewColorFgMark).value<QColor>();
     m_colorMap["clrFgMark"] = color;
-    color = settings.value(IniKey_ViewColorFgNormal, QPalette().text().color()).value<QColor>();
+    color = settings.value(IniKey_ViewColorFgNormal).value<QColor>();
     m_colorMap["clrFgNormal"] = color;
-    color = settings.value(IniKey_ViewColorFgReadonly, DefaultReadonlyColor).value<QColor>();
+    color = settings.value(IniKey_ViewColorFgReadonly).value<QColor>();
     m_colorMap["clrFgReadonly"] = color;
-    color = settings.value(IniKey_ViewColorFgSystem, DefaultSystemColor).value<QColor>();
+    color = settings.value(IniKey_ViewColorFgSystem).value<QColor>();
     m_colorMap["clrFgSystem"] = color;
     // フォント
-    defaultFont = ui->sampleTable->font();
-    font = settings.value(IniKey_ViewFont, defaultFont).value<QFont>();
+    font = settings.value(IniKey_ViewFont).value<QFont>();
     ui->viewFont->setCurrentText(font.family());
     ui->viewFontBold->setChecked(font.bold());
     ui->viewFontSize->setValue(font.pointSize());
     // サンプル表示
     m_model.setFont(font);
     m_model.update();
+
+    //>>>>> ファイル操作
+    // 確認ダイアログの表示
+    ui->confirmCopy->setChecked(settings.value(IniKey_ConfirmCopy).toBool());
+    ui->confirmDelete->setChecked(settings.value(IniKey_ConfirmDelete).toBool());
+    ui->confirmMove->setChecked(settings.value(IniKey_ConfirmMove).toBool());
+    ui->confirmRename->setChecked(settings.value(IniKey_ConfirmRename).toBool());
+    // 完了ダイアログの自動クローズ
+    ui->autoCloseCopy->setChecked(settings.value(IniKey_AutoCloseCopy).toBool());
+    ui->autoCloseDelete->setChecked(settings.value(IniKey_AutoCloseDelete).toBool());
+    ui->autoCloseMove->setChecked(settings.value(IniKey_AutoCloseMove).toBool());
+    ui->autoCloseRename->setChecked(settings.value(IniKey_AutoCloseRename).toBool());
+    // 上書き時の既定動作
+    strValue = settings.value(IniKey_DefaultOnCopy).toString();
+    if (strValue.isEmpty()) {
+        strValue = "owDefIfNew";
+    }
+    radioBtn = findChild<QRadioButton*>(strValue);
+    if (radioBtn == NULL) {
+        radioBtn = ui->owDefIfNew;
+    }
+    radioBtn->setChecked(true);
+    ui->moveAfterCreate->setChecked(settings.value(IniKey_MoveAfterCreateFolder).toBool());
+    ui->openAfterCreate->setChecked(settings.value(IniKey_OpenAfterCreateFile).toBool());
+
+    //>>>>> パス設定
+    // エディタ
+    ui->editorOpt->setText(settings.value(IniKey_EditorOption).toString());
+    ui->editorPath->setText(settings.value(IniKey_EditorPath).toString());
+    // ターミナル
+    ui->termOpt->setText(settings.value(IniKey_TerminalOption).toString());
+    ui->termPath->setText(settings.value(IniKey_TerminalPath).toString());
 }
 
 PreferenceDialog::~PreferenceDialog()
@@ -267,6 +297,21 @@ void PreferenceDialog::selectViewColor()
     m_model.update();
 }
 
+void PreferenceDialog::browseApp()
+{
+    QString path = QFileDialog::getOpenFileName(
+                this, tr("アプリケーションを選択"), "",
+                tr("実行ファイル (*.exe *.com *.bat *.pif);;すべてのファイル (*)"));
+    if (!path.isEmpty()) {
+        if (sender() == ui->editorBrowse) {
+            ui->editorPath->setText(path);
+        }
+        else if (sender() == ui->termBrowse) {
+            ui->termPath->setText(path);
+        }
+    }
+}
+
 void PreferenceDialog::accept()
 {
     QSettings settings;
@@ -323,6 +368,31 @@ void PreferenceDialog::accept()
     settings.setValue(IniKey_ViewColorFgReadonly, m_colorMap["clrFgReadonly"]);
     settings.setValue(IniKey_ViewColorFgSystem, m_colorMap["clrFgSystem"]);
     settings.setValue(IniKey_ViewFont, m_model.font());
+
+    //>>>>> ファイル操作
+    settings.setValue(IniKey_ConfirmCopy, ui->confirmCopy->isChecked());
+    settings.setValue(IniKey_ConfirmDelete, ui->confirmDelete->isChecked());
+    settings.setValue(IniKey_ConfirmMove, ui->confirmMove->isChecked());
+    settings.setValue(IniKey_ConfirmRename, ui->confirmRename->isChecked());
+
+    settings.setValue(IniKey_AutoCloseCopy, ui->autoCloseCopy->isChecked());
+    settings.setValue(IniKey_AutoCloseDelete, ui->autoCloseDelete->isChecked());
+    settings.setValue(IniKey_AutoCloseMove, ui->autoCloseMove->isChecked());
+    settings.setValue(IniKey_AutoCloseRename, ui->autoCloseRename->isChecked());
+
+    selected = ui->overwriteOptions->checkedButton();
+    settings.setValue(IniKey_DefaultOnCopy, selected->objectName());
+
+    settings.setValue(IniKey_MoveAfterCreateFolder, ui->moveAfterCreate->isChecked());
+    settings.setValue(IniKey_OpenAfterCreateFile, ui->openAfterCreate->isChecked());
+
+    //>>>>> パス設定
+    settings.setValue(IniKey_EditorOption, ui->editorOpt->text().trimmed());
+    settings.setValue(IniKey_EditorPath, ui->editorPath->text().trimmed());
+
+    settings.setValue(IniKey_TerminalOption, ui->termOpt->text().trimmed());
+    settings.setValue(IniKey_TerminalPath, ui->termPath->text().trimmed());
+
 
     QDialog::accept();
 }

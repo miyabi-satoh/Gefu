@@ -28,6 +28,7 @@ private slots:
     void setControlsEnabled(bool enabled);
     void selectBoxColor();
     void selectViewColor();
+    void browseApp();
 
     // QDialog interface
 public slots:

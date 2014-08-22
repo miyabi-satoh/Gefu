@@ -20,6 +20,16 @@ OperationDialog::~OperationDialog()
     delete ui;
 }
 
+void OperationDialog::setAutoClose(bool yes)
+{
+    ui->chkAutoClose->setChecked(yes);
+}
+
+bool OperationDialog::autoClose() const
+{
+    return ui->chkAutoClose->isChecked();
+}
+
 void OperationDialog::showEvent(QShowEvent *)
 {
     ui->textEdit->setVisible(false);

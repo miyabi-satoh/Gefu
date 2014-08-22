@@ -64,15 +64,15 @@ void FolderPanel::setSide(const QString &side)
 
     //>>>>> フィルタ初期化
     model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
-    if (settings.value(IniKey_ShowHidden, false).toBool()) {
+    if (settings.value(IniKey_ShowHidden).toBool()) {
         model->setFilter(model->filter() | QDir::Hidden);
     }
-    if (settings.value(IniKey_ShowSystem, false).toBool()) {
+    if (settings.value(IniKey_ShowSystem).toBool()) {
         model->setFilter(model->filter() | QDir::System);
     }
     //>>>>> ソート順初期化
     model->setSorting(QDir::Name);  // 0
-    int sortBy = settings.value(side + slash + IniKey_SortBy, SortByName).toInt();
+    int sortBy = settings.value(side + slash + IniKey_SortBy).toInt();
     switch (sortBy) {
     case SortByDate:    model->setSorting(model->sorting() | QDir::Time); break;
     case SortBySize:    model->setSorting(model->sorting() | QDir::Size); break;
@@ -80,24 +80,23 @@ void FolderPanel::setSide(const QString &side)
     default:            model->setSorting(model->sorting() | QDir::Name); break;
     }
     // デフォルトだと文字列は昇順で、数値は降順…orz
-    int orderBy = settings.value(side + slash + IniKey_OrderBy, OrderByAsc).toInt();
+    int orderBy = settings.value(side + slash + IniKey_OrderBy).toInt();
     if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
         ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
     {
         model->setSorting(model->sorting() | QDir::Reversed);
     }
     // フォルダの位置
-    switch (settings.value(side + slash + IniKey_PutDirs, PutDirsFirst).toInt()) {
+    switch (settings.value(side + slash + IniKey_PutDirs).toInt()) {
     case PutDirsFirst:  model->setSorting(model->sorting() | QDir::DirsFirst); break;
     case PutDirsLast:   model->setSorting(model->sorting() | QDir::DirsLast); break;
     }
     // 大文字小文字の区別
-    if (settings.value(side + slash + IniKey_IgnoreCase, true).toBool()) {
+    if (settings.value(side + slash + IniKey_IgnoreCase).toBool()) {
         model->setSorting(model->sorting() | QDir::IgnoreCase);
     }
     //>>>>> 監視フォルダ初期化
-    QString key = side + slash + IniKey_Dir;
-    QString path = settings.value(key, QDir::homePath()).toString();
+    QString path = settings.value(side + slash + IniKey_Dir).toString();
 
     model->updateAppearance();
     ui->fileTable->setModel(model);
@@ -110,22 +109,18 @@ void FolderPanel::updateAppearance()
     QPalette palette;
     QFont font;
 
-    font = ui->locationField->font();
-    font = settings.value(IniKey_BoxFont, font).value<QFont>();
+    font = settings.value(IniKey_BoxFont).value<QFont>();
     palette = ui->locationField->palette();
-    palette.setColor(
-                QPalette::Base,
-                settings.value(IniKey_BoxColorBg, palette.base()).value<QColor>());
-    palette.setColor(
-                QPalette::Text,
-                settings.value(IniKey_BoxColorFg, palette.text()).value<QColor>());
+    palette.setColor(QPalette::Base,
+                     settings.value(IniKey_BoxColorBg).value<QColor>());
+    palette.setColor(QPalette::Text,
+                     settings.value(IniKey_BoxColorFg).value<QColor>());
     ui->locationField->setFont(font);
     ui->locationField->setPalette(palette);
 
     palette = ui->fileTable->palette();
-    palette.setColor(
-                QPalette::Base,
-                settings.value(IniKey_ViewColorBgNormal, palette.base()).value<QColor>());
+    palette.setColor(QPalette::Base,
+                     settings.value(IniKey_ViewColorBgNormal).value<QColor>());
     ui->fileTable->setPalette(palette);
 
     FileTableModel *model = static_cast<FileTableModel*>(ui->fileTable->model());

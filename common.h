@@ -8,41 +8,55 @@ class MainWindow;
 extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
 
-#define VERSION_VALUE   0.06
+#define VERSION_VALUE   0.07
 
 #define slash   QString("/")
-#define QQ(x)   ("\"" + (x) + "\"")
+#define QQ(x)   ("\"" + QString(x) + "\"")
 
-#define IniKey_ShowHidden       "Common/ShowHidden"
-#define IniKey_ShowSystem       "Common/ShowSystem"
-#define IniKey_ConfirmExit      "BootAndExit/ConfirmExit"
-#define IniKey_BootSizeSpec     "BootAndExit/SizeSpec"
-#define IniKey_BootSizeRel      "BootAndExit/SizeRel"
-#define IniKey_BootSizeAbs      "BootAndExit/SizeAbs"
-#define IniKey_BootPosSpec      "BootAndExit/PosSpec"
-#define IniKey_BootPosRel       "BootAndExit/PosRel"
-#define IniKey_BootPosAbs       "BootAndExit/PosAbs"
-#define IniKey_ResetOnBoot      "BootAndExit/Reset"
-#define IniKey_BoxColorFg       "Appearance/BoxColorFg"
-#define IniKey_BoxColorBg       "Appearance/BoxColorBg"
-#define IniKey_BoxFont          "Appearance/BoxFont"
-#define IniKey_ViewFont         "Appearance/ViewFont"
-#define IniKey_ViewColorBgNormal    "Appearance/ViewColorBgNormal"
-#define IniKey_ViewColorBgMark      "Appearance/ViewColorBgMark"
-#define IniKey_ViewColorFgNormal    "Appearance/ViewColorFgNormal"
-#define IniKey_ViewColorFgMark      "Appearance/ViewColorFgMark"
-#define IniKey_ViewColorFgSystem    "Appearance/ViewColorFgSystem"
-#define IniKey_ViewColorFgHidden    "Appearance/ViewColorFgHidden"
-#define IniKey_ViewColorFgReadonly  "Appearance/ViewColorFgReadonly"
-#define IniKey_WindowGeometry   "Window/Geometry"
-#define iniKey_WindowState      "Window/State"
-#define IniSec_Left             "Left"
-#define IniSec_Right            "Right"
-#define IniKey_Dir              "dir"
-#define IniKey_SortBy           "SortBy"
-#define IniKey_OrderBy          "OrderBy"
-#define IniKey_PutDirs          "PutDirs"
-#define IniKey_IgnoreCase       "IgnoreCase"
+#define IniKey_ShowHidden               "Common/ShowHidden"
+#define IniKey_ShowSystem               "Common/ShowSystem"
+#define IniKey_DefaultOnCopy            "Common/DefaultCopyMode"
+#define IniKey_MoveAfterCreateFolder    "Common/MoveAfterFolderCreation"
+#define IniKey_OpenAfterCreateFile      "Common/OpenAfterFileCreation"
+#define IniKey_BootSizeSpec             "BootAndExit/SizeSpec"
+#define IniKey_BootSizeRel              "BootAndExit/SizeRel"
+#define IniKey_BootSizeAbs              "BootAndExit/SizeAbs"
+#define IniKey_BootPosSpec              "BootAndExit/PosSpec"
+#define IniKey_BootPosRel               "BootAndExit/PosRel"
+#define IniKey_BootPosAbs               "BootAndExit/PosAbs"
+#define IniKey_ResetOnBoot              "BootAndExit/Reset"
+#define IniKey_BoxColorFg               "Appearance/BoxColorFg"
+#define IniKey_BoxColorBg               "Appearance/BoxColorBg"
+#define IniKey_BoxFont                  "Appearance/BoxFont"
+#define IniKey_ViewFont                 "Appearance/ViewFont"
+#define IniKey_ViewColorBgNormal        "Appearance/ViewColorBgNormal"
+#define IniKey_ViewColorBgMark          "Appearance/ViewColorBgMark"
+#define IniKey_ViewColorFgNormal        "Appearance/ViewColorFgNormal"
+#define IniKey_ViewColorFgMark          "Appearance/ViewColorFgMark"
+#define IniKey_ViewColorFgSystem        "Appearance/ViewColorFgSystem"
+#define IniKey_ViewColorFgHidden        "Appearance/ViewColorFgHidden"
+#define IniKey_ViewColorFgReadonly      "Appearance/ViewColorFgReadonly"
+#define IniKey_ConfirmExit              "Confirm/Exit"
+#define IniKey_ConfirmCopy              "Confirm/Copy"
+#define IniKey_ConfirmMove              "Confirm/Move"
+#define IniKey_ConfirmDelete            "Confirm/Delete"
+#define IniKey_ConfirmRename            "Confirm/Rename"
+#define IniKey_AutoCloseCopy            "AutoClose/Copy"
+#define IniKey_AutoCloseMove            "AutoClose/Move"
+#define IniKey_AutoCloseDelete          "AutoClose/Delete"
+#define IniKey_AutoCloseRename          "AutoClose/Rename"
+#define IniKey_EditorPath               "Editor/Path"
+#define IniKey_EditorOption             "Editor/Option"
+#define IniKey_TerminalPath             "Terminal/Path"
+#define IniKey_TerminalOption           "TerminalOption"
+#define IniKey_WindowGeometry           "Window/Geometry"
+#define iniKey_WindowState              "Window/State"
+// 以下は[Left/Right]セクションのキー
+#define IniKey_Dir                  "dir"
+#define IniKey_SortBy               "SortBy"
+#define IniKey_OrderBy              "OrderBy"
+#define IniKey_PutDirs              "PutDirs"
+#define IniKey_IgnoreCase           "IgnoreCase"
 
 #define SortByName  QDir::Name
 #define SortByDate  QDir::Time
@@ -55,11 +69,5 @@ extern QString FilesizeToString(quint64 size);
 #define PutDirsFirst    QDir::DirsFirst
 #define PutDirsLast     QDir::DirsLast
 #define PutDirsDefault  0
-
-#define DefaultMarkBgColor      QColor(0, 192, 0)
-#define DefaultMarkFgColor      QColor(128, 0, 0)
-#define DefaultSystemColor      QColor(128, 0, 128)
-#define DefaultHiddenColor      QColor(128, 128, 128)
-#define DefaultReadonlyColor    QColor(0, 128, 0)
 
 #endif // COMMON_H

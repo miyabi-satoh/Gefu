@@ -252,6 +252,7 @@
     <addaction name="action_Open"/>
     <addaction name="action_Exec"/>
     <addaction name="action_OpenEditor"/>
+    <addaction name="action_OpenTerminal"/>
     <addaction name="action_Command"/>
     <addaction name="separator"/>
     <addaction name="action_Setting"/>
@@ -837,6 +838,17 @@
    </property>
    <property name="shortcut">
     <string>L</string>
+   </property>
+  </action>
+  <action name="action_OpenTerminal">
+   <property name="text">
+    <string>ターミナルで開く</string>
+   </property>
+   <property name="toolTip">
+    <string>ターミナルで開く</string>
+   </property>
+   <property name="shortcut">
+    <string>&gt;</string>
    </property>
   </action>
  </widget>

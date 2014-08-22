@@ -32,9 +32,10 @@ private:
 signals:
     void indexChanged(const QString &text);
 
-public slots:
+private slots:
     void setPath();
-    void openUrl();
+    void openUrl(const QModelIndex &index = QModelIndex());
+    void openEditor(const QString &path = QString());
     void kickProcess();
 
     void toggleChecked();
@@ -76,6 +77,7 @@ private slots:
     void askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod,
                       QString *alias, const QString &srcPath,
                       const QString &tgtPath);
+    void onDoubleClick(const QModelIndex &index);
 
     // QAbstractItemView interface
 public slots:

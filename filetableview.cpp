@@ -46,7 +46,7 @@ FileTableView::FileTableView(QWidget *parent) :
     // シグナル/スロットを設定する
     connect(MENU_TRRIGGERED(action_Open), this, SLOT(setPath()));
     connect(MENU_TRRIGGERED(action_Exec), this, SLOT(openUrl()));
-    connect(MENU_TRRIGGERED(action_OpenEditor), this, SLOT(XXX()));
+    connect(MENU_TRRIGGERED(action_OpenEditor), this, SLOT(openEditor()));
     connect(MENU_TRRIGGERED(action_Command), this, SLOT(kickProcess()));
 
     connect(MENU_TRRIGGERED(mark_Toggle), this, SLOT(toggleChecked()));
@@ -86,7 +86,7 @@ FileTableView::FileTableView(QWidget *parent) :
             this, SLOT(showSystemFiles(bool)));
 
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
-            this, SLOT(setRootIndex(QModelIndex)));
+            this, SLOT(onDoubleClick(QModelIndex)));
 
     // Drag & Drop
     setDragEnabled(true);
@@ -134,6 +134,7 @@ void FileTableView::setRootPath(const QString &path, bool addHistory)
         }
         updateMenu();
 
+        selectRow(0);
         getMainWnd()->statusBar()->showMessage(tr("レディ"), 5000);
     }
 }
@@ -174,14 +175,66 @@ void FileTableView::setPath()
     setRootIndex(currentIndex());
 }
 
-void FileTableView::openUrl()
+void FileTableView::openUrl(const QModelIndex &index)
 {
     CHECK_FOCUS;
 
-    QFileInfoList list = selectedItems();
-    foreach (const QFileInfo &info, list) {
-        QString path = QDir::toNativeSeparators(info.absoluteFilePath());
+    if (index.isValid()) {
+        FileTableModel *m = static_cast<FileTableModel*>(model());
+        QString path = QDir::toNativeSeparators(m->absoluteFilePath(index));
         QDesktopServices::openUrl(QUrl("file:///" + path));
+    }
+    else {
+        QFileInfoList list = selectedItems();
+        foreach (const QFileInfo &info, list) {
+            QString path = QDir::toNativeSeparators(info.absoluteFilePath());
+            QDesktopServices::openUrl(QUrl("file:///" + path));
+        }
+    }
+}
+
+void FileTableView::openEditor(const QString &path)
+{
+    CHECK_FOCUS;
+
+    QSettings settings;
+    if (settings.value(IniKey_EditorPath).toString().isEmpty()) {
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("外部エディタのパスが未定義です。"));
+        return;
+    }
+
+    QFileInfo info;
+    if (path.isEmpty()) {
+        FileTableModel *m = static_cast<FileTableModel*>(model());
+        info.setFile(m->absoluteFilePath(currentIndex()));
+    }
+    else {
+        info.setFile(path);
+    }
+    QString exe = settings.value(IniKey_EditorPath).toString();
+    QString opt = settings.value(IniKey_EditorOption).toString();
+    opt.replace("$B", info.completeBaseName());
+    opt.replace("$E", info.suffix());
+    opt.replace("$F", info.fileName());
+    opt.replace("$D", info.absolutePath());
+    opt.replace("$P", info.absoluteFilePath());
+
+    QString command;
+#ifdef Q_OS_MAC
+    command = "open " + exe + " " + opt;
+#else
+    command = QQ(exe) + " " + opt;
+#endif
+    qDebug() << command;
+    QProcess process(this);
+    process.setWorkingDirectory(info.absolutePath());
+    if (!process.startDetached(command)) {
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("外部エディタの起動に失敗しました。<br/>")
+                    + command);
     }
 }
 
@@ -402,7 +455,7 @@ void FileTableView::setSort()
         FileTableModel *m = static_cast<FileTableModel*>(model());
         m->setSorting(QDir::Name);  // 0
 
-        int sortBy = settings.value(side() + slash + IniKey_SortBy, 0).toInt();
+        int sortBy = settings.value(side() + slash + IniKey_SortBy).toInt();
         switch (sortBy) {
         case SortByDate:    m->setSorting(m->sorting() | QDir::Time); break;
         case SortBySize:    m->setSorting(m->sorting() | QDir::Size); break;
@@ -411,19 +464,19 @@ void FileTableView::setSort()
         }
 
         // デフォルトだと文字列は昇順で、数値は降順…orz
-        int orderBy = settings.value(side() + slash + IniKey_OrderBy, 0).toInt();
+        int orderBy = settings.value(side() + slash + IniKey_OrderBy).toInt();
         if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
             ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
         {
             m->setSorting(m->sorting() | QDir::Reversed);
         }
 
-        switch (settings.value(side() + slash + IniKey_PutDirs, 0).toInt()) {
+        switch (settings.value(side() + slash + IniKey_PutDirs).toInt()) {
         case PutDirsFirst:  m->setSorting(m->sorting() | QDir::DirsFirst); break;
         case PutDirsLast:   m->setSorting(m->sorting() | QDir::DirsLast); break;
         }
 
-        if (settings.value(side() + slash + IniKey_IgnoreCase, true).toBool()) {
+        if (settings.value(side() + slash + IniKey_IgnoreCase).toBool()) {
             m->setSorting(m->sorting() | QDir::IgnoreCase);
         }
 
@@ -577,6 +630,15 @@ void FileTableView::cmdCopy()
         return;
     }
 
+    QSettings settings;
+    if (settings.value(IniKey_ConfirmCopy).toBool()) {
+        int ret = QMessageBox::question(this, tr("確認"),
+                                        tr("コピーを実行しますか？"));
+        if (ret != QMessageBox::Yes) {
+            return;
+        }
+    }
+
     FileTableView *other = getMainWnd()->otherSideView(this);
     FileTableModel *mOther = static_cast<FileTableModel*>(other->model());
     CopyMoveWorker *worker = new CopyMoveWorker();
@@ -589,8 +651,11 @@ void FileTableView::cmdCopy()
     OperationDialog opDlg(this);
     opDlg.setWindowTitle(tr("コピー"));
     opDlg.setWorker(worker);
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseCopy).toBool());
 
     opDlg.exec();
+
+    settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
 }
 
 void FileTableView::cmdMove()
@@ -600,6 +665,15 @@ void FileTableView::cmdMove()
     QFileInfoList list = selectedItems();
     if (list.isEmpty()) {
         return;
+    }
+
+    QSettings settings;
+    if (settings.value(IniKey_ConfirmMove).toBool()) {
+        int ret = QMessageBox::question(this, tr("確認"),
+                                        tr("移動を実行しますか？"));
+        if (ret != QMessageBox::Yes) {
+            return;
+        }
     }
 
     FileTableView *other = getMainWnd()->otherSideView(this);
@@ -614,8 +688,11 @@ void FileTableView::cmdMove()
     OperationDialog opDlg(this);
     opDlg.setWindowTitle(tr("移動"));
     opDlg.setWorker(worker);
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseMove).toBool());
 
     opDlg.exec();
+
+    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
 }
 
 void FileTableView::cmdDelete()
@@ -627,25 +704,33 @@ void FileTableView::cmdDelete()
         return;
     }
 
-    QString msg;
-    if (list.size() == 1) {
-        msg = list[0].fileName();
+    QSettings settings;
+    if (settings.value(IniKey_ConfirmDelete).toBool()) {
+        QString msg;
+        if (list.size() == 1) {
+            msg = list[0].fileName();
+        }
+        else {
+            msg = tr("%1個のアイテム").arg(list.size());
+        }
+        int ret = QMessageBox::question(
+                    this, tr("確認"),
+                    msg + tr("を削除しますか？"));
+        if (ret != QMessageBox::Yes) {
+            return;
+        }
     }
-    else {
-        msg = tr("%1個のアイテム").arg(list.size());
-    }
-    int ret = QMessageBox::question(
-                this, tr("確認"),
-                msg + tr("を削除します<br/>よろしいですか？"));
-    if (ret == QMessageBox::Yes) {
-        DeleteWorker *worker = new DeleteWorker();
-        worker->setDeleteList(&list);
+    DeleteWorker *worker = new DeleteWorker();
+    worker->setDeleteList(&list);
 
-        OperationDialog opDlg(this);
-        opDlg.setWindowTitle(tr("削除"));
-        opDlg.setWorker(worker);
-        opDlg.exec();
-    }
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("削除"));
+    opDlg.setWorker(worker);
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseDelete).toBool());
+
+    opDlg.exec();
+
+    settings.setValue(IniKey_AutoCloseDelete, opDlg.autoClose());
 }
 
 void FileTableView::cmdRename()
@@ -669,13 +754,26 @@ void FileTableView::cmdRename()
     dlg->setNames(list);
     int dlgResult = dlg->exec();
     if (dlgResult == QDialog::Accepted && !dlg->renameMap().isEmpty()) {
+        QSettings settings;
+        if (settings.value(IniKey_ConfirmRename).toBool()) {
+            int ret = QMessageBox::question(this, tr("確認"),
+                                            tr("名前の変更を実行しますか？"));
+            if (ret != QMessageBox::Yes) {
+                return;
+            }
+        }
+
         RenameWorker *worker = new RenameWorker();
         worker->setRenameMap(&dlg->renameMap());
 
         OperationDialog opDlg(this);
         opDlg.setWindowTitle(tr("名前を変更"));
         opDlg.setWorker(worker);
+        opDlg.setAutoClose(settings.value(IniKey_AutoCloseRename).toBool());
+
         opDlg.exec();
+
+        settings.setValue(IniKey_AutoCloseRename, opDlg.autoClose());
     }
 }
 
@@ -698,6 +796,11 @@ void FileTableView::newFile()
         }
         else {
             file.close();
+
+            QSettings settings;
+            if (settings.value(IniKey_OpenAfterCreateFile).toBool()) {
+                openEditor(dir.absoluteFilePath(name));
+            }
         }
     }
 }
@@ -718,6 +821,12 @@ void FileTableView::newFolder()
                         this, tr("エラー"),
                         tr("フォルダの作成に失敗しました。"));
         }
+        else {
+            QSettings settings;
+            if (settings.value(IniKey_MoveAfterCreateFolder).toBool()) {
+                setRootPath(dir.absoluteFilePath(name), true);
+            }
+        }
     }
 }
 
@@ -733,6 +842,25 @@ void FileTableView::askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod
                                  const QString &tgtPath)
  {
      OverWriteDialog dlg;
+     if (*prevCopyMethod == OverWriteDialog::Undefined) {
+         QSettings settings;
+         QString method = settings.value(IniKey_DefaultOnCopy).toString();
+         if (method == "owDefOverWrite") {
+             *prevCopyMethod = OverWriteDialog::OverWrite;
+         }
+         else if (method == "owDefSkip") {
+             *prevCopyMethod = OverWriteDialog::Skip;
+         }
+         else if (method == "owDefAppendNumber") {
+             *prevCopyMethod = OverWriteDialog::AppendNumber;
+         }
+         else if (method == "owDefRename") {
+             *prevCopyMethod = OverWriteDialog::Rename;
+         }
+         else {
+             *prevCopyMethod = OverWriteDialog::OverWriteIfNew;
+         }
+     }
      dlg.setCopyMethod(*prevCopyMethod);
      dlg.setSameMethodChecked(*copyMethod != OverWriteDialog::Undefined);
      dlg.setFileInfo(srcPath, tgtPath);
@@ -749,6 +877,23 @@ void FileTableView::askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod
      }
      CopyMoveWorker *worker = static_cast<CopyMoveWorker*>(sender());
      worker->endAsking();
+}
+
+void FileTableView::onDoubleClick(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+
+    FileTableModel *m = static_cast<FileTableModel*>(model());
+
+    if (m->isDir(index)) {
+        setRootPath(m->absoluteFilePath(index), true);
+    }
+    else {
+        openUrl(index);
+    }
+
 }
 
 void FileTableView::setRootIndex(const QModelIndex &index)
@@ -801,6 +946,14 @@ void FileTableView::keyPressEvent(QKeyEvent *event)
 
 void FileTableView::focusInEvent(QFocusEvent *event)
 {
+    qDebug() << "focusInEvent();";
+    if (!currentIndex().isValid()) {
+        FileTableModel *m = static_cast<FileTableModel*>(model());
+        if (m) {
+            setCurrentIndex(m->index(0, 0));
+        }
+    }
+
     updateMenu();
 
     QTableView::focusInEvent(event);

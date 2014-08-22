@@ -22,13 +22,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->RPanel->updateAppearance();
 
     QSettings settings;
-    // メニュー項目のチェック状態を初期化する
-    if (settings.value(IniKey_ShowHidden, false).toBool()) {
+    // メニュー項目の状態を初期化する
+    if (settings.value(IniKey_ShowHidden).toBool()) {
         ui->view_Hidden->setChecked(true);
     }
-    if (settings.value(IniKey_ShowSystem, false).toBool()) {
+    if (settings.value(IniKey_ShowSystem).toBool()) {
         ui->view_System->setChecked(true);
     }
+    bool enabled;
+    enabled = !settings.value(IniKey_EditorPath).toString().isEmpty();
+    ui->action_OpenEditor->setEnabled(enabled);
+
+    enabled = settings.value(IniKey_TerminalPath).toString().isEmpty();
+    ui->action_OpenTerminal->setEnabled(enabled);
+
     // 追加のショートカットキーを設定する
     QList<QKeySequence> shortcuts;
     shortcuts = ui->action_Open->shortcuts();
@@ -63,11 +70,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QPoint point = this->geometry().topLeft();
     QSize size = this->geometry().size();
     //>>>> 前回の位置・サイズ・状態を復元する
-    restoreGeometry(settings.value(IniKey_WindowGeometry).toByteArray());
-    restoreState(settings.value(iniKey_WindowState).toByteArray());
+    if (!settings.value(IniKey_WindowGeometry, "").toString().isEmpty()) {
+        restoreGeometry(settings.value(IniKey_WindowGeometry).toByteArray());
+        restoreState(settings.value(iniKey_WindowState).toByteArray());
+    }
     //>>>> INIファイルの設定から復元する
     //>>> サイズ
-    strValue = settings.value(IniKey_BootSizeSpec, "").toString();
+    strValue = settings.value(IniKey_BootSizeSpec).toString();
     if (strValue == "sizeAbsolute") {
         size = settings.value(IniKey_BootSizeAbs).toSize();
     }
@@ -80,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
         size = this->geometry().size();
     }
     //>>> 位置
-    strValue = settings.value(IniKey_BootPosSpec, "").toString();
+    strValue = settings.value(IniKey_BootPosSpec).toString();
     if (strValue == "posAbsolute") {
         point = settings.value(IniKey_BootPosAbs).toPoint();
     }
@@ -125,6 +134,14 @@ void MainWindow::onActionSetting()
     if (dlg.exec() == QDialog::Accepted) {
         ui->LPanel->updateAppearance();
         ui->RPanel->updateAppearance();
+
+        QSettings settings;
+        bool enabled;
+        enabled = !settings.value(IniKey_EditorPath).toString().isEmpty();
+        ui->action_OpenEditor->setEnabled(enabled);
+
+        enabled = settings.value(IniKey_TerminalPath).toString().isEmpty();
+        ui->action_OpenTerminal->setEnabled(enabled);
     }
 }
 
@@ -133,7 +150,7 @@ void MainWindow::toggleShowHiddenFiles()
     // キーボードがトリガーの場合、メニュー項目のチェック状態は
     // 変わらない(Mac)ので、QSettingsを使う
     QSettings settings;
-    bool show = !settings.value(IniKey_ShowHidden, false).toBool();
+    bool show = !settings.value(IniKey_ShowHidden).toBool();
     settings.setValue(IniKey_ShowHidden, show);
 
     ui->view_Hidden->setChecked(show);
@@ -146,7 +163,7 @@ void MainWindow::toggleShowSystemFiles()
     // キーボードがトリガーの場合、メニュー項目のチェック状態は
     // 変わらない(Mac)ので、QSettingsを使う
     QSettings settings;
-    bool show = !settings.value(IniKey_ShowSystem, false).toBool();
+    bool show = !settings.value(IniKey_ShowSystem).toBool();
     settings.setValue(IniKey_ShowSystem, show);
 
     ui->view_System->setChecked(show);
@@ -182,7 +199,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
 
-    if (settings.value(IniKey_ConfirmExit, true).toBool()) {
+    if (settings.value(IniKey_ConfirmExit).toBool()) {
         QMessageBox msgBox;
         QCheckBox *checkBox = new QCheckBox();
         checkBox->setText(tr("次回以降は確認しない"));
