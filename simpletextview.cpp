@@ -122,6 +122,20 @@ void SimpleTextView::keyPressEvent(QKeyEvent *event)
     }
 
     if (!ksq.isEmpty()) {
+        foreach (QObject *obj, this->children()) {
+            QAction *action = qobject_cast<QAction*>(obj);
+            if (action && action->isEnabled()) {
+                foreach (const QKeySequence &keySeq, action->shortcuts()) {
+                    if (ksq == keySeq.toString()) {
+                        qDebug() << "emit " << ksq << " " << action->objectName();
+                        emit action->triggered();
+                        event->accept();
+                        return;
+                    }
+                }
+            }
+        }
+
         foreach (QObject *obj, getMainWnd()->children()) {
             QAction *action = qobject_cast<QAction*>(obj);
             if (action && action->isEnabled()) {
