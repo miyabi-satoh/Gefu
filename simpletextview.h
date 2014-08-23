@@ -26,7 +26,12 @@ signals:
 public slots:
 
 private slots:
+    void convertFromEUC();
+    void convertFromJIS();
     void convertFromSJIS();
+    void convertFromUTF8();
+    void convertFromUTF16BE();
+    void convertFromUTF16LE();
 
     // QWidget interface
 protected:

@@ -1,9 +1,11 @@
 #include "common.h"
 #include "simpletextview.h"
+#include "mainwindow.h"
 
 #include <QDebug>
 #include <QMenu>
 #include <QSettings>
+#include <QShortcut>
 #include <QTextCodec>
 
 SimpleTextView::SimpleTextView(QWidget *parent) :
@@ -41,7 +43,41 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF16BE = new QAction(tr("UTF-16BEで再読込"), this);
     m_convUTF16LE = new QAction(tr("UTF-16LEで再読込"), this);
 
+    m_convEUC->setShortcut(QKeySequence("E"));
+    m_convJIS->setShortcut(QKeySequence("J"));
+    m_convSJIS->setShortcut(QKeySequence("S"));
+    m_convUTF8->setShortcut(QKeySequence("U"));
+    m_convUTF16BE->setShortcut(QKeySequence("B"));
+    m_convUTF16LE->setShortcut(QKeySequence("L"));
+
+    connect(m_convEUC, SIGNAL(triggered()), this, SLOT(convertFromEUC()));
+    connect(m_convJIS, SIGNAL(triggered()), this, SLOT(convertFromJIS()));
     connect(m_convSJIS, SIGNAL(triggered()), this, SLOT(convertFromSJIS()));
+    connect(m_convUTF8, SIGNAL(triggered()), this, SLOT(convertFromUTF8()));
+    connect(m_convUTF16BE, SIGNAL(triggered()), this, SLOT(convertFromUTF16BE()));
+    connect(m_convUTF16LE, SIGNAL(triggered()), this, SLOT(convertFromUTF16LE()));
+}
+
+void SimpleTextView::setSource(const QByteArray &source)
+{
+    m_source = source;
+#ifdef Q_OS_MAC
+    convertFromUTF8();
+#else
+    convertFromSJIS();
+#endif
+}
+
+void SimpleTextView::convertFromEUC()
+{
+    QTextCodec *codec = QTextCodec::codecForName("EUC-JP");
+    setPlainText(codec->toUnicode(m_source));
+}
+
+void SimpleTextView::convertFromJIS()
+{
+    QTextCodec *codec = QTextCodec::codecForName("ISO 2022-JP");
+    setPlainText(codec->toUnicode(m_source));
 }
 
 void SimpleTextView::convertFromSJIS()
@@ -50,10 +86,22 @@ void SimpleTextView::convertFromSJIS()
     setPlainText(codec->toUnicode(m_source));
 }
 
-void SimpleTextView::setSource(const QByteArray &source)
+void SimpleTextView::convertFromUTF8()
 {
-    m_source = source;
-    convertFromSJIS();
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    setPlainText(codec->toUnicode(m_source));
+}
+
+void SimpleTextView::convertFromUTF16BE()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
+    setPlainText(codec->toUnicode(m_source));
+}
+
+void SimpleTextView::convertFromUTF16LE()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-16LE");
+    setPlainText(codec->toUnicode(m_source));
 }
 
 void SimpleTextView::keyPressEvent(QKeyEvent *event)
@@ -73,9 +121,26 @@ void SimpleTextView::keyPressEvent(QKeyEvent *event)
         return;
     }
 
+    if (!ksq.isEmpty()) {
+        foreach (QObject *obj, getMainWnd()->children()) {
+            QAction *action = qobject_cast<QAction*>(obj);
+            if (action && action->isEnabled()) {
+                foreach (const QKeySequence &keySeq, action->shortcuts()) {
+                    if (ksq == keySeq.toString()) {
+                        qDebug() << "emit " << ksq << " " << action->objectName();
+                        emit action->triggered();
+                        event->accept();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     if (ksq != "Down" && ksq != "Up") {
         qDebug() << ksq;
     }
+
     QPlainTextEdit::keyPressEvent(event);
 }
 
