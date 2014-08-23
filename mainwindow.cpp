@@ -156,7 +156,7 @@ void MainWindow::onActionSetting()
         enabled = !settings.value(IniKey_EditorPath).toString().isEmpty();
         ui->action_OpenEditor->setEnabled(enabled);
 
-        enabled = settings.value(IniKey_TerminalPath).toString().isEmpty();
+        enabled = !settings.value(IniKey_TerminalPath).toString().isEmpty();
         ui->action_OpenTerminal->setEnabled(enabled);
     }
 }
