@@ -15,7 +15,8 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convSJIS(NULL),
     m_convUTF8(NULL),
     m_convUTF16BE(NULL),
-    m_convUTF16LE(NULL)
+    m_convUTF16LE(NULL),
+    m_back(NULL)
 {
     setReadOnly(true);
 
@@ -42,6 +43,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF8 = new QAction(tr("UTF-8で再読込"), this);
     m_convUTF16BE = new QAction(tr("UTF-16BEで再読込"), this);
     m_convUTF16LE = new QAction(tr("UTF-16LEで再読込"), this);
+    m_back = new QAction(tr("戻る"), this);
 
     m_convEUC->setShortcut(QKeySequence("E"));
     m_convJIS->setShortcut(QKeySequence("J"));
@@ -49,6 +51,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF8->setShortcut(QKeySequence("U"));
     m_convUTF16BE->setShortcut(QKeySequence("B"));
     m_convUTF16LE->setShortcut(QKeySequence("L"));
+    m_back->setShortcut(QKeySequence("Return"));
 
     connect(m_convEUC, SIGNAL(triggered()), this, SLOT(convertFromEUC()));
     connect(m_convJIS, SIGNAL(triggered()), this, SLOT(convertFromJIS()));
@@ -56,6 +59,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     connect(m_convUTF8, SIGNAL(triggered()), this, SLOT(convertFromUTF8()));
     connect(m_convUTF16BE, SIGNAL(triggered()), this, SLOT(convertFromUTF16BE()));
     connect(m_convUTF16LE, SIGNAL(triggered()), this, SLOT(convertFromUTF16LE()));
+    connect(m_back, SIGNAL(triggered()), this, SLOT(back()));
 }
 
 void SimpleTextView::setSource(const QByteArray &source)
@@ -102,6 +106,11 @@ void SimpleTextView::convertFromUTF16LE()
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF-16LE");
     setPlainText(codec->toUnicode(m_source));
+}
+
+void SimpleTextView::back()
+{
+    emit viewFinished(this);
 }
 
 void SimpleTextView::keyPressEvent(QKeyEvent *event)
@@ -169,5 +178,6 @@ void SimpleTextView::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(m_convUTF8);
     menu.addAction(m_convUTF16BE);
     menu.addAction(m_convUTF16LE);
+    menu.addAction(m_back);
     menu.exec(event->globalPos());
 }

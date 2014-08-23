@@ -18,6 +18,7 @@ private:
     QAction *m_convUTF8;
     QAction *m_convUTF16BE;
     QAction *m_convUTF16LE;
+    QAction *m_back;
     QByteArray m_source;
 
 signals:
@@ -32,6 +33,7 @@ private slots:
     void convertFromUTF8();
     void convertFromUTF16BE();
     void convertFromUTF16LE();
+    void back();
 
     // QWidget interface
 protected:
