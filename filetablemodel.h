@@ -19,6 +19,11 @@ public:
     QDir::Filters filter() const { return m_dir.filter(); }
     void setFilter(QDir::Filters filters) { m_dir.setFilter(filters); }
 
+    QStringList nameFilters() const { return m_dir.nameFilters(); }
+    void setNameFilters(const QStringList &nameFiltes) {
+        m_dir.setNameFilters(nameFiltes);
+    }
+
     QDir::SortFlags sorting() const { return m_dir.sorting(); }
     void setSorting(QDir::SortFlags sort) { m_dir.setSorting(sort); }
 

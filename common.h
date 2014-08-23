@@ -8,7 +8,7 @@ class MainWindow;
 extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
 
-#define VERSION_VALUE   0.07
+#define VERSION_VALUE   0.08
 
 #define slash   QString("/")
 #define QQ(x)   ("\"" + QString(x) + "\"")
@@ -18,6 +18,7 @@ extern QString FilesizeToString(quint64 size);
 #define IniKey_DefaultOnCopy            "Common/DefaultCopyMode"
 #define IniKey_MoveAfterCreateFolder    "Common/MoveAfterFolderCreation"
 #define IniKey_OpenAfterCreateFile      "Common/OpenAfterFileCreation"
+#define IniKey_CheckUpdates             "Common/CheckUpdates"
 #define IniKey_BootSizeSpec             "BootAndExit/SizeSpec"
 #define IniKey_BootSizeRel              "BootAndExit/SizeRel"
 #define IniKey_BootSizeAbs              "BootAndExit/SizeAbs"
@@ -48,7 +49,7 @@ extern QString FilesizeToString(quint64 size);
 #define IniKey_EditorPath               "Editor/Path"
 #define IniKey_EditorOption             "Editor/Option"
 #define IniKey_TerminalPath             "Terminal/Path"
-#define IniKey_TerminalOption           "TerminalOption"
+#define IniKey_TerminalOption           "Terminal/Option"
 #define IniKey_WindowGeometry           "Window/Geometry"
 #define iniKey_WindowState              "Window/State"
 // 以下は[Left/Right]セクションのキー

@@ -10,6 +10,8 @@
 #include <QDesktopWidget>
 #include <QMessageBox>
 #include <QSettings>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     enabled = !settings.value(IniKey_EditorPath).toString().isEmpty();
     ui->action_OpenEditor->setEnabled(enabled);
 
-    enabled = settings.value(IniKey_TerminalPath).toString().isEmpty();
+    enabled = !settings.value(IniKey_TerminalPath).toString().isEmpty();
     ui->action_OpenTerminal->setEnabled(enabled);
 
     // 追加のショートカットキーを設定する
@@ -46,6 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
     shortcuts.append(QKeySequence("Shift+M"));
     ui->action_Exec->setShortcuts(shortcuts);
 
+    shortcuts = ui->view_Filter->shortcuts();
+    shortcuts.append(QKeySequence("Shift+*"));  // マヂで！？
+    ui->view_Filter->setShortcuts(shortcuts);
+
+    shortcuts = ui->action_OpenTerminal->shortcuts();
+    shortcuts.append(QKeySequence("Shift+>"));  // マヂで！？
+    ui->action_OpenTerminal->setShortcuts(shortcuts);
+
     shortcuts = ui->help_About->shortcuts();
     shortcuts.append(QKeySequence("Shift+?"));  // マヂで！？
     ui->help_About->setShortcuts(shortcuts);
@@ -56,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(toggleShowHiddenFiles()));
     connect(ui->view_System, SIGNAL(triggered()), this, SLOT(toggleShowSystemFiles()));
+    connect(ui->check_Update, SIGNAL(triggered()), this, SLOT(checkUpdate()));
 
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
@@ -106,6 +117,11 @@ MainWindow::MainWindow(QWidget *parent) :
         point.setY((QApplication::desktop()->height() - size.height()) / 2);
     }
     this->setGeometry(QRect(point, size));
+
+    // 最新バージョンをチェックする
+    if (settings.value(IniKey_CheckUpdates).toBool()) {
+        checkUpdate(true);
+    }
 }
 
 MainWindow::~MainWindow()
@@ -169,6 +185,63 @@ void MainWindow::toggleShowSystemFiles()
     ui->view_System->setChecked(show);
 
     emit showSystemFiles(show);
+}
+
+void MainWindow::checkUpdate(bool silent)
+{
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    if (silent) {
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(checkUpdateFinishedSilent(QNetworkReply*)));
+    }
+    else {
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(checkUpdateFinished(QNetworkReply*)));
+    }
+#ifdef Q_OS_WIN
+    manager->get(QNetworkRequest(QUrl("https://dl.dropboxusercontent.com/u/3112525/gefu_latest_win.txt")));
+#elif defined(Q_OS_MAC)
+    manager->get(QNetworkRequest(QUrl("https://dl.dropboxusercontent.com/u/3112525/gefu_latest_mac.txt")));
+#endif
+}
+
+void MainWindow::checkUpdateFinished(QNetworkReply *reply)
+{
+    checkUpdateFinished(reply, false);
+}
+
+void MainWindow::checkUpdateFinished(QNetworkReply *reply, bool silent)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        QString str = reply->readAll();
+        str = str.split(QRegExp("[\r\n]"), QString::SkipEmptyParts).at(0);
+        QRegExp rx("Gefu([0-9]+)");
+        rx.indexIn(str);
+        QString version = rx.cap(1);
+        if (version.toInt() > VERSION_VALUE * 100) {
+            QMessageBox::information(
+                        this, tr("情報"),
+                        tr("最新のバージョンが存在します。<br/>") +
+                        tr("<a href='%1'>こちらからダウンロードしてください。</a>").arg(str));
+        }
+        else if (!silent) {
+            QMessageBox::information(
+                        this, tr("情報"),
+                        tr("お使いのバージョンは最新です。"));
+        }
+    }
+    else if (!silent){
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("最新バージョンのチェックに失敗しました。<br/>") +
+                    reply->errorString());
+    }
+}
+
+void MainWindow::checkUpdateFinishedSilent(QNetworkReply *reply)
+{
+    checkUpdateFinished(reply, true);
 }
 
 void MainWindow::onHelpAbout()

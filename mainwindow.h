@@ -5,6 +5,7 @@
 #include <QMainWindow>
 class FolderPanel;
 class FileTableView;
+class QNetworkReply;
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,10 @@ public slots:
 private slots:
     void toggleShowHiddenFiles();
     void toggleShowSystemFiles();
+    void checkUpdate(bool silent = false);
+    void checkUpdateFinished(QNetworkReply *reply);
+    void checkUpdateFinished(QNetworkReply *reply, bool silent);
+    void checkUpdateFinishedSilent(QNetworkReply *reply);
 
 private:
     Ui::MainWindow *ui;

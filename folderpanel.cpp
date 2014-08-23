@@ -61,6 +61,8 @@ void FolderPanel::setSide(const QString &side)
             this, SLOT(onStateChanged(int,int,quint64)));
     connect(model, SIGNAL(listUpdated()),
             ui->fileTable, SLOT(refresh()));
+    connect(ui->fileTable, SIGNAL(filterChanged()),
+            this, SLOT(onFilterChanged()));
 
     //>>>>> フィルタ初期化
     model->setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
@@ -101,6 +103,7 @@ void FolderPanel::setSide(const QString &side)
     model->updateAppearance();
     ui->fileTable->setModel(model);
     ui->fileTable->setRootPath(path, true);
+    onFilterChanged();
 }
 
 void FolderPanel::updateAppearance()
@@ -143,8 +146,22 @@ void FolderPanel::onStateChanged(int checkedFolders, int checkedFiles, quint64 t
         msg += FilesizeToString(totalSize);
     }
 
-    ui->label->setText(msg);
+    if (msg.isEmpty()) {
+        onFilterChanged();
+    }
+    else {
+        ui->label->setText(msg);
+    }
+}
 
+void FolderPanel::onFilterChanged()
+{
+    FileTableModel *m = static_cast<FileTableModel*>(ui->fileTable->model());
+    QString filters = "フィルタ：";
+    foreach (const QString &filter, m->nameFilters()) {
+        filters += filter + " ";
+    }
+    ui->label->setText(filters);
 }
 
 void FolderPanel::on_locationField_editingFinished()

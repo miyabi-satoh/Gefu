@@ -5,6 +5,7 @@
 
 #include <QDialog>
 #include <QAbstractTableModel>
+#include <QSettings>
 
 namespace Ui {
 class PreferenceDialog;
@@ -23,12 +24,17 @@ private:
     ColorSampleModel m_model;
     ColorMap m_colorMap;
 
+    void saveAppearance(QSettings &settings);
+    void loadAppearance(QSettings &settings);
+
 private slots:
     void changeFont();
     void setControlsEnabled(bool enabled);
     void selectBoxColor();
     void selectViewColor();
     void browseApp();
+    void importAppearance();
+    void exportAppearance();
 
     // QDialog interface
 public slots:

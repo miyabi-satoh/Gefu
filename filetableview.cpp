@@ -47,6 +47,7 @@ FileTableView::FileTableView(QWidget *parent) :
     connect(MENU_TRRIGGERED(action_Open), this, SLOT(setPath()));
     connect(MENU_TRRIGGERED(action_Exec), this, SLOT(openUrl()));
     connect(MENU_TRRIGGERED(action_OpenEditor), this, SLOT(openEditor()));
+    connect(MENU_TRRIGGERED(action_OpenTerminal), this, SLOT(openTerminal()));
     connect(MENU_TRRIGGERED(action_Command), this, SLOT(kickProcess()));
 
     connect(MENU_TRRIGGERED(mark_Toggle), this, SLOT(toggleChecked()));
@@ -60,6 +61,7 @@ FileTableView::FileTableView(QWidget *parent) :
     connect(MENU_TRRIGGERED(view_Swap), this, SLOT(swapPath()));
     connect(MENU_TRRIGGERED(view_Sort), this, SLOT(setSort()));
     connect(MENU_TRRIGGERED(view_Refresh), this, SLOT(refresh()));
+    connect(MENU_TRRIGGERED(view_Filter), this, SLOT(setFilter()));
 
     connect(MENU_TRRIGGERED(move_Back), this, SLOT(back()));
     connect(MENU_TRRIGGERED(move_Forward), this, SLOT(forward()));
@@ -213,6 +215,7 @@ void FileTableView::openEditor(const QString &path)
     else {
         info.setFile(path);
     }
+
     QString exe = settings.value(IniKey_EditorPath).toString();
     QString opt = settings.value(IniKey_EditorOption).toString();
     opt.replace("$B", info.completeBaseName());
@@ -223,7 +226,7 @@ void FileTableView::openEditor(const QString &path)
 
     QString command;
 #ifdef Q_OS_MAC
-    command = "open " + exe + " " + opt;
+    command = "open -a " + exe + " " + opt;
 #else
     command = QQ(exe) + " " + opt;
 #endif
@@ -234,6 +237,57 @@ void FileTableView::openEditor(const QString &path)
         QMessageBox::critical(
                     this, tr("エラー"),
                     tr("外部エディタの起動に失敗しました。<br/>")
+                    + command);
+    }
+}
+
+void FileTableView::openTerminal(const QString &path)
+{
+    CHECK_FOCUS;
+
+    QSettings settings;
+    if (settings.value(IniKey_TerminalPath).toString().isEmpty()) {
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("ターミナルのパスが未定義です。"));
+        return;
+    }
+
+    QFileInfo info;
+    if (path.isEmpty()) {
+        FileTableModel *m = static_cast<FileTableModel*>(model());
+        info.setFile(m->absoluteFilePath(currentIndex()));
+    }
+    else {
+        info.setFile(path);
+    }
+
+    QString exe = settings.value(IniKey_TerminalPath).toString();
+    QString opt = settings.value(IniKey_TerminalOption).toString();
+    opt.replace("$B", info.completeBaseName());
+    opt.replace("$E", info.suffix());
+    opt.replace("$F", info.fileName());
+    if (info.isDir()) {
+        opt.replace("$D", info.absoluteFilePath());
+    }
+    else {
+        opt.replace("$D", info.absolutePath());
+    }
+    opt.replace("$P", info.absoluteFilePath());
+
+    QString command;
+#ifdef Q_OS_MAC
+    command = "open -a " + exe + " --args " + opt;
+#else
+    command = QQ(exe) + " " + opt;
+#endif
+    qDebug() << command;
+    QProcess process(this);
+    process.setWorkingDirectory(info.absolutePath());
+    if (!process.startDetached(command)) {
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("ターミナルの起動に失敗しました。<br/>")
                     + command);
     }
 }
@@ -496,6 +550,34 @@ void FileTableView::refresh()
     }
     setCurrentIndex(m->index(row, 0));
     selectRow(row);
+}
+
+void FileTableView::setFilter()
+{
+    CHECK_FOCUS;
+
+    QString filters = QString::null;
+    FileTableModel *m = static_cast<FileTableModel*>(model());
+    foreach (const QString &filter, m->nameFilters()) {
+        filters += filter + " ";
+    }
+
+    QInputDialog dlg(this);
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.setWindowTitle(tr("フィルタを設定"));
+    dlg.setLabelText(tr("フィルタ："));
+    dlg.setTextValue(filters);
+    dlg.resize(getMainWnd()->width() * 0.8, dlg.height());
+
+    if (dlg.exec() == QDialog::Accepted) {
+        filters = dlg.textValue();
+        if (filters.isEmpty()) {
+            filters = "*";
+        }
+        m->setNameFilters(filters.split(" ", QString::SkipEmptyParts));
+        refresh();
+        emit filterChanged();
+    }
 }
 
 void FileTableView::back()
@@ -888,7 +970,15 @@ void FileTableView::onDoubleClick(const QModelIndex &index)
     FileTableModel *m = static_cast<FileTableModel*>(model());
 
     if (m->isDir(index)) {
-        setRootPath(m->absoluteFilePath(index), true);
+        if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
+            openTerminal(m->absoluteFilePath(index));
+        }
+        else {
+            setRootPath(m->absoluteFilePath(index), true);
+        }
+    }
+    else if (QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)){
+        openEditor(m->absoluteFilePath(index));
     }
     else {
         openUrl(index);

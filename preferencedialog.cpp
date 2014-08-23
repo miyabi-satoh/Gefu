@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileDialog>
+#include <QStandardPaths>
 
 PreferenceDialog::PreferenceDialog(QWidget *parent) :
     QDialog(parent),
@@ -51,6 +52,8 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     connect(ui->viewFontBold, SIGNAL(clicked()), this, SLOT(changeFont()));
     connect(ui->viewFontSize, SIGNAL(valueChanged(int)), this, SLOT(changeFont()));
 
+    connect(ui->importAppearance, SIGNAL(clicked()), this, SLOT(importAppearance()));
+    connect(ui->exportAppearance, SIGNAL(clicked()), this, SLOT(exportAppearance()));
     connect(ui->termBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
     connect(ui->editorBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
 
@@ -58,9 +61,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     QString strValue;
     QSize size;
     QPoint point;
-    QColor color;
-    QPalette palette;
-    QFont font;
     QRadioButton *radioBtn;
 
     //>>>>> 起動と終了
@@ -108,6 +108,70 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     ui->resetOnBoot->setChecked(settings.value(IniKey_ResetOnBoot).toBool());
 
     //>>>>> 色とフォント
+    loadAppearance(settings);
+
+    //>>>>> ファイル操作
+    // 確認ダイアログの表示
+    ui->confirmCopy->setChecked(settings.value(IniKey_ConfirmCopy).toBool());
+    ui->confirmDelete->setChecked(settings.value(IniKey_ConfirmDelete).toBool());
+    ui->confirmMove->setChecked(settings.value(IniKey_ConfirmMove).toBool());
+    ui->confirmRename->setChecked(settings.value(IniKey_ConfirmRename).toBool());
+    // 完了ダイアログの自動クローズ
+    ui->autoCloseCopy->setChecked(settings.value(IniKey_AutoCloseCopy).toBool());
+    ui->autoCloseDelete->setChecked(settings.value(IniKey_AutoCloseDelete).toBool());
+    ui->autoCloseMove->setChecked(settings.value(IniKey_AutoCloseMove).toBool());
+    ui->autoCloseRename->setChecked(settings.value(IniKey_AutoCloseRename).toBool());
+    // 上書き時の既定動作
+    strValue = settings.value(IniKey_DefaultOnCopy).toString();
+    if (strValue.isEmpty()) {
+        strValue = "owDefIfNew";
+    }
+    radioBtn = findChild<QRadioButton*>(strValue);
+    if (radioBtn == NULL) {
+        radioBtn = ui->owDefIfNew;
+    }
+    radioBtn->setChecked(true);
+    ui->moveAfterCreate->setChecked(settings.value(IniKey_MoveAfterCreateFolder).toBool());
+    ui->openAfterCreate->setChecked(settings.value(IniKey_OpenAfterCreateFile).toBool());
+
+    //>>>>> パス設定
+    // エディタ
+    ui->editorOpt->setText(settings.value(IniKey_EditorOption).toString());
+    ui->editorPath->setText(settings.value(IniKey_EditorPath).toString());
+    // ターミナル
+    ui->termOpt->setText(settings.value(IniKey_TerminalOption).toString());
+    ui->termPath->setText(settings.value(IniKey_TerminalPath).toString());
+}
+
+PreferenceDialog::~PreferenceDialog()
+{
+    delete ui;
+}
+
+void PreferenceDialog::saveAppearance(QSettings &settings)
+{
+    QFont font = ui->sampleEdit->font();
+    QPalette palette = ui->sampleEdit->palette();
+    settings.setValue(IniKey_BoxColorBg, palette.base().color());
+    settings.setValue(IniKey_BoxColorFg, palette.text().color());
+    settings.setValue(IniKey_BoxFont, font);
+
+    settings.setValue(IniKey_ViewColorBgMark, m_colorMap["clrBgMark"]);
+    settings.setValue(IniKey_ViewColorBgNormal, m_colorMap["clrBgNormal"]);
+    settings.setValue(IniKey_ViewColorFgHidden, m_colorMap["clrFgHidden"]);
+    settings.setValue(IniKey_ViewColorFgMark, m_colorMap["clrFgMark"]);
+    settings.setValue(IniKey_ViewColorFgNormal, m_colorMap["clrFgNormal"]);
+    settings.setValue(IniKey_ViewColorFgReadonly, m_colorMap["clrFgReadonly"]);
+    settings.setValue(IniKey_ViewColorFgSystem, m_colorMap["clrFgSystem"]);
+    settings.setValue(IniKey_ViewFont, m_model.font());
+}
+
+void PreferenceDialog::loadAppearance(QSettings &settings)
+{
+    QPalette palette;
+    QColor color;
+    QFont font;
+
     //>>>> アドレスボックス
     palette = QPalette();
     // 背景色
@@ -150,42 +214,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     m_model.setFont(font);
     m_model.update();
 
-    //>>>>> ファイル操作
-    // 確認ダイアログの表示
-    ui->confirmCopy->setChecked(settings.value(IniKey_ConfirmCopy).toBool());
-    ui->confirmDelete->setChecked(settings.value(IniKey_ConfirmDelete).toBool());
-    ui->confirmMove->setChecked(settings.value(IniKey_ConfirmMove).toBool());
-    ui->confirmRename->setChecked(settings.value(IniKey_ConfirmRename).toBool());
-    // 完了ダイアログの自動クローズ
-    ui->autoCloseCopy->setChecked(settings.value(IniKey_AutoCloseCopy).toBool());
-    ui->autoCloseDelete->setChecked(settings.value(IniKey_AutoCloseDelete).toBool());
-    ui->autoCloseMove->setChecked(settings.value(IniKey_AutoCloseMove).toBool());
-    ui->autoCloseRename->setChecked(settings.value(IniKey_AutoCloseRename).toBool());
-    // 上書き時の既定動作
-    strValue = settings.value(IniKey_DefaultOnCopy).toString();
-    if (strValue.isEmpty()) {
-        strValue = "owDefIfNew";
-    }
-    radioBtn = findChild<QRadioButton*>(strValue);
-    if (radioBtn == NULL) {
-        radioBtn = ui->owDefIfNew;
-    }
-    radioBtn->setChecked(true);
-    ui->moveAfterCreate->setChecked(settings.value(IniKey_MoveAfterCreateFolder).toBool());
-    ui->openAfterCreate->setChecked(settings.value(IniKey_OpenAfterCreateFile).toBool());
-
-    //>>>>> パス設定
-    // エディタ
-    ui->editorOpt->setText(settings.value(IniKey_EditorOption).toString());
-    ui->editorPath->setText(settings.value(IniKey_EditorPath).toString());
-    // ターミナル
-    ui->termOpt->setText(settings.value(IniKey_TerminalOption).toString());
-    ui->termPath->setText(settings.value(IniKey_TerminalPath).toString());
-}
-
-PreferenceDialog::~PreferenceDialog()
-{
-    delete ui;
 }
 
 void PreferenceDialog::changeFont()
@@ -299,9 +327,21 @@ void PreferenceDialog::selectViewColor()
 
 void PreferenceDialog::browseApp()
 {
+    QStringList list = QStandardPaths::standardLocations(
+                QStandardPaths::ApplicationsLocation);
+#ifdef Q_OS_WIN
     QString path = QFileDialog::getOpenFileName(
-                this, tr("アプリケーションを選択"), "",
+                this, tr("アプリケーションを選択"), list.at(0),
                 tr("実行ファイル (*.exe *.com *.bat *.pif);;すべてのファイル (*)"));
+#elif defined(Q_OS_MAC)
+    QString path = QFileDialog::getOpenFileName(
+                this, tr("アプリケーションを選択"), list.at(0),
+                tr("実行ファイル (*.app);;すべてのファイル (*)"));
+#else
+    QString path = QFileDialog::getOpenFileName(
+                this, tr("アプリケーションを選択"), list.at(0),
+                tr("すべてのファイル (*)"));
+#endif
     if (!path.isEmpty()) {
         if (sender() == ui->editorBrowse) {
             ui->editorPath->setText(path);
@@ -310,6 +350,36 @@ void PreferenceDialog::browseApp()
             ui->termPath->setText(path);
         }
     }
+}
+
+void PreferenceDialog::importAppearance()
+{
+    QStringList list = QStandardPaths::standardLocations(
+                QStandardPaths::DocumentsLocation);
+    QString path = QFileDialog::getOpenFileName(
+                this, tr("ファイルを選択"), list.at(0),
+                tr("設定ファイル (*.ini);;すべてのファイル (*)"));
+    if (path.isEmpty()) {
+        return;
+    }
+
+    QSettings settings(path, QSettings::IniFormat);
+    loadAppearance(settings);
+}
+
+void PreferenceDialog::exportAppearance()
+{
+    QStringList list = QStandardPaths::standardLocations(
+                QStandardPaths::DocumentsLocation);
+    QString path = QFileDialog::getSaveFileName(
+                this, tr("ファイルを選択"), list.at(0) + "/gefu_appearance.ini",
+                tr("設定ファイル (*.ini);;すべてのファイル (*)"));
+    if (path.isEmpty()) {
+        return;
+    }
+
+    QSettings settings(path, QSettings::IniFormat);
+    saveAppearance(settings);
 }
 
 void PreferenceDialog::accept()
@@ -354,20 +424,7 @@ void PreferenceDialog::accept()
     settings.setValue(IniKey_ResetOnBoot, ui->resetOnBoot->isChecked());
 
     //>>>>> 色とフォント
-    QFont font = ui->sampleEdit->font();
-    QPalette palette = ui->sampleEdit->palette();
-    settings.setValue(IniKey_BoxColorBg, palette.base().color());
-    settings.setValue(IniKey_BoxColorFg, palette.text().color());
-    settings.setValue(IniKey_BoxFont, font);
-
-    settings.setValue(IniKey_ViewColorBgMark, m_colorMap["clrBgMark"]);
-    settings.setValue(IniKey_ViewColorBgNormal, m_colorMap["clrBgNormal"]);
-    settings.setValue(IniKey_ViewColorFgHidden, m_colorMap["clrFgHidden"]);
-    settings.setValue(IniKey_ViewColorFgMark, m_colorMap["clrFgMark"]);
-    settings.setValue(IniKey_ViewColorFgNormal, m_colorMap["clrFgNormal"]);
-    settings.setValue(IniKey_ViewColorFgReadonly, m_colorMap["clrFgReadonly"]);
-    settings.setValue(IniKey_ViewColorFgSystem, m_colorMap["clrFgSystem"]);
-    settings.setValue(IniKey_ViewFont, m_model.font());
+    saveAppearance(settings);
 
     //>>>>> ファイル操作
     settings.setValue(IniKey_ConfirmCopy, ui->confirmCopy->isChecked());
@@ -392,7 +449,6 @@ void PreferenceDialog::accept()
 
     settings.setValue(IniKey_TerminalOption, ui->termOpt->text().trimmed());
     settings.setValue(IniKey_TerminalPath, ui->termPath->text().trimmed());
-
 
     QDialog::accept();
 }

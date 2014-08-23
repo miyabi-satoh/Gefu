@@ -219,6 +219,7 @@
    <addaction name="mark_AllOff"/>
    <addaction name="separator"/>
    <addaction name="view_Refresh"/>
+   <addaction name="view_Filter"/>
    <addaction name="separator"/>
    <addaction name="move_Back"/>
    <addaction name="move_Forward"/>
@@ -282,6 +283,7 @@
     <addaction name="view_System"/>
     <addaction name="separator"/>
     <addaction name="view_Sort"/>
+    <addaction name="view_Filter"/>
    </widget>
    <widget class="QMenu" name="menu_Move">
     <property name="title">
@@ -318,6 +320,7 @@
     <property name="title">
      <string>ヘルプ(&amp;H)</string>
     </property>
+    <addaction name="check_Update"/>
     <addaction name="help_About"/>
    </widget>
    <addaction name="menu_File"/>
@@ -849,6 +852,32 @@
    </property>
    <property name="shortcut">
     <string>&gt;</string>
+   </property>
+  </action>
+  <action name="view_Filter">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Funnel.png</normaloff>:/images/Funnel.png</iconset>
+   </property>
+   <property name="text">
+    <string>フィルタを設定...</string>
+   </property>
+   <property name="toolTip">
+    <string>フィルタを設定...</string>
+   </property>
+   <property name="shortcut">
+    <string>*</string>
+   </property>
+  </action>
+  <action name="check_Update">
+   <property name="text">
+    <string>最新バージョンをチェック</string>
+   </property>
+   <property name="toolTip">
+    <string>最新バージョンをチェック</string>
+   </property>
+   <property name="shortcut">
+    <string>V</string>
    </property>
   </action>
  </widget>

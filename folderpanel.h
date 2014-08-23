@@ -25,6 +25,7 @@ private:
 
 private slots:
     void onStateChanged(int checkedFolders, int checkedFiles, quint64 totalSize);
+    void onFilterChanged();
     void on_locationField_editingFinished();
 };
 

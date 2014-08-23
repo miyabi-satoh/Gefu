@@ -22,6 +22,13 @@ int main(int argc, char *argv[])
         settings.clear();
     }
 
+    // オラはやっちまっただぁ…
+    QString strValue = settings.value("TerminalOption", "").toString();
+    if (!strValue.isEmpty()) {
+        settings.remove("TerminalOption");
+        settings.setValue(IniKey_TerminalOption, strValue);
+    }
+
     // 各オプションのデフォルト値を設定する
     //>>>>> 起動と終了
     if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty())
@@ -52,7 +59,7 @@ int main(int argc, char *argv[])
         settings.setValue(IniKey_ViewColorFgReadonly, QColor(0,128,0));
         settings.setValue(IniKey_ViewColorFgSystem, QColor(128,0,128));
     }
-    //>>>>>
+    //>>>>> ファイル操作
     if (settings.value(IniKey_AutoCloseCopy, "").toString().isEmpty()) {
         settings.setValue(IniKey_AutoCloseCopy, false);
         settings.setValue(IniKey_AutoCloseDelete, false);
@@ -71,12 +78,12 @@ int main(int argc, char *argv[])
         settings.setValue(IniKey_MoveAfterCreateFolder, false);
     if (settings.value(IniKey_OpenAfterCreateFile, "").toString().isEmpty())
         settings.setValue(IniKey_OpenAfterCreateFile, false);
-    //>>>>>
+    //>>>>> パス設定
     if (settings.value(IniKey_EditorPath, "").toString().isEmpty()) {
 #if defined(Q_OS_WIN)
         settings.setValue(IniKey_EditorPath, "notepad.exe");
 #elif defined(Q_OS_MAC)
-        settings.setValue(IniKey_EditorPath, "-t");
+        settings.setValue(IniKey_EditorPath, "/Applications/TextEdit.app");
 #else
         settings.setValue(IniKey_EditorPath, "gedit");
 #endif
@@ -100,6 +107,9 @@ int main(int argc, char *argv[])
     //>>>>> システムファイルの表示
     if (settings.value(IniKey_ShowSystem, "").toString().isEmpty())
         settings.setValue(IniKey_ShowSystem, false);
+    //>>>>> 最新版のチェック
+    if (settings.value(IniKey_CheckUpdates, "").toString().isEmpty())
+        settings.setValue(IniKey_CheckUpdates, true);
     //>>>>> 最後のフォルダとソート方法
     QString side = "Left/";
     if (settings.value(side + IniKey_Dir, "").toString().isEmpty()) {

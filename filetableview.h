@@ -31,11 +31,13 @@ private:
 
 signals:
     void indexChanged(const QString &text);
+    void filterChanged();
 
 private slots:
     void setPath();
     void openUrl(const QModelIndex &index = QModelIndex());
     void openEditor(const QString &path = QString());
+    void openTerminal(const QString &path = QString());
     void kickProcess();
 
     void toggleChecked();
@@ -51,6 +53,7 @@ private slots:
     void showSystemFiles(bool show);
     void setSort();
     void refresh();
+    void setFilter();
 
     void back();
     void forward();

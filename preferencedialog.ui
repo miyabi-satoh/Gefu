@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>631</width>
-    <height>527</height>
+    <height>569</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,23 +26,13 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
        <string>起動と終了</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QCheckBox" name="confirmExit">
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="text">
-          <string>終了時に確認ダイアログを表示する</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QCheckBox" name="bootSize">
          <property name="focusPolicy">
@@ -574,12 +564,32 @@
         </layout>
        </item>
        <item>
+        <widget class="QCheckBox" name="checkUpdates">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>起動時に最新バージョンをチェックする。</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="resetOnBoot">
          <property name="focusPolicy">
           <enum>Qt::StrongFocus</enum>
          </property>
          <property name="text">
           <string>次回起動時に設定ファイルをクリアする</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="confirmExit">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>終了時に確認ダイアログを表示する</string>
          </property>
         </widget>
        </item>
@@ -896,6 +906,43 @@
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_28">
+         <item>
+          <widget class="QPushButton" name="importAppearance">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="text">
+            <string>インポート</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="exportAppearance">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
+           <property name="text">
+            <string>エクスポート</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_17">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_2">
@@ -1272,26 +1319,19 @@
         </layout>
        </item>
        <item>
-        <widget class="QTextEdit" name="optExplain">
+        <widget class="QPlainTextEdit" name="optExplain">
          <property name="font">
           <font>
-           <family>Courier</family>
+           <family>Monaco</family>
           </font>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;オプション引数に使える文字&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;$B ... ファイル名から拡張子を除いた部分&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;$E ... 拡張子&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;$F ... ファイル名($B.$Eと同じ)&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;$D ... フォルダ名&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'.Lucida Grande UI';&quot;&gt;$P ... フルパス($D/$Fと同じ)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <property name="plainText">
+          <string>オプション引数に使える文字
+$B ... ファイル名から拡張子を除いた部分
+$E ... 拡張子
+$F ... ファイル名($B.$Eと同じ)
+$D ... フォルダ名
+$P ... フルパス($D/$Fと同じ)</string>
          </property>
         </widget>
        </item>
@@ -1331,7 +1371,6 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
-  <tabstop>confirmExit</tabstop>
   <tabstop>bootSize</tabstop>
   <tabstop>sizeAbsolute</tabstop>
   <tabstop>absoluteWidth</tabstop>
@@ -1403,8 +1442,8 @@ p, li { white-space: pre-wrap; }
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="posOptions"/>
-  <buttongroup name="overwriteOptions"/>
   <buttongroup name="sizeOptions"/>
+  <buttongroup name="overwriteOptions"/>
+  <buttongroup name="posOptions"/>
  </buttongroups>
 </ui>
