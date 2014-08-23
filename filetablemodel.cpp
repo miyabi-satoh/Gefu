@@ -53,18 +53,9 @@ bool FileTableModel::setPath(const QString &path)
         qDebug() << path;
     }
     else {
-        QFileInfoList::iterator it, itRoot = m_fileInfoList.end();
+        QFileInfoList::iterator it;
+        bool removeDotDot = false;
         for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); ) {
-            if (it->fileName() == "..") {
-                if (m_dir.isRoot()) {
-                   it = m_fileInfoList.erase(it);
-                    itRoot = m_fileInfoList.end();
-                    continue;
-                }
-                else {
-                    itRoot = it;
-                }
-            }
 #ifdef Q_OS_WIN32
             if (!(filter() & QDir::System)){
                 DWORD dwFlags = ::GetFileAttributes(
@@ -78,13 +69,30 @@ bool FileTableModel::setPath(const QString &path)
                 }
             }
 #endif
+            if (it->fileName() == "..") {
+                if (m_dir.isRoot()) {
+                    qDebug() << m_dir.absolutePath() << " is root.";
+                    it = m_fileInfoList.erase(it);
+                    removeDotDot = true;
+                    continue;
+                }
+            }
             it++;
         }
         // ソート方法によらず、".."は必ず先頭にする
-        if (itRoot != m_fileInfoList.begin() && itRoot != m_fileInfoList.end()) {
-            QFileInfo info(*itRoot);
-            m_fileInfoList.erase(itRoot);
-            m_fileInfoList.push_front(info);
+        if (!removeDotDot) {
+            QFileInfoList::iterator itRoot = m_fileInfoList.end();
+            for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); it++) {
+                if (it->fileName() == "..") {
+                    itRoot = it;
+                    break;
+                }
+            }
+            if (itRoot != m_fileInfoList.end()) {
+                QFileInfo info(*itRoot);
+                m_fileInfoList.erase(itRoot);
+                m_fileInfoList.push_front(info);
+            }
         }
     }
 
