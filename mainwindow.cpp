@@ -153,15 +153,34 @@ void MainWindow::openRequest(const QFileInfo &info)
     m_focusedView = QApplication::focusWidget();
 
     setUpdatesEnabled(false);
+
+    foreach (QObject *obj, this->children()) {
+        QAction *action = qobject_cast<QAction*>(obj);
+        if (action) {
+            if (action->objectName() == "help_About" ||
+                action->objectName() == "check_Update" ||
+                action->objectName() == "copy_Fullpath" ||
+                action->objectName() == "copy_Filename" ||
+                action->objectName() == "action_Quit" ||
+                action->objectName() == "action_Setting")
+            {
+                continue;
+            }
+            qDebug() << action->objectName();
+            action->setEnabled(false);
+        }
+    }
+
+    ui->menu_File->setVisible(false);
     ui->splitter->setVisible(false);
     ui->plainTextEdit->setVisible(true);
     ui->plainTextEdit->setFocus();
+
     setUpdatesEnabled(true);
 
     QFile file(info.absoluteFilePath());
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream ts(&file);
-        ui->plainTextEdit->setPlainText(ts.readAll());
+    if (file.open(QIODevice::ReadOnly)) {
+        ui->plainTextEdit->setSource(file.readAll());
     }
 }
 
@@ -269,9 +288,18 @@ void MainWindow::checkUpdateFinishedSilent(QNetworkReply *reply)
 void MainWindow::viewFinish(QWidget *sender)
 {
     setUpdatesEnabled(false);
+
+    foreach (QObject *obj, this->children()) {
+        QAction *action = qobject_cast<QAction*>(obj);
+        if (action) {
+            action->setEnabled(true);
+        }
+    }
+
     sender->setVisible(false);
     ui->splitter->setVisible(true);
     m_focusedView->setFocus();
+
     setUpdatesEnabled(true);
 }
 
