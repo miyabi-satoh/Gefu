@@ -15,7 +15,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_focusedView(NULL)
 {
     ui->setupUi(this);
     ui->RPanel->setSide("Right");
@@ -61,12 +62,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->help_About->setShortcuts(shortcuts);
 
     // シグナル/スロットを設定する
-    connect(ui->action_Setting, SIGNAL(triggered()), this, SLOT(onActionSetting()));
+    connect(ui->action_Setting, SIGNAL(triggered()), this, SLOT(showPreferenceDialog()));
     connect(ui->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
-    connect(ui->help_About, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
+    connect(ui->help_About, SIGNAL(triggered()), this, SLOT(about()));
     connect(ui->view_Hidden, SIGNAL(triggered()), this, SLOT(toggleShowHiddenFiles()));
     connect(ui->view_System, SIGNAL(triggered()), this, SLOT(toggleShowSystemFiles()));
     connect(ui->check_Update, SIGNAL(triggered()), this, SLOT(checkUpdate()));
+    connect(ui->plainTextEdit, SIGNAL(viewFinished(QWidget*)), this, SLOT(viewFinish(QWidget*)));
 
     // ウィンドウタイトルを設定する
     setWindowTitle(tr("げふぅ v%1").arg(VERSION_VALUE));
@@ -122,6 +124,9 @@ MainWindow::MainWindow(QWidget *parent) :
     if (settings.value(IniKey_CheckUpdates).toBool()) {
         checkUpdate(true);
     }
+
+//    ui->splitter->setVisible(false);
+    ui->plainTextEdit->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -143,7 +148,24 @@ FileTableView *MainWindow::otherSideView(const FileTableView *view) const
     return NULL;
 }
 
-void MainWindow::onActionSetting()
+void MainWindow::openRequest(const QFileInfo &info)
+{
+    m_focusedView = QApplication::focusWidget();
+
+    setUpdatesEnabled(false);
+    ui->splitter->setVisible(false);
+    ui->plainTextEdit->setVisible(true);
+    ui->plainTextEdit->setFocus();
+    setUpdatesEnabled(true);
+
+    QFile file(info.absoluteFilePath());
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream ts(&file);
+        ui->plainTextEdit->setPlainText(ts.readAll());
+    }
+}
+
+void MainWindow::showPreferenceDialog()
 {
     PreferenceDialog dlg(this);
 
@@ -244,7 +266,16 @@ void MainWindow::checkUpdateFinishedSilent(QNetworkReply *reply)
     checkUpdateFinished(reply, true);
 }
 
-void MainWindow::onHelpAbout()
+void MainWindow::viewFinish(QWidget *sender)
+{
+    setUpdatesEnabled(false);
+    sender->setVisible(false);
+    ui->splitter->setVisible(true);
+    m_focusedView->setFocus();
+    setUpdatesEnabled(true);
+}
+
+void MainWindow::about()
 {
     QMessageBox::about(
                 this,

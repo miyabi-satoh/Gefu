@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     historydialog.cpp \
     preferencedialog.cpp \
     clickablelabel.cpp \
-    colorsamplemodel.cpp
+    colorsamplemodel.cpp \
+    simpletextview.cpp
 
 HEADERS  += mainwindow.h \
     folderpanel.h \
@@ -55,7 +56,8 @@ HEADERS  += mainwindow.h \
     historydialog.h \
     preferencedialog.h \
     clickablelabel.h \
-    colorsamplemodel.h
+    colorsamplemodel.h \
+    simpletextview.h
 
 FORMS    += mainwindow.ui \
     folderpanel.ui \

@@ -149,23 +149,42 @@ void FileTableModel::setCheckStateAll(Qt::CheckState state)
     stateChanged();
 }
 
-
+#if 0
 bool FileTableModel::isDir(const QModelIndex &index) const
 {
+    if (!index.isValid()) {
+        qDebug() << "isDir() : index is invalid.";
+        return QString();
+    }
     return m_fileInfoList[index.row()].isDir();
 }
 
 const QString FileTableModel::absoluteFilePath(const QModelIndex &index) const
 {
     if (!index.isValid()) {
-        qDebug() << "index is invalid.";
+        qDebug() << "absoluteFilePath() : index is invalid.";
         return QString();
     }
-    return m_dir.absoluteFilePath(m_fileInfoList[index.row()].fileName());
+//    return m_dir.absoluteFilePath(m_fileInfoList[index.row()].fileName());
+    return m_fileInfoList[index.row()].absoluteFilePath();
 }
+
+const QString FileTableModel::fileName(const QModelIndex &index) const
+{
+    if (!index.isValid()) {
+        qDebug() << "fileName() : index is invalid.";
+        return QString();
+    }
+    return m_fileInfoList[index.row()].fileName();
+}
+#endif
 
 QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
 {
+    if (!index.isValid()) {
+        qDebug() << "fileInfo() : index is invalid.";
+        return QFileInfo();
+    }
     return m_fileInfoList[index.row()];
 }
 

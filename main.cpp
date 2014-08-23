@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
     if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty())
         settings.setValue(IniKey_ConfirmExit, true);
     if (settings.value(IniKey_BootSizeSpec, "").toString().isEmpty()) {
-        settings.setValue(IniKey_BootSizeSpec, "sizeLast");
+        settings.setValue(IniKey_BootSizeSpec, "sizeRelative");
         settings.setValue(IniKey_BootSizeAbs, QSize(800,600));
-        settings.setValue(IniKey_BootSizeRel, QSize(50,50));
+        settings.setValue(IniKey_BootSizeRel, QSize(75,75));
     }
     if (settings.value(IniKey_BootPosSpec, "").toString().isEmpty()) {
-        settings.setValue(IniKey_BootPosSpec, "posLast");
+        settings.setValue(IniKey_BootPosSpec, "posCenter");
         settings.setValue(IniKey_BootPosAbs, QPoint(0, 0));
         settings.setValue(IniKey_BootPosRel, QPoint(0, 0));
     }

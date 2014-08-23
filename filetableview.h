@@ -32,9 +32,10 @@ private:
 signals:
     void indexChanged(const QString &text);
     void filterChanged();
+    void openRequested(const QFileInfo &info);
 
 private slots:
-    void setPath();
+    void openItem();
     void openUrl(const QModelIndex &index = QModelIndex());
     void openEditor(const QString &path = QString());
     void openTerminal(const QString &path = QString());
@@ -73,6 +74,8 @@ private slots:
     void cmdRename();
     void newFile();
     void newFolder();
+    void copyFilenameToClipboard();
+    void copyFullpathToClipboard();
 
     void XXX();
 
@@ -81,6 +84,7 @@ private slots:
                       QString *alias, const QString &srcPath,
                       const QString &tgtPath);
     void onDoubleClick(const QModelIndex &index);
+    void contextMenuRequested(const QPoint & pos);
 
     // QAbstractItemView interface
 public slots:

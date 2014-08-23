@@ -26,19 +26,22 @@ signals:
     void showSystemFiles(bool show);
 
 public slots:
-    void onActionSetting();
-    void onHelpAbout();
 
 private slots:
+    void openRequest(const QFileInfo &info);
+    void showPreferenceDialog();
+    void about();
     void toggleShowHiddenFiles();
     void toggleShowSystemFiles();
     void checkUpdate(bool silent = false);
     void checkUpdateFinished(QNetworkReply *reply);
     void checkUpdateFinished(QNetworkReply *reply, bool silent);
     void checkUpdateFinishedSilent(QNetworkReply *reply);
+    void viewFinish(QWidget *sender);
 
 private:
     Ui::MainWindow *ui;
+    QWidget *m_focusedView;
 
     // QWidget interface
 protected:

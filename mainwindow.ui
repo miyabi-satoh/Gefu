@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>662</width>
-    <height>324</height>
+    <width>665</width>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resource.qrc">
+   <iconset>
     <normaloff>:/images/Gefu.png</normaloff>:/images/Gefu.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -56,6 +56,9 @@
        </property>
       </widget>
      </widget>
+    </item>
+    <item>
+     <widget class="SimpleTextView" name="plainTextEdit"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -242,7 +245,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>662</width>
+     <width>665</width>
      <height>22</height>
     </rect>
    </property>
@@ -315,6 +318,9 @@
     <addaction name="separator"/>
     <addaction name="cmd_NewFile"/>
     <addaction name="cmd_NewFolder"/>
+    <addaction name="separator"/>
+    <addaction name="copy_Filename"/>
+    <addaction name="copy_Fullpath"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -332,7 +338,7 @@
   </widget>
   <action name="action_Quit">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Exit.png</normaloff>:/images/Exit.png</iconset>
    </property>
    <property name="text">
@@ -350,7 +356,7 @@
   </action>
   <action name="action_Open">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Open.png</normaloff>:/images/Open.png</iconset>
    </property>
    <property name="text">
@@ -365,7 +371,7 @@
   </action>
   <action name="action_Exec">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Play.png</normaloff>:/images/Play.png</iconset>
    </property>
    <property name="text">
@@ -380,7 +386,7 @@
   </action>
   <action name="view_FromOther">
    <property name="icon">
-    <iconset theme="隣のパネルと同じフォルダを表示" resource="resource.qrc">
+    <iconset theme="隣のパネルと同じフォルダを表示">
      <normaloff>:/images/Synchronize.png</normaloff>:/images/Synchronize.png</iconset>
    </property>
    <property name="text">
@@ -414,7 +420,7 @@
   </action>
   <action name="mark_All">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Ok.png</normaloff>:/images/Ok.png</iconset>
    </property>
    <property name="text">
@@ -429,7 +435,7 @@
   </action>
   <action name="mark_AllFiles">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Check boxes.png</normaloff>:/images/Check boxes.png</iconset>
    </property>
    <property name="text">
@@ -444,7 +450,7 @@
   </action>
   <action name="mark_AllOff">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Cancel.png</normaloff>:/images/Cancel.png</iconset>
    </property>
    <property name="text">
@@ -470,7 +476,7 @@
   </action>
   <action name="view_Swap">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Text replace.png</normaloff>:/images/Text replace.png</iconset>
    </property>
    <property name="text">
@@ -485,7 +491,7 @@
   </action>
   <action name="action_Setting">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Settings.png</normaloff>:/images/Settings.png</iconset>
    </property>
    <property name="text">
@@ -528,7 +534,7 @@
   </action>
   <action name="move_Down">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Go down.png</normaloff>:/images/Go down.png</iconset>
    </property>
    <property name="text">
@@ -543,7 +549,7 @@
   </action>
   <action name="move_Up">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Go up.png</normaloff>:/images/Go up.png</iconset>
    </property>
    <property name="text">
@@ -558,7 +564,7 @@
   </action>
   <action name="move_Back">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Back.png</normaloff>:/images/Back.png</iconset>
    </property>
    <property name="text">
@@ -573,7 +579,7 @@
   </action>
   <action name="move_Forward">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Forward.png</normaloff>:/images/Forward.png</iconset>
    </property>
    <property name="text">
@@ -599,7 +605,7 @@
   </action>
   <action name="move_Parent">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Up.png</normaloff>:/images/Up.png</iconset>
    </property>
    <property name="text">
@@ -614,7 +620,7 @@
   </action>
   <action name="move_Root">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Monitor.png</normaloff>:/images/Monitor.png</iconset>
    </property>
    <property name="text">
@@ -629,7 +635,7 @@
   </action>
   <action name="move_Jump">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Folder.png</normaloff>:/images/Folder.png</iconset>
    </property>
    <property name="text">
@@ -644,7 +650,7 @@
   </action>
   <action name="move_Home">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Home.png</normaloff>:/images/Home.png</iconset>
    </property>
    <property name="text">
@@ -681,7 +687,7 @@
   </action>
   <action name="action_OpenEditor">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Edit page.png</normaloff>:/images/Edit page.png</iconset>
    </property>
    <property name="text">
@@ -696,7 +702,7 @@
   </action>
   <action name="action_Command">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Export.png</normaloff>:/images/Export.png</iconset>
    </property>
    <property name="text">
@@ -711,7 +717,7 @@
   </action>
   <action name="cmd_Copy">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Copy.png</normaloff>:/images/Copy.png</iconset>
    </property>
    <property name="text">
@@ -726,7 +732,7 @@
   </action>
   <action name="cmd_Move">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Paste.png</normaloff>:/images/Paste.png</iconset>
    </property>
    <property name="text">
@@ -738,7 +744,7 @@
   </action>
   <action name="cmd_Delete">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Delete.png</normaloff>:/images/Delete.png</iconset>
    </property>
    <property name="text">
@@ -753,7 +759,7 @@
   </action>
   <action name="cmd_Rename">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Rename.png</normaloff>:/images/Rename.png</iconset>
    </property>
    <property name="text">
@@ -768,7 +774,7 @@
   </action>
   <action name="cmd_NewFile">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/New file.png</normaloff>:/images/New file.png</iconset>
    </property>
    <property name="text">
@@ -783,7 +789,7 @@
   </action>
   <action name="cmd_NewFolder">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Add folder.png</normaloff>:/images/Add folder.png</iconset>
    </property>
    <property name="text">
@@ -798,7 +804,7 @@
   </action>
   <action name="help_About">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Help.png</normaloff>:/images/Help.png</iconset>
    </property>
    <property name="text">
@@ -830,7 +836,7 @@
   </action>
   <action name="view_Refresh">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Refresh.png</normaloff>:/images/Refresh.png</iconset>
    </property>
    <property name="text">
@@ -856,7 +862,7 @@
   </action>
   <action name="view_Filter">
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/images/Funnel.png</normaloff>:/images/Funnel.png</iconset>
    </property>
    <property name="text">
@@ -880,6 +886,28 @@
     <string>V</string>
    </property>
   </action>
+  <action name="copy_Filename">
+   <property name="text">
+    <string>ファイル名をクリップボードにコピー</string>
+   </property>
+   <property name="toolTip">
+    <string>ファイル名をクリップボードにコピー</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="copy_Fullpath">
+   <property name="text">
+    <string>フルパス名をクリップボードにコピー</string>
+   </property>
+   <property name="toolTip">
+    <string>フルパス名をクリップボードにコピー</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+C</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -889,9 +917,12 @@
    <header>folderpanel.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>SimpleTextView</class>
+   <extends>QPlainTextEdit</extends>
+   <header>simpletextview.h</header>
+  </customwidget>
  </customwidgets>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
