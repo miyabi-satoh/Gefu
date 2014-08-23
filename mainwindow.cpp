@@ -200,9 +200,9 @@ void MainWindow::checkUpdate(bool silent)
                 this, SLOT(checkUpdateFinished(QNetworkReply*)));
     }
 #ifdef Q_OS_WIN
-    manager->get(QNetworkRequest(QUrl("https://dl.dropboxusercontent.com/u/3112525/gefu_latest_win.txt")));
+    manager->get(QNetworkRequest(QUrl("http://miyabi.rakusaba.jp/wp-content/uploads/gefu_latest_win.html")));
 #elif defined(Q_OS_MAC)
-    manager->get(QNetworkRequest(QUrl("https://dl.dropboxusercontent.com/u/3112525/gefu_latest_mac.txt")));
+    manager->get(QNetworkRequest(QUrl("http://miyabi.rakusaba.jp/wp-content/uploads/gefu_latest_mac.html")));
 #endif
 }
 
