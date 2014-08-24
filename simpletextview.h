@@ -16,10 +16,13 @@ private:
     QAction *m_convJIS;
     QAction *m_convSJIS;
     QAction *m_convUTF8;
+    QAction *m_convUTF16;
     QAction *m_convUTF16BE;
     QAction *m_convUTF16LE;
     QAction *m_back;
     QByteArray m_source;
+
+    std::string detectCode(const QByteArray &bytes);
 
 signals:
     void viewFinished(QWidget *sender);
@@ -31,6 +34,7 @@ private slots:
     void convertFromJIS();
     void convertFromSJIS();
     void convertFromUTF8();
+    void convertFromUTF16();
     void convertFromUTF16BE();
     void convertFromUTF16LE();
     void back();

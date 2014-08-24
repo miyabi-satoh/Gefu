@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QFontDialog>
 
 PreferenceDialog::PreferenceDialog(QWidget *parent) :
     QDialog(parent),
@@ -21,11 +22,20 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     ui->setupUi(this);
     ui->tabWidget->setCurrentIndex(0);
+    // アドレスボックスの外観サンプル
     ui->sampleEdit->setText(QDir::homePath());
+    // ファイルビューの外観サンプル
     ui->sampleTable->setModel(&m_model);
-    ui->sampleTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->sampleTable->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+    QHeaderView *header;
+    header = ui->sampleTable->horizontalHeader();
+    header->setSectionResizeMode(0, QHeaderView::Stretch);
+    header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header = ui->sampleTable->verticalHeader();
+    header->setDefaultSectionSize(header->defaultSectionSize() * 0.75);
+
+    // シグナル＆スロット
     connect(ui->bootSize, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
     connect(ui->sizeAbsolute, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
     connect(ui->sizeRelative, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
@@ -44,19 +54,22 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     connect(ui->clrFgReadonly, SIGNAL(clicked()), this, SLOT(selectViewColor()));
     connect(ui->clrFgSystem, SIGNAL(clicked()), this, SLOT(selectViewColor()));
 
-    connect(ui->boxFont, SIGNAL(currentFontChanged(QFont)), this, SLOT(changeFont()));
-    connect(ui->boxFontBold, SIGNAL(clicked()), this, SLOT(changeFont()));
-    connect(ui->boxFontSize, SIGNAL(valueChanged(int)), this, SLOT(changeFont()));
-
-    connect(ui->viewFont, SIGNAL(currentFontChanged(QFont)), this, SLOT(changeFont()));
-    connect(ui->viewFontBold, SIGNAL(clicked()), this, SLOT(changeFont()));
-    connect(ui->viewFontSize, SIGNAL(valueChanged(int)), this, SLOT(changeFont()));
+    connect(ui->chooseBoxFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
+    connect(ui->chooseViewFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
 
     connect(ui->importAppearance, SIGNAL(clicked()), this, SLOT(importAppearance()));
     connect(ui->exportAppearance, SIGNAL(clicked()), this, SLOT(exportAppearance()));
     connect(ui->termBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
     connect(ui->editorBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
 
+    connect(ui->chooseViewerFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
+    connect(ui->viewerClrBg, SIGNAL(clicked()), this, SLOT(selectViewerColor()));
+    connect(ui->viewerClrFg, SIGNAL(clicked()), this, SLOT(selectViewerColor()));
+    connect(ui->viewerInherit, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
+    connect(ui->enableViewerIgnoreExt, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
+    connect(ui->defaultIgnoreExt, SIGNAL(clicked()), this, SLOT(setIgnoreExtDefault()));
+
+    // 現在の設定で各コントロールを初期化する
     QSettings settings;
     QString strValue;
     QSize size;
@@ -67,17 +80,15 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     // 終了時の確認ダイアログ
     ui->confirmExit->setChecked(settings.value(IniKey_ConfirmExit).toBool());
     // 起動時のサイズ
+    ui->bootSize->setChecked(true);
     strValue = settings.value(IniKey_BootSizeSpec).toString();
+    radioBtn = findChild<QRadioButton*>(strValue);
+    if (radioBtn == NULL) {
+        radioBtn = ui->sizeRelative;
+    }
+    radioBtn->setChecked(true);
     if (strValue.isEmpty()) {
         ui->bootSize->setChecked(false);
-    }
-    else {
-        ui->bootSize->setChecked(true);
-        radioBtn = findChild<QRadioButton*>(strValue);
-        if (radioBtn == NULL) {
-            radioBtn = ui->sizeLast;
-        }
-        radioBtn->setChecked(true);
     }
     size = settings.value(IniKey_BootSizeAbs).toSize();
     ui->absoluteWidth->setValue(size.width());
@@ -86,17 +97,15 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     ui->relativeWidth->setValue(size.width());
     ui->relativeHeight->setValue(size.height());
     // 起動時の位置
+    ui->bootPos->setChecked(true);
     strValue = settings.value(IniKey_BootPosSpec).toString();
+    radioBtn = findChild<QRadioButton*>(strValue);
+    if (radioBtn == NULL) {
+        radioBtn = ui->posCenter;
+    }
+    radioBtn->setChecked(true);
     if (strValue.isEmpty()) {
         ui->bootPos->setChecked(false);
-    }
-    else {
-        ui->bootPos->setChecked(true);
-        radioBtn = findChild<QRadioButton*>(strValue);
-        if (radioBtn == NULL) {
-            radioBtn = ui->posLast;
-        }
-        radioBtn->setChecked(true);
     }
     point = settings.value(IniKey_BootPosAbs).toPoint();
     ui->absoluteLeft->setValue(point.x());
@@ -107,8 +116,8 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     // 起動時の設定削除
     ui->resetOnBoot->setChecked(settings.value(IniKey_ResetOnBoot).toBool());
 
-    //>>>>> 色とフォント
-    loadAppearance(settings);
+    //>>>>> 色とフォント、テキストビューア
+    loadAppearance(settings, false);
 
     //>>>>> ファイル操作
     // 確認ダイアログの表示
@@ -141,6 +150,11 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     // ターミナル
     ui->termOpt->setText(settings.value(IniKey_TerminalOption).toString());
     ui->termPath->setText(settings.value(IniKey_TerminalPath).toString());
+
+    //>>>>> テキストビューア
+    ui->enableViewerIgnoreExt->setChecked(true);
+    ui->enableViewerIgnoreExt->setChecked(!settings.value(IniKey_ViewerForceOpen).toBool());
+    ui->viewerIgnoreExt->setPlainText(settings.value(IniKey_ViewerIgnoreExt).toString());
 }
 
 PreferenceDialog::~PreferenceDialog()
@@ -166,7 +180,7 @@ void PreferenceDialog::saveAppearance(QSettings &settings)
     settings.setValue(IniKey_ViewFont, m_model.font());
 }
 
-void PreferenceDialog::loadAppearance(QSettings &settings)
+void PreferenceDialog::loadAppearance(QSettings &settings, bool import)
 {
     QPalette palette;
     QColor color;
@@ -182,12 +196,11 @@ void PreferenceDialog::loadAppearance(QSettings &settings)
     palette.setColor(QPalette::Text, color);
     // フォント
     font = settings.value(IniKey_BoxFont).value<QFont>();
-    ui->boxFont->setCurrentText(font.family());
-    ui->boxFontBold->setChecked(font.bold());
-    ui->boxFontSize->setValue(font.pointSize());
+    ui->boxFont->setText(tr("%1, %2pt").arg(font.family()).arg(font.pointSize()));
     // サンプル表示
     ui->sampleEdit->setPalette(palette);
     ui->sampleEdit->setFont(font);
+
     //>>>> ファイルビュー
     // 背景色
     color = settings.value(IniKey_ViewColorBgMark).value<QColor>();
@@ -207,35 +220,69 @@ void PreferenceDialog::loadAppearance(QSettings &settings)
     m_colorMap["clrFgSystem"] = color;
     // フォント
     font = settings.value(IniKey_ViewFont).value<QFont>();
-    ui->viewFont->setCurrentText(font.family());
-    ui->viewFontBold->setChecked(font.bold());
-    ui->viewFontSize->setValue(font.pointSize());
+    ui->viewFont->setText(tr("%1, %2pt").arg(font.family()).arg(font.pointSize()));
     // サンプル表示
     m_model.setFont(font);
     m_model.update();
 
+    //>>>> テキストビューア
+    // 文字色と背景色
+    if (settings.value(IniKey_ViewerInherit).toBool()) {
+        ui->viewerInherit->setChecked(true);
+        color = settings.value(IniKey_ViewColorBgNormal).value<QColor>();
+        palette.setColor(QPalette::Base, color);
+        color = settings.value(IniKey_ViewColorFgNormal).value<QColor>();
+        palette.setColor(QPalette::Text, color);
+    }
+    else if (!import){
+        ui->viewerInherit->setChecked(false);
+        color = settings.value(IniKey_ViewerColorBg).value<QColor>();
+        palette.setColor(QPalette::Base, color);
+        color = settings.value(IniKey_ViewerColorFg).value<QColor>();
+        palette.setColor(QPalette::Text, color);
+    }
+    ui->viewerSample->setPalette(palette);
+    // フォント
+    if (!import) {
+        font = settings.value(IniKey_ViewerFont).value<QFont>();
+        ui->viewerFont->setText(tr("%1, %2pt").arg(font.family()).arg(font.pointSize()));
+        ui->viewerSample->setFont(font);
+    }
 }
 
-void PreferenceDialog::changeFont()
+void PreferenceDialog::chooseFont()
 {
+    bool ok;
     QFont font;
+    QLabel *label = NULL;
 
-    if (sender() == ui->boxFont ||
-        sender() == ui->boxFontBold ||
-        sender() == ui->boxFontSize)
-    {
-        font.setBold(ui->boxFontBold->isChecked());
-        font.setPointSize(ui->boxFontSize->value());
-        font.setFamily(ui->boxFont->currentText());
-        ui->sampleEdit->setFont(font);
+    if (sender() == ui->chooseViewerFont) {
+        font = ui->viewerSample->font();
     }
-    else {
-        font.setBold(ui->viewFontBold->isChecked());
-        font.setPointSize(ui->viewFontSize->value());
-        font.setFamily(ui->viewFont->currentText());
+    else if (sender() == ui->chooseBoxFont) {
+        font = ui->sampleEdit->font();
+    }
+    else if (sender() == ui->chooseViewFont) {
+        font = m_model.font();
+    }
+
+    font = QFontDialog::getFont(&ok, font, this);
+
+    if (sender() == ui->chooseViewerFont) {
+        ui->viewerSample->setFont(font);
+        label = ui->viewerFont;
+    }
+    else if (sender() == ui->chooseBoxFont) {
+        ui->sampleEdit->setFont(font);
+        label = ui->boxFont;
+    }
+    else if (sender() == ui->chooseViewFont) {
         m_model.setFont(font);
         m_model.update();
+        label = ui->viewFont;
     }
+    label->setText(tr("%1, %2pt").arg(font.family()).arg(font.pointSize()));
+
 }
 
 void PreferenceDialog::setControlsEnabled(bool enabled)
@@ -283,6 +330,18 @@ void PreferenceDialog::setControlsEnabled(bool enabled)
         ui->relativeLeft->setEnabled(enabled);
         ui->relativeTop->setEnabled(enabled);
     }
+    else if (sender() == ui->viewerInherit) {
+        ui->viewerClrBg->setEnabled(!enabled);
+        ui->viewerClrFg->setEnabled(!enabled);
+    }
+    else if (sender() == ui->enableViewerIgnoreExt) {
+        ui->viewerIgnoreExt->setEnabled(enabled);
+    }
+}
+
+void PreferenceDialog::setIgnoreExtDefault()
+{
+    ui->viewerIgnoreExt->setPlainText(ViewerIgnoreExt());
 }
 
 void PreferenceDialog::selectBoxColor()
@@ -303,12 +362,11 @@ void PreferenceDialog::selectBoxColor()
 
     if (sender() == ui->boxClrBg) {
         palette.setColor(QPalette::Base, color);
-        ui->sampleEdit->setPalette(palette);
     }
     else if (sender() == ui->boxClrFg) {
         palette.setColor(QPalette::Text, color);
-        ui->sampleEdit->setPalette(palette);
     }
+    ui->sampleEdit->setPalette(palette);
 }
 
 void PreferenceDialog::selectViewColor()
@@ -323,6 +381,31 @@ void PreferenceDialog::selectViewColor()
 
     m_colorMap[objName] = color;
     m_model.update();
+}
+
+void PreferenceDialog::selectViewerColor()
+{
+    QColor color;
+    QPalette palette = ui->viewerSample->palette();
+    if (sender() == ui->viewerClrBg) {
+        color = palette.background().color();
+    }
+    else if (sender() == ui->viewerClrFg) {
+        color = palette.text().color();
+    }
+
+    color = QColorDialog::getColor(color, this, tr("色選択"));
+    if (!color.isValid()) {
+        return;
+    }
+
+    if (sender() == ui->viewerClrBg) {
+        palette.setColor(QPalette::Base, color);
+    }
+    else if (sender() == ui->viewerClrFg) {
+        palette.setColor(QPalette::Text, color);
+    }
+    ui->viewerSample->setPalette(palette);
 }
 
 void PreferenceDialog::browseApp()
@@ -364,7 +447,7 @@ void PreferenceDialog::importAppearance()
     }
 
     QSettings settings(path, QSettings::IniFormat);
-    loadAppearance(settings);
+    loadAppearance(settings, true);
 }
 
 void PreferenceDialog::exportAppearance()
@@ -449,6 +532,19 @@ void PreferenceDialog::accept()
 
     settings.setValue(IniKey_TerminalOption, ui->termOpt->text().trimmed());
     settings.setValue(IniKey_TerminalPath, ui->termPath->text().trimmed());
+
+    //>>>>> テキストビューア
+    settings.setValue(IniKey_ViewerFont, ui->viewerSample->font());
+    settings.setValue(IniKey_ViewerColorBg, ui->viewerSample->palette().base().color());
+    settings.setValue(IniKey_ViewerColorFg, ui->viewerSample->palette().text().color());
+    settings.setValue(IniKey_ViewerInherit, ui->viewerInherit->isChecked());
+    settings.setValue(IniKey_ViewerForceOpen, !ui->enableViewerIgnoreExt->isChecked());
+    QStringList list = ui->viewerIgnoreExt->toPlainText().split(",", QString::SkipEmptyParts);
+    QStringList::iterator it;
+    for (it = list.begin(); it != list.end(); it++) {
+        *it = it->trimmed();
+    }
+    settings.setValue(IniKey_ViewerIgnoreExt, list.join(","));
 
     QDialog::accept();
 }

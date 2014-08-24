@@ -15,13 +15,13 @@ void ColorSampleModel::setFont(const QFont &font)
 int ColorSampleModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 3;
+    return 5;
 }
 
 int ColorSampleModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 2;
+    return 3;
 }
 
 QVariant ColorSampleModel::data(const QModelIndex &index, int role) const
@@ -30,10 +30,12 @@ QVariant ColorSampleModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    const QString strText[3][2] = {
-        { tr("通常"), tr("システム") },
-        { tr("マーク"), tr("隠し属性") },
-        { tr(""), tr("読取専用") }
+    const QString strText[5][3] = {
+        { tr("通常"), tr("<DIR>"), tr("12/34/56 78:90") },
+        { tr("マーク"), tr("123B"), tr("12/34/56 78:90") },
+        { tr("システム"), tr("456KB"), tr("12/34/56 78:90") },
+        { tr("隠し属性"), tr("789MB"), tr("12/34/56 78:90") },
+        { tr("読取専用"), tr("10.2GB"), tr("12/34/56 78:90") }
     };
 
     switch (role) {
@@ -45,43 +47,23 @@ QVariant ColorSampleModel::data(const QModelIndex &index, int role) const
         break;
 
     case Qt::BackgroundRole:
-        switch (index.column()) {
-        case 0:
-            switch (index.row()) {
-            case 0: return QBrush(m_colorMap->value("clrBgNormal"));
-            case 1: return QBrush(m_colorMap->value("clrBgMark"));
-            }
-            break;
-
-        case 1:
-            switch (index.row()) {
-            case 0:
-            case 1:
-            case 2:
-                return QBrush(m_colorMap->value("clrBgNormal"));
-            }
-            break;
+        if (index.row() == 1) {
+            return QBrush(m_colorMap->value("clrBgMark"));
+        }
+        else {
+            return QBrush(m_colorMap->value("clrBgNormal"));
         }
         break;
 
     case Qt::ForegroundRole:
-        switch (index.column()) {
-        case 0:
-            switch (index.row()) {
-            case 0: return QBrush(m_colorMap->value("clrFgNormal"));
-            case 1: return QBrush(m_colorMap->value("clrFgMark"));
-            }
-            break;
-
-        case 1:
-            switch (index.row()) {
-            case 0: return QBrush(m_colorMap->value("clrFgSystem"));
-            case 1: return QBrush(m_colorMap->value("clrFgHidden"));
-            case 2: return QBrush(m_colorMap->value("clrFgReadonly"));
-            }
-            break;
-        }
+        switch (index.row()) {
+        case 0: return QBrush(m_colorMap->value("clrFgNormal"));
+        case 1: return QBrush(m_colorMap->value("clrFgMark"));
+        case 2: return QBrush(m_colorMap->value("clrFgSystem"));
+        case 3: return QBrush(m_colorMap->value("clrFgHidden"));
+        case 4: return QBrush(m_colorMap->value("clrFgReadonly"));
         break;
+        }
     }
 
     return QVariant();

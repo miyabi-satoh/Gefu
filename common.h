@@ -7,8 +7,9 @@ typedef QMap<QString, QString> StringMap;
 class MainWindow;
 extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
+extern QString ViewerIgnoreExt();
 
-#define VERSION_VALUE   0.09
+#define VERSION_VALUE   0.10
 
 #define slash   QString("/")
 #define QQ(x)   ("\"" + QString(x) + "\"")
@@ -50,6 +51,12 @@ extern QString FilesizeToString(quint64 size);
 #define IniKey_EditorOption             "Editor/Option"
 #define IniKey_TerminalPath             "Terminal/Path"
 #define IniKey_TerminalOption           "Terminal/Option"
+#define IniKey_ViewerFont               "Viewer/Font"
+#define IniKey_ViewerColorBg            "Viewer/ColorBg"
+#define IniKey_ViewerColorFg            "Viewer/ColorFg"
+#define IniKey_ViewerInherit            "Viewer/Inherit"
+#define IniKey_ViewerForceOpen          "Viewer/ForceOpen"
+#define IniKey_ViewerIgnoreExt          "Viewer/IgnoreExt"
 #define IniKey_WindowGeometry           "Window/Geometry"
 #define iniKey_WindowState              "Window/State"
 // 以下は[Left/Right]セクションのキー

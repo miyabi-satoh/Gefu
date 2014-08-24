@@ -25,13 +25,15 @@ private:
     ColorMap m_colorMap;
 
     void saveAppearance(QSettings &settings);
-    void loadAppearance(QSettings &settings);
+    void loadAppearance(QSettings &settings, bool import);
 
 private slots:
-    void changeFont();
+    void chooseFont();
     void setControlsEnabled(bool enabled);
+    void setIgnoreExtDefault();
     void selectBoxColor();
     void selectViewColor();
+    void selectViewerColor();
     void browseApp();
     void importAppearance();
     void exportAppearance();

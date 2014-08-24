@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 #else
     a.setWindowIcon(QIcon(":/images/Gefu.png"));
 #endif
+
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings settings;
     if (settings.value(IniKey_ResetOnBoot, false).toBool()) {
@@ -33,12 +34,12 @@ int main(int argc, char *argv[])
     //>>>>> 起動と終了
     if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty())
         settings.setValue(IniKey_ConfirmExit, true);
-    if (settings.value(IniKey_BootSizeSpec, "").toString().isEmpty()) {
+    if (settings.value(IniKey_BootSizeAbs, "").toString().isEmpty()) {
         settings.setValue(IniKey_BootSizeSpec, "sizeRelative");
         settings.setValue(IniKey_BootSizeAbs, QSize(800,600));
         settings.setValue(IniKey_BootSizeRel, QSize(75,75));
     }
-    if (settings.value(IniKey_BootPosSpec, "").toString().isEmpty()) {
+    if (settings.value(IniKey_BootPosAbs, "").toString().isEmpty()) {
         settings.setValue(IniKey_BootPosSpec, "posCenter");
         settings.setValue(IniKey_BootPosAbs, QPoint(0, 0));
         settings.setValue(IniKey_BootPosRel, QPoint(0, 0));
@@ -101,6 +102,16 @@ int main(int argc, char *argv[])
         settings.setValue(IniKey_TerminalOption, "-c cd " + QQ("$D"));
 #endif
     }
+    //>>>>> テキストビューア
+    if (settings.value(IniKey_ViewerFont, "").toString().isEmpty()) {
+        settings.setValue(IniKey_ViewerColorBg, QPalette().base().color());
+        settings.setValue(IniKey_ViewerColorFg, QPalette().text().color());
+        settings.setValue(IniKey_ViewerFont, a.font());
+        settings.setValue(IniKey_ViewerForceOpen, false);
+        settings.setValue(IniKey_ViewerInherit, true);
+        settings.setValue(IniKey_ViewerIgnoreExt, ViewerIgnoreExt());
+    }
+
     //>>>>> 隠しファイルの表示
     if (settings.value(IniKey_ShowHidden, "").toString().isEmpty())
         settings.setValue(IniKey_ShowHidden, false);
@@ -132,4 +143,30 @@ int main(int argc, char *argv[])
     w.show();
 
     return a.exec();
+}
+
+QString ViewerIgnoreExt()
+{
+    QStringList list;
+    // 画像系
+    list << "gif" << "jpg" << "jpeg" << "png" << "bmp" << "ico" << "ai";
+    list << "psd" << "xcf" << "tif" << "tiff" << "wmf";
+    // 音・動画系
+    list << "wav" << "mp3" << "ogg" << "midi" << "mid" << "aif" << "aiff";
+    list << "mov" << "mpg" << "mpeg" << "wma" << "wmv" << "asf" << "avi";
+    list << "flac" << "mkv";
+    // 実行ファイル系
+    list << "exe" << "com" << "lib" << "dll" << "msi" << "scr" << "sys";
+    list << "o" << "obj" << "ocx" << "a" << "so" << "app";
+    // アーカイブ系
+    list << "lzh" << "zip" << "cab" << "tar" << "rar" << "gz" << "tgz";
+    list << "bz2" << "xz" << "jar" << "7z";
+    // ドキュメント系
+    list << "pdf" << "doc" << "docx" << "xls" << "xlsx" << "ppt" << "pptx";
+    // フォント
+    list << "ttf" << "ttc";
+
+    list.sort();
+
+    return list.join(",");
 }

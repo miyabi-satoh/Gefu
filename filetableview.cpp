@@ -195,6 +195,16 @@ void FileTableView::openItem()
         setRootIndex(index);
     }
     else {
+        QSettings settings;
+        if (!settings.value(IniKey_ViewerForceOpen).toBool()) {
+            QStringList list = settings.value(IniKey_ViewerIgnoreExt).toString().split(",");
+            foreach (const QString &ext, list) {
+                if (ext.toLower() == m->fileInfo(index).suffix().toLower()) {
+                    openUrl(index);
+                    return;
+                }
+            }
+        }
         emit openRequested(m->fileInfo(index));
     }
 }

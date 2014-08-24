@@ -338,6 +338,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         msgBox.setCheckBox(checkBox);
         msgBox.setText(tr("終了しますか？"));
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setIcon(QMessageBox::Question);
 
         if (msgBox.exec() == QMessageBox::No) {
             event->ignore();
