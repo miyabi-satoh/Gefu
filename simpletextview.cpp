@@ -140,7 +140,7 @@ std::string SimpleTextView::detectCode(const QByteArray &bytes)
         if (b1 <= 0x06 || b1 == 0x7F || b1 == 0xFF) {
             //'binary'
             isBinary = true;
-            if (b1 == 0x00 && i < len - 1 && bytes[i + 1] <= 0x7F) {
+            if (b1 == 0x00 && i < len - 1 && static_cast<byte>(bytes[i + 1]) <= 0x7F) {
                 return "UTF-16LE";
             }
         }
