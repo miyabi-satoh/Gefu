@@ -1426,7 +1426,7 @@ void MainWindow::about()
                 tr("<h3>Gefu Ver%1</h3>").arg(VERSION_VALUE) +
                 tr("<center>Gefu is an Experimental File Utility.<br/>"
                    "<small>（げふぅは実験的なファイルユーティリティです）</small></center>"
-                   "<p>最新版の情報は<a href='http://miyabi.rakusaba.jp'>喫茶[雅]</a>で公開しています。</p>"
+                   "<p>最新版の情報は<a href='https://sourceforge.jp/projects/gefu/'>プロジェクトサイト</a>で公開しています。</p>"
                    "<p><small>Copyright 2014 @miyabi_satoh All rights reserved.</small></p>"));
 }
 
