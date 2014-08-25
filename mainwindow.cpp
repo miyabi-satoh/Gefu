@@ -91,8 +91,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // フォルダビューを初期化する
         folderView->initialize();
-
-        folderView->repaint();
     }
 
     QSettings settings;
@@ -181,6 +179,9 @@ MainWindow::MainWindow(QWidget *parent) :
     if (settings.value(IniKey_CheckUpdates).toBool()) {
         checkUpdate(true);
     }
+
+    ui->folderView1->repaint();
+    ui->folderView2->repaint();
 }
 
 MainWindow::~MainWindow()
@@ -400,6 +401,7 @@ void MainWindow::keyPress(FolderView *view, QKeyEvent *event)
 
     if (ksq == "Left" || ksq == "Right") {
         if (view->side() == ksq) {
+            setPathToParent();
         }
         else {
             otherSideView(view)->setFocus();
