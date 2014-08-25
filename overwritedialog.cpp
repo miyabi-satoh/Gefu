@@ -58,7 +58,7 @@ void OverWriteDialog::setFileInfo(const QString srcPath, const QString tgtPath)
     QTableWidgetItem *iTgtName = new QTableWidgetItem(tgtInfo.fileName());
     iTgtName->setFlags(iTgtName->flags() ^ Qt::ItemIsEditable);
     iTgtName->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    ui->tableWidget->setItem(0, 0, iTgtName);
+    ui->tableWidget->setItem(1, 0, iTgtName);
 
     QTableWidgetItem *iSrcSize = new QTableWidgetItem(tr("%1 Bytes").arg(srcInfo.size()));
     iSrcSize->setFlags(iSrcSize->flags() ^ Qt::ItemIsEditable);
