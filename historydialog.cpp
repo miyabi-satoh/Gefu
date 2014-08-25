@@ -19,7 +19,7 @@ HistoryDialog::~HistoryDialog()
     delete ui;
 }
 
-void HistoryDialog::setHistory(History *left, History *right)
+void HistoryDialog::setHistory(const History *left, const History *right)
 {
     m_leftHistory = left;
     m_rightHistory = right;

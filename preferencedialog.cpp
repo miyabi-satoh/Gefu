@@ -137,7 +137,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     }
     radioBtn = findChild<QRadioButton*>(strValue);
     if (radioBtn == NULL) {
-        radioBtn = ui->owDefIfNew;
+        radioBtn = ui->rbOverWriteIfNew;
     }
     radioBtn->setChecked(true);
     ui->moveAfterCreate->setChecked(settings.value(IniKey_MoveAfterCreateFolder).toBool());

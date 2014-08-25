@@ -17,7 +17,7 @@ public:
     explicit HistoryDialog(QWidget *parent = 0);
     ~HistoryDialog();
 
-    void setHistory(History *left, History *right);
+    void setHistory(const History *left, const History *right);
     void setDefaultLeft(bool bLeft);
 
     int selectedIndex() const;
@@ -25,9 +25,9 @@ public:
 
 private:
     Ui::HistoryDialog *ui;
-    History *m_leftHistory;
-    History *m_rightHistory;
-    History *m_displaying;
+    const History *m_leftHistory;
+    const History *m_rightHistory;
+    const History *m_displaying;
 
 private slots:
     void showLeftHistory();

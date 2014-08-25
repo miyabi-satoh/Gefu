@@ -13,25 +13,18 @@ class OverWriteDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum {
-        Undefined       = 0x00,
-        OverWrite       = 0x01,
-        OverWriteIfNew  = 0x02,
-        AppendNumber    = 0x04,
-        Skip            = 0x08,
-        Rename          = 0x10,
-    };
-
     explicit OverWriteDialog(QWidget *parent = 0);
     ~OverWriteDialog();
 
-    void setCopyMethod(int method);
-    void setSameMethodChecked(bool checked);
+    void reset();
+
+    // setter
     void setFileInfo(const QString srcPath, const QString tgtPath);
 
-    int copyMethod();
-    bool isSameMethodChecked();
-    const QString alias();
+    // getter
+    QString copyMethod() const;
+    bool isKeepSetting() const;
+    const QString alias() const;
 
 private slots:
     void onRenameOrElse();

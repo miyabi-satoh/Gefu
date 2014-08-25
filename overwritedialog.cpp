@@ -1,8 +1,11 @@
+#include "common.h"
 #include "overwritedialog.h"
 #include "ui_overwritedialog.h"
+
 #include <QDir>
 #include <QMessageBox>
 #include <QDateTime>
+#include <QSettings>
 
 OverWriteDialog::OverWriteDialog(QWidget *parent) :
     QDialog(parent),
@@ -11,15 +14,15 @@ OverWriteDialog::OverWriteDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
+    QHeaderView *header = ui->tableWidget->horizontalHeader();
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(0, QHeaderView::Stretch);
 
     connect(ui->rbAppendNumber, SIGNAL(clicked()), this, SLOT(onRenameOrElse()));
     connect(ui->rbOverWrite, SIGNAL(clicked()), this, SLOT(onRenameOrElse()));
     connect(ui->rbOverWriteIfNew, SIGNAL(clicked()), this, SLOT(onRenameOrElse()));
     connect(ui->rbRename, SIGNAL(clicked()), this, SLOT(onRenameOrElse()));
     connect(ui->rbSkip, SIGNAL(clicked()), this, SLOT(onRenameOrElse()));
-
 }
 
 OverWriteDialog::~OverWriteDialog()
@@ -27,32 +30,17 @@ OverWriteDialog::~OverWriteDialog()
     delete ui;
 }
 
-void OverWriteDialog::setCopyMethod(int method)
+void OverWriteDialog::reset()
 {
-    switch (method) {
-    case OverWriteDialog::OverWrite:
-        ui->rbOverWrite->setChecked(true);
-        break;
-    case OverWriteDialog::AppendNumber:
-        ui->rbAppendNumber->setChecked(true);
-        break;
-    case OverWriteDialog::Skip:
-        ui->rbSkip->setChecked(true);
-        break;
-    case OverWriteDialog::Rename:
-        ui->rbRename->setChecked(true);
-        ui->lineEdit->setFocus();
-        break;
-    default:
-        ui->rbOverWriteIfNew->setChecked(true);
-        break;
+    QSettings settings;
+    QString method = settings.value(IniKey_DefaultOnCopy).toString();
+    QRadioButton *radio = findChild<QRadioButton*>(method);
+    if (radio == NULL) {
+        radio = ui->rbOverWriteIfNew;
     }
-    onRenameOrElse();
-}
+    radio->setChecked(true);
 
-void OverWriteDialog::setSameMethodChecked(bool checked)
-{
-    ui->checkBox->setChecked(checked);
+    ui->keepSetting->setChecked(false);
 }
 
 void OverWriteDialog::setFileInfo(const QString srcPath, const QString tgtPath)
@@ -62,50 +50,48 @@ void OverWriteDialog::setFileInfo(const QString srcPath, const QString tgtPath)
     m_tgtPath = tgtPath;
     ui->lineEdit->setText(tgtInfo.fileName());
 
+    QTableWidgetItem *iSrcName = new QTableWidgetItem(srcInfo.fileName());
+    iSrcName->setFlags(iSrcName->flags() ^ Qt::ItemIsEditable);
+    iSrcName->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->tableWidget->setItem(0, 0, iSrcName);
+
+    QTableWidgetItem *iTgtName = new QTableWidgetItem(tgtInfo.fileName());
+    iTgtName->setFlags(iTgtName->flags() ^ Qt::ItemIsEditable);
+    iTgtName->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->tableWidget->setItem(0, 0, iTgtName);
+
     QTableWidgetItem *iSrcSize = new QTableWidgetItem(tr("%1 Bytes").arg(srcInfo.size()));
     iSrcSize->setFlags(iSrcSize->flags() ^ Qt::ItemIsEditable);
     iSrcSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->tableWidget->setItem(0, 0, iSrcSize);
+    ui->tableWidget->setItem(0, 1, iSrcSize);
 
     QTableWidgetItem *iTgtSize = new QTableWidgetItem(tr("%1 Bytes").arg(tgtInfo.size()));
     iTgtSize->setFlags(iTgtSize->flags() ^ Qt::ItemIsEditable);
     iTgtSize->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->tableWidget->setItem(1, 0, iTgtSize);
+    ui->tableWidget->setItem(1, 1, iTgtSize);
 
     QTableWidgetItem *iSrcDate = new QTableWidgetItem(srcInfo.lastModified().toString("yy/MM/dd hh:mm"));
     iSrcDate->setFlags(iSrcDate->flags() ^ Qt::ItemIsEditable);
     iSrcDate->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->tableWidget->setItem(0, 1, iSrcDate);
+    ui->tableWidget->setItem(0, 2, iSrcDate);
 
     QTableWidgetItem *iTgtDate = new QTableWidgetItem(tgtInfo.lastModified().toString("yy/MM/dd hh:mm"));
     iTgtDate->setFlags(iTgtDate->flags() ^ Qt::ItemIsEditable);
     iTgtDate->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->tableWidget->setItem(1, 1, iTgtDate);
+    ui->tableWidget->setItem(1, 2, iTgtDate);
 }
 
-int OverWriteDialog::copyMethod()
+QString OverWriteDialog::copyMethod() const
 {
-    if (ui->rbAppendNumber->isChecked()) {
-        return OverWriteDialog::AppendNumber;
-    }
-    if (ui->rbOverWrite->isChecked()) {
-        return OverWriteDialog::OverWrite;
-    }
-    if (ui->rbOverWriteIfNew->isChecked()) {
-        return OverWriteDialog::OverWriteIfNew;
-    }
-    if (ui->rbRename->isChecked()) {
-        return OverWriteDialog::Rename;
-    }
-    return OverWriteDialog::Skip;
+    return ui->method->checkedButton()->objectName();
 }
 
-bool OverWriteDialog::isSameMethodChecked()
+bool OverWriteDialog::isKeepSetting() const
 {
-    return ui->checkBox->isChecked();
+    return ui->keepSetting->isChecked();
 }
 
-const QString OverWriteDialog::alias()
+const QString OverWriteDialog::alias() const
 {
     return ui->lineEdit->text();
 }

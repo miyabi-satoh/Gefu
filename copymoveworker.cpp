@@ -35,13 +35,12 @@ void CopyMoveWorker::operate()
     }
 
     bool ret;
-    int copyMethod = OverWriteDialog::Undefined;
-    int prevCopyMethod = OverWriteDialog::Undefined;
     int successCount = 0;
     int skipCount = 0;
     int errorCount = 0;
     int errDelCount = 0;
     QString msg;
+    QString copyMethod;
     QString alias;
     StringMap::iterator it;
     for (it = m_CopyMap.begin(); it != m_CopyMap.end(); it++) {
@@ -73,34 +72,31 @@ void CopyMoveWorker::operate()
         do {    // コピーをスキップするのにbreakを使うがためのdo-while
             if (tgtInfo.exists()) {
                 // 解決方法を選択
-                if (copyMethod == OverWriteDialog::Undefined ||
-                        copyMethod == OverWriteDialog::Rename)
-                {
-                    bool bOk;
-                    m_Asking = true;
-                    emit askOverWrite(&bOk, &prevCopyMethod, &copyMethod, &alias,
-                                      srcInfo.absoluteFilePath(),
-                                      tgtInfo.absoluteFilePath());
-                    while (isAsking()) {
-                        this->thread()->msleep(100);
-                    }
+                m_Asking = true;
+                emit askOverWrite(&copyMethod,
+                                  &alias,
+                                  srcInfo.absoluteFilePath(),
+                                  tgtInfo.absoluteFilePath());
 
-                    if (!bOk) {
-                        requestStop();
-                        msg = tr("%1個のファイルをコピーしました。").arg(successCount);
-                        if (skipCount > 0) {
-                            msg += tr("%1個のファイルをスキップしました。").arg(skipCount);
-                        }
-                        if (errorCount > 0) {
-                            msg += tr("%1個のファイルをコピーできませんでした。").arg(errorCount);
-                        }
-                        m_progressText->setText(msg);
-                        emit canceled();
-                        return;
-                    }
+                while (isAsking()) {
+                    thread()->msleep(100);
                 }
 
-                if (prevCopyMethod == OverWriteDialog::OverWrite) {
+                // キャンセルされた？
+                if (isStopRequested()) {
+                    msg = tr("%1個のファイルをコピーしました。").arg(successCount);
+                    if (skipCount > 0) {
+                        msg += tr("%1個のファイルをスキップしました。").arg(skipCount);
+                    }
+                    if (errorCount > 0) {
+                        msg += tr("%1個のファイルをコピーできませんでした。").arg(errorCount);
+                    }
+                    m_progressText->setText(msg);
+                    emit canceled();
+                    return;
+                }
+
+                if (copyMethod == "rbOverWrite") {
                     if (srcInfo.absoluteFilePath() == tgtInfo.absoluteFilePath()) {
                         emit success(tr("同一ファイルへの操作のためスキップ"));
                         skipCount++;
@@ -108,7 +104,7 @@ void CopyMoveWorker::operate()
                     }
                     QFile(tgtInfo.absoluteFilePath()).remove();
                 }
-                else if (prevCopyMethod == OverWriteDialog::OverWriteIfNew) {
+                else if (copyMethod == "rbOverWriteIfNew") {
                     if (srcInfo.lastModified() <= tgtInfo.lastModified()) {
                         emit success(tr("古いファイルのためスキップ"));
                         skipCount++;
@@ -121,7 +117,7 @@ void CopyMoveWorker::operate()
                     }
                     QFile(tgtInfo.absoluteFilePath()).remove();
                 }
-                else if (prevCopyMethod == OverWriteDialog::AppendNumber) {
+                else if (copyMethod == "rbAppendNumber") {
                     QString baseName = tgtInfo.baseName();
                     QString suffix = tgtInfo.completeSuffix();
                     for (int n = 1; ; n++) {
@@ -133,14 +129,18 @@ void CopyMoveWorker::operate()
                     }
                     emit operation(tr("=>") + tgtInfo.fileName() + tr("にリネーム"));
                 }
-                else if (prevCopyMethod == OverWriteDialog::Skip) {
+                else if (copyMethod == "rbSkip") {
                     emit success(tr("スキップ"));
                     skipCount++;
                     break;
                 }
-                else if (prevCopyMethod == OverWriteDialog::Rename) {
+                else if (copyMethod == "rbRename") {
                     tgtInfo.setFile(tgtInfo.absolutePath(), alias);
                     emit operation(tr("=>") + tgtInfo.fileName() + tr("にリネーム"));
+                }
+                else {
+                    qDebug() << "Unknown method : " << copyMethod;
+                    Q_ASSERT(false);
                 }
             }
 
@@ -155,7 +155,6 @@ void CopyMoveWorker::operate()
                         emit error("元ファイルの削除に失敗");
                     }
                 }
-
             }
             else {
                 errorCount++;

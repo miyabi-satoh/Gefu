@@ -26,6 +26,8 @@ FileTableModel::FileTableModel(QObject *parent) :
     m_HiddenBrush(),
     m_ReadonlyBrush()
 {
+    // デフォルトフィルタを設定する
+    setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
 }
 
 bool FileTableModel::setPath(const QString &path)
@@ -54,7 +56,6 @@ bool FileTableModel::setPath(const QString &path)
     }
     else {
         QFileInfoList::iterator it;
-        bool removeDotDot = false;
         for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); ) {
 #ifdef Q_OS_WIN32
             if (!(filter() & QDir::System)){
@@ -73,26 +74,23 @@ bool FileTableModel::setPath(const QString &path)
                 if (m_dir.isRoot()) {
                     qDebug() << m_dir.absolutePath() << " is root.";
                     it = m_fileInfoList.erase(it);
-                    removeDotDot = true;
                     continue;
                 }
             }
             it++;
         }
         // ソート方法によらず、".."は必ず先頭にする
-        if (!removeDotDot) {
-            QFileInfoList::iterator itRoot = m_fileInfoList.end();
-            for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); it++) {
-                if (it->fileName() == "..") {
-                    itRoot = it;
-                    break;
-                }
+        QFileInfoList::iterator itRoot = m_fileInfoList.end();
+        for (it = m_fileInfoList.begin(); it != m_fileInfoList.end(); it++) {
+            if (it->fileName() == "..") {
+                itRoot = it;
+                break;
             }
-            if (itRoot != m_fileInfoList.end()) {
-                QFileInfo info(*itRoot);
-                m_fileInfoList.erase(itRoot);
-                m_fileInfoList.push_front(info);
-            }
+        }
+        if (itRoot != m_fileInfoList.end()) {
+            QFileInfo info(*itRoot);
+            m_fileInfoList.erase(itRoot);
+            m_fileInfoList.push_front(info);
         }
     }
 
@@ -105,7 +103,7 @@ bool FileTableModel::setPath(const QString &path)
     m_fsWatcher = new QFileSystemWatcher(this);
     m_fsWatcher->addPath(path);
     connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
-            this, SIGNAL(listUpdated()));
+            this, SLOT(directoryChange(QString)));
 
     endResetModel();
 
@@ -149,36 +147,6 @@ void FileTableModel::setCheckStateAll(Qt::CheckState state)
     stateChanged();
 }
 
-#if 0
-bool FileTableModel::isDir(const QModelIndex &index) const
-{
-    if (!index.isValid()) {
-        qDebug() << "isDir() : index is invalid.";
-        return QString();
-    }
-    return m_fileInfoList[index.row()].isDir();
-}
-
-const QString FileTableModel::absoluteFilePath(const QModelIndex &index) const
-{
-    if (!index.isValid()) {
-        qDebug() << "absoluteFilePath() : index is invalid.";
-        return QString();
-    }
-//    return m_dir.absoluteFilePath(m_fileInfoList[index.row()].fileName());
-    return m_fileInfoList[index.row()].absoluteFilePath();
-}
-
-const QString FileTableModel::fileName(const QModelIndex &index) const
-{
-    if (!index.isValid()) {
-        qDebug() << "fileName() : index is invalid.";
-        return QString();
-    }
-    return m_fileInfoList[index.row()].fileName();
-}
-#endif
-
 QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
 {
     if (!index.isValid()) {
@@ -205,6 +173,13 @@ void FileTableModel::updateAppearance()
 
     beginResetModel();
     endResetModel();
+}
+
+void FileTableModel::directoryChange(const QString &path)
+{
+    qDebug() << "FileTableModel::directoryChange";
+
+    setPath(path);
 }
 
 void FileTableModel::stateChanged()

@@ -32,14 +32,11 @@ int main(int argc, char *argv[])
 
     // 各オプションのデフォルト値を設定する
     //>>>>> 起動と終了
-    if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty())
+    if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty()) {
         settings.setValue(IniKey_ConfirmExit, true);
-    if (settings.value(IniKey_BootSizeAbs, "").toString().isEmpty()) {
         settings.setValue(IniKey_BootSizeSpec, "sizeRelative");
         settings.setValue(IniKey_BootSizeAbs, QSize(800,600));
         settings.setValue(IniKey_BootSizeRel, QSize(75,75));
-    }
-    if (settings.value(IniKey_BootPosAbs, "").toString().isEmpty()) {
         settings.setValue(IniKey_BootPosSpec, "posCenter");
         settings.setValue(IniKey_BootPosAbs, QPoint(0, 0));
         settings.setValue(IniKey_BootPosRel, QPoint(0, 0));

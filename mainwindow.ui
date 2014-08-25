@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
-    <height>337</height>
+    <width>828</width>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="resource.qrc">
     <normaloff>:/images/Gefu.png</normaloff>:/images/Gefu.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -39,26 +39,158 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="FolderPanel" name="LPanel" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="LocationBox" name="locationBox1">
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="FolderView" name="folderView1">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="tabKeyNavigation">
+           <bool>false</bool>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::CopyAction</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>false</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="textElideMode">
+           <enum>Qt::ElideMiddle</enum>
+          </property>
+          <property name="showGrid">
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="SearchBox" name="searchBox1">
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="filterLabel1">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
-      <widget class="FolderPanel" name="RPanel" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QWidget" name="">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="LocationBox" name="locationBox2">
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="FolderView" name="folderView2">
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="tabKeyNavigation">
+           <bool>false</bool>
+          </property>
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::CopyAction</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>false</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="textElideMode">
+           <enum>Qt::ElideMiddle</enum>
+          </property>
+          <property name="showGrid">
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="SearchBox" name="searchBox2">
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="filterLabel2">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
     <item>
-     <widget class="SimpleTextView" name="plainTextEdit"/>
+     <widget class="SimpleTextView" name="textView"/>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -213,9 +345,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_Exec"/>
+   <addaction name="action_Open"/>
    <addaction name="action_OpenEditor"/>
-   <addaction name="action_Command"/>
+   <addaction name="action_Search"/>
    <addaction name="separator"/>
    <addaction name="mark_All"/>
    <addaction name="mark_AllFiles"/>
@@ -245,7 +377,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>665</width>
+     <width>828</width>
      <height>22</height>
     </rect>
    </property>
@@ -258,6 +390,10 @@
     <addaction name="action_OpenEditor"/>
     <addaction name="action_OpenTerminal"/>
     <addaction name="action_Command"/>
+    <addaction name="separator"/>
+    <addaction name="action_Search"/>
+    <addaction name="action_SearchNext"/>
+    <addaction name="action_SearchPrev"/>
     <addaction name="separator"/>
     <addaction name="action_Setting"/>
     <addaction name="separator"/>
@@ -338,7 +474,7 @@
   </widget>
   <action name="action_Quit">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Exit.png</normaloff>:/images/Exit.png</iconset>
    </property>
    <property name="text">
@@ -356,7 +492,7 @@
   </action>
   <action name="action_Open">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Open.png</normaloff>:/images/Open.png</iconset>
    </property>
    <property name="text">
@@ -371,7 +507,7 @@
   </action>
   <action name="action_Exec">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Play.png</normaloff>:/images/Play.png</iconset>
    </property>
    <property name="text">
@@ -386,7 +522,7 @@
   </action>
   <action name="view_FromOther">
    <property name="icon">
-    <iconset theme="隣のパネルと同じフォルダを表示">
+    <iconset theme="隣のパネルと同じフォルダを表示" resource="resource.qrc">
      <normaloff>:/images/Synchronize.png</normaloff>:/images/Synchronize.png</iconset>
    </property>
    <property name="text">
@@ -420,7 +556,7 @@
   </action>
   <action name="mark_All">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Ok.png</normaloff>:/images/Ok.png</iconset>
    </property>
    <property name="text">
@@ -435,7 +571,7 @@
   </action>
   <action name="mark_AllFiles">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Check boxes.png</normaloff>:/images/Check boxes.png</iconset>
    </property>
    <property name="text">
@@ -450,7 +586,7 @@
   </action>
   <action name="mark_AllOff">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Cancel.png</normaloff>:/images/Cancel.png</iconset>
    </property>
    <property name="text">
@@ -476,7 +612,7 @@
   </action>
   <action name="view_Swap">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Text replace.png</normaloff>:/images/Text replace.png</iconset>
    </property>
    <property name="text">
@@ -491,7 +627,7 @@
   </action>
   <action name="action_Setting">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Settings.png</normaloff>:/images/Settings.png</iconset>
    </property>
    <property name="text">
@@ -534,7 +670,7 @@
   </action>
   <action name="move_Down">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Go down.png</normaloff>:/images/Go down.png</iconset>
    </property>
    <property name="text">
@@ -549,7 +685,7 @@
   </action>
   <action name="move_Up">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Go up.png</normaloff>:/images/Go up.png</iconset>
    </property>
    <property name="text">
@@ -564,7 +700,7 @@
   </action>
   <action name="move_Back">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Back.png</normaloff>:/images/Back.png</iconset>
    </property>
    <property name="text">
@@ -579,7 +715,7 @@
   </action>
   <action name="move_Forward">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Forward.png</normaloff>:/images/Forward.png</iconset>
    </property>
    <property name="text">
@@ -605,7 +741,7 @@
   </action>
   <action name="move_Parent">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Up.png</normaloff>:/images/Up.png</iconset>
    </property>
    <property name="text">
@@ -620,7 +756,7 @@
   </action>
   <action name="move_Root">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Monitor.png</normaloff>:/images/Monitor.png</iconset>
    </property>
    <property name="text">
@@ -635,7 +771,7 @@
   </action>
   <action name="move_Jump">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Folder.png</normaloff>:/images/Folder.png</iconset>
    </property>
    <property name="text">
@@ -650,7 +786,7 @@
   </action>
   <action name="move_Home">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Home.png</normaloff>:/images/Home.png</iconset>
    </property>
    <property name="text">
@@ -687,7 +823,7 @@
   </action>
   <action name="action_OpenEditor">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Edit page.png</normaloff>:/images/Edit page.png</iconset>
    </property>
    <property name="text">
@@ -702,7 +838,7 @@
   </action>
   <action name="action_Command">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Export.png</normaloff>:/images/Export.png</iconset>
    </property>
    <property name="text">
@@ -717,7 +853,7 @@
   </action>
   <action name="cmd_Copy">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Copy.png</normaloff>:/images/Copy.png</iconset>
    </property>
    <property name="text">
@@ -732,7 +868,7 @@
   </action>
   <action name="cmd_Move">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Paste.png</normaloff>:/images/Paste.png</iconset>
    </property>
    <property name="text">
@@ -744,7 +880,7 @@
   </action>
   <action name="cmd_Delete">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Delete.png</normaloff>:/images/Delete.png</iconset>
    </property>
    <property name="text">
@@ -759,7 +895,7 @@
   </action>
   <action name="cmd_Rename">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Rename.png</normaloff>:/images/Rename.png</iconset>
    </property>
    <property name="text">
@@ -774,7 +910,7 @@
   </action>
   <action name="cmd_NewFile">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/New file.png</normaloff>:/images/New file.png</iconset>
    </property>
    <property name="text">
@@ -789,7 +925,7 @@
   </action>
   <action name="cmd_NewFolder">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Add folder.png</normaloff>:/images/Add folder.png</iconset>
    </property>
    <property name="text">
@@ -804,7 +940,7 @@
   </action>
   <action name="help_About">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Help.png</normaloff>:/images/Help.png</iconset>
    </property>
    <property name="text">
@@ -836,7 +972,7 @@
   </action>
   <action name="view_Refresh">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Refresh.png</normaloff>:/images/Refresh.png</iconset>
    </property>
    <property name="text">
@@ -862,7 +998,7 @@
   </action>
   <action name="view_Filter">
    <property name="icon">
-    <iconset>
+    <iconset resource="resource.qrc">
      <normaloff>:/images/Funnel.png</normaloff>:/images/Funnel.png</iconset>
    </property>
    <property name="text">
@@ -908,21 +1044,72 @@
     <string>Shift+C</string>
    </property>
   </action>
+  <action name="action_Search">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Search.png</normaloff>:/images/Search.png</iconset>
+   </property>
+   <property name="text">
+    <string>検索</string>
+   </property>
+   <property name="toolTip">
+    <string>検索</string>
+   </property>
+   <property name="shortcut">
+    <string>/</string>
+   </property>
+  </action>
+  <action name="action_SearchNext">
+   <property name="text">
+    <string>次を検索</string>
+   </property>
+   <property name="toolTip">
+    <string>次を検索</string>
+   </property>
+   <property name="shortcut">
+    <string>Return</string>
+   </property>
+  </action>
+  <action name="action_SearchPrev">
+   <property name="text">
+    <string>前を検索</string>
+   </property>
+   <property name="toolTip">
+    <string>前を検索</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Return</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>FolderPanel</class>
-   <extends>QWidget</extends>
-   <header>folderpanel.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>SimpleTextView</class>
    <extends>QPlainTextEdit</extends>
    <header>simpletextview.h</header>
   </customwidget>
+  <customwidget>
+   <class>SearchBox</class>
+   <extends>QLineEdit</extends>
+   <header>searchbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FolderView</class>
+   <extends>QTableView</extends>
+   <header>folderview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LocationBox</class>
+   <extends>QLineEdit</extends>
+   <header>locationbox.h</header>
+  </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

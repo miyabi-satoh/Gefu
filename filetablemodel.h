@@ -31,22 +31,20 @@ public:
     void setCheckState(const QModelIndex &index, Qt::CheckState state);
     void setCheckStateAll(Qt::CheckState state);
     const QString absolutePath() const { return m_dir.absolutePath(); }
-#if 0
-    bool isDir(const QModelIndex &index) const;
-    const QString absoluteFilePath(const QModelIndex &index) const;
-    const QString fileName(const QModelIndex &index) const;
-#endif
+
     QFileInfoList checkedItems() const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
     void updateAppearance();
 
+    QFont font() const { return m_font; }
+
 signals:
     void rootChanged(const QString &root);
     void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
-    void listUpdated();
 
 public slots:
+    void directoryChange(const QString &path);
 
 private:
     QDir m_dir;

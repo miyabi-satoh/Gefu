@@ -16,7 +16,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     mainwindow.cpp \
-    folderpanel.cpp \
     renamesingledialog.cpp \
     renamemultidialog.cpp \
     operationdialog.cpp \
@@ -28,17 +27,16 @@ SOURCES += main.cpp\
     copymoveworker.cpp \
     sortdialog.cpp \
     filetablemodel.cpp \
-    filetableview.cpp \
     history.cpp \
     historydialog.cpp \
     preferencedialog.cpp \
-    clickablelabel.cpp \
     colorsamplemodel.cpp \
-    simpletextview.cpp
+    simpletextview.cpp \
+    searchbox.cpp \
+    folderview.cpp \
+    locationbox.cpp
 
 HEADERS  += mainwindow.h \
-    folderpanel.h \
-    singleton.hpp \
     renamesingledialog.h \
     renamemultidialog.h \
     operationdialog.h \
@@ -51,16 +49,16 @@ HEADERS  += mainwindow.h \
     copymoveworker.h \
     sortdialog.h \
     filetablemodel.h \
-    filetableview.h \
     history.h \
     historydialog.h \
     preferencedialog.h \
-    clickablelabel.h \
     colorsamplemodel.h \
-    simpletextview.h
+    simpletextview.h \
+    searchbox.h \
+    folderview.h \
+    locationbox.h
 
 FORMS    += mainwindow.ui \
-    folderpanel.ui \
     renamesingledialog.ui \
     renamemultidialog.ui \
     operationdialog.ui \
@@ -74,7 +72,8 @@ RESOURCES += \
 
 OTHER_FILES += \
     Gefu.rc \
-    README.md
+    README.md \
+    ReadMe.txt
 
 macx {
     ICON = ./images/Gefu.icns

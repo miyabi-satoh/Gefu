@@ -29,7 +29,7 @@ public:
     }
 
 signals:
-    void askOverWrite(bool *bOk, int *prevCopyMethod, int *copyMethod, QString *alias,
+    void askOverWrite(QString *copyMethod, QString *alias,
                       const QString &srcPath, const QString &tgtPath);
 
 public slots:

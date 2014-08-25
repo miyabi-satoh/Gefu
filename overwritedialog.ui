@@ -53,7 +53,7 @@
       <number>2</number>
      </property>
      <property name="columnCount">
-      <number>2</number>
+      <number>3</number>
      </property>
      <attribute name="horizontalHeaderHighlightSections">
       <bool>false</bool>
@@ -71,6 +71,11 @@
        <string>先</string>
       </property>
      </row>
+     <column>
+      <property name="text">
+       <string>ファイル名</string>
+      </property>
+     </column>
      <column>
       <property name="text">
        <string>サイズ</string>
@@ -100,6 +105,9 @@
         <property name="text">
          <string>上書き</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">method</string>
+        </attribute>
        </widget>
       </item>
       <item>
@@ -110,6 +118,9 @@
         <property name="text">
          <string>新しければ上書き</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">method</string>
+        </attribute>
        </widget>
       </item>
       <item>
@@ -120,6 +131,9 @@
         <property name="text">
          <string>スキップ</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">method</string>
+        </attribute>
        </widget>
       </item>
       <item>
@@ -130,6 +144,9 @@
         <property name="text">
          <string>ファイル名末尾に数字を付与</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">method</string>
+        </attribute>
        </widget>
       </item>
       <item>
@@ -140,6 +157,9 @@
         <property name="text">
          <string>名前を変更</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">method</string>
+        </attribute>
        </widget>
       </item>
       <item>
@@ -171,7 +191,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="keepSetting">
        <property name="focusPolicy">
         <enum>Qt::StrongFocus</enum>
        </property>
@@ -232,4 +252,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="method"/>
+ </buttongroups>
 </ui>
