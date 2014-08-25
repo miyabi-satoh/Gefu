@@ -213,6 +213,10 @@ void MainWindow::focusChange(QWidget *old, QWidget *now)
         ui->statusBar->showMessage(folderView()->currentItem().absoluteFilePath());
     }
 
+    if (old == ui->searchBox1 || old == ui->searchBox2) {
+        old->setVisible(false);
+    }
+
     updateActions();
 }
 

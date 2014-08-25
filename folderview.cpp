@@ -341,18 +341,16 @@ void FolderView::keyPressEvent(QKeyEvent *event)
 
 void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
-    Q_UNUSED(topLeft);
-    Q_UNUSED(bottomRight);
-    Q_UNUSED(roles);
-
     emit dataChanged();
+
+    QTableView::dataChanged(topLeft, bottomRight, roles);
 }
 
 void FolderView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    Q_UNUSED(previous);
-
     emit currentChanged(m_model.fileInfo(current).absoluteFilePath());
+
+    QTableView::currentChanged(current, previous);
 }
 
 void FolderView::mousePressEvent(QMouseEvent *event)
