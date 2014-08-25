@@ -107,9 +107,10 @@ bool FileTableModel::setPath(const QString &path)
 
     endResetModel();
 
-    emit rootChanged(m_dir.absolutePath());
-    stateChanged();
+//    emit rootChanged(m_dir.absolutePath());
+//    stateChanged();
 
+    emit dataChanged(QModelIndex(), QModelIndex());
     return !m_fileInfoList.isEmpty();
 }
 
@@ -130,7 +131,7 @@ void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState stat
     endResetModel();;
     emit dataChanged(index, this->index(index.row(), 3));
 
-    stateChanged();
+//    stateChanged();
 }
 
 void FileTableModel::setCheckStateAll(Qt::CheckState state)
@@ -143,8 +144,9 @@ void FileTableModel::setCheckStateAll(Qt::CheckState state)
         m_checkStates[0] = Qt::Unchecked;
     }
     endResetModel();
+    emit dataChanged(QModelIndex(), QModelIndex());
 
-    stateChanged();
+//    stateChanged();
 }
 
 QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
@@ -182,25 +184,25 @@ void FileTableModel::directoryChange(const QString &path)
     setPath(path);
 }
 
-void FileTableModel::stateChanged()
-{
-    int numFolder = 0;
-    int numFile = 0;
-    quint64 totalSize = 0;
-    for (int n = 0; n < m_checkStates.size(); n++) {
-        if (m_checkStates[n] == Qt::Checked) {
-            if (m_fileInfoList[n].isDir()) {
-                numFolder++;
-            }
-            else {
-                numFile++;
-                totalSize += m_fileInfoList[n].size();
-            }
-        }
-    }
+//void FileTableModel::stateChanged()
+//{
+//    int numFolder = 0;
+//    int numFile = 0;
+//    quint64 totalSize = 0;
+//    for (int n = 0; n < m_checkStates.size(); n++) {
+//        if (m_checkStates[n] == Qt::Checked) {
+//            if (m_fileInfoList[n].isDir()) {
+//                numFolder++;
+//            }
+//            else {
+//                numFile++;
+//                totalSize += m_fileInfoList[n].size();
+//            }
+//        }
+//    }
 
-    emit stateChanged(numFolder, numFile, totalSize);
-}
+//    emit selectionChanged(numFolder, numFile, totalSize);
+//}
 
 QFileInfoList FileTableModel::checkedItems() const
 {
@@ -361,7 +363,7 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
         if (index.column() == 0) {
             m_checkStates[index.row()] = static_cast<Qt::CheckState>(value.toInt());
             emit dataChanged(index, this->index(index.row(), 3));
-            stateChanged();
+//            stateChanged();
             return true;
         }
         break;

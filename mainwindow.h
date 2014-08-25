@@ -35,10 +35,16 @@ public slots:
     void askOverWrite(QString *copyMethod, QString *alias,
                       const QString &srcPath, const QString &tgtPath);
 
+    void dataChange();
+    void dropAccept(const QFileInfoList &list);
     void focusChange(QWidget * old, QWidget * now);
-    void keyPress(FolderView *view, QKeyEvent *event);
+    void keyPress(QKeyEvent *event);
     void returnPressInSearchBox();
 
+    void about();
+    void checkUpdate(bool silent = false);
+    void checkUpdateFinished(QNetworkReply *reply, bool silent = false);
+    void checkUpdateFinishedSilent(QNetworkReply *reply);
     void chooseFolder();
     void copyFilenameToClipboard();
     void copyFullpathTpClipboard();
@@ -51,8 +57,8 @@ public slots:
     void executeCommand();
     void historyBack();
     void historyForward();
-    void itemFound(FolderView *view);
-    void itemNotFound(FolderView *view);
+    void itemFound();
+    void itemNotFound();
     void markAll();
     void markAllFiles();
     void markAllOff();
@@ -79,21 +85,14 @@ public slots:
     void shellExecute();
     void showFilterDialog();
     void showHistoryDialog();
+    void showPreferenceDialog();
     void showSortDialog();
     void swapView();
     void toggleSearchBox(bool checked);
-
-
-
-
-    void openRequest(const QFileInfo &info);
-    void showPreferenceDialog();
-    void about();
     void toggleShowHiddenFiles(bool checked);
     void toggleShowSystemFiles(bool checked);
-    void checkUpdate(bool silent = false);
-    void checkUpdateFinished(QNetworkReply *reply, bool silent = false);
-    void checkUpdateFinishedSilent(QNetworkReply *reply);
+
+    void openRequest(const QFileInfo &info);
     void viewFinish(QWidget *sender);
 
 private:
@@ -109,12 +108,13 @@ private:
     void setEnabledAllActions(bool enable);
     void setNameFilters(FolderView *view, const QString& filters = QString());
     void setSorting(FolderView *view);
+    void showNameFilters(FolderView *view);
+    void copyItems(const QFileInfoList &list, const QString &tgtDir);
 
     // getter
     QLabel* filterLabel(const FolderView *view) const;
     FolderView* folderView() const;
     SearchBox* searchBox(FolderView *view) const;
-
 
     // QWidget interface
 protected:

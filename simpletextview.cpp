@@ -63,7 +63,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convJIS->setShortcut(QKeySequence("J"));
     m_convSJIS->setShortcut(QKeySequence("S"));
     m_convUTF8->setShortcut(QKeySequence("U"));
-    m_convUTF8->setShortcut(QKeySequence("I"));
+    m_convUTF16->setShortcut(QKeySequence("I"));
     m_convUTF16BE->setShortcut(QKeySequence("J"));
     m_convUTF16LE->setShortcut(QKeySequence("N"));
     m_back->setShortcut(QKeySequence("Return"));

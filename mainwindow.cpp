@@ -69,9 +69,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // シグナル＆スロット
         connect(folderView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(open(QModelIndex)));
-        connect(folderView, SIGNAL(itemFound(FolderView*)), this, SLOT(itemFound(FolderView*)));
-        connect(folderView, SIGNAL(itemNotFound(FolderView*)), this, SLOT(itemNotFound(FolderView*)));
-        connect(folderView, SIGNAL(keyPressed(FolderView*,QKeyEvent*)), this, SLOT(keyPress(FolderView*,QKeyEvent*)));
+        connect(folderView, SIGNAL(dataChanged()), this, SLOT(dataChange()));
+        connect(folderView, SIGNAL(dropAccepted(QFileInfoList)), this, SLOT(dropAccept(QFileInfoList)));
+        connect(folderView, SIGNAL(currentChanged(QString)), ui->statusBar, SLOT(showMessage(QString)));
+        connect(folderView, SIGNAL(itemFound()), this, SLOT(itemFound()));
+        connect(folderView, SIGNAL(itemNotFound()), this, SLOT(itemNotFound()));
+        connect(folderView, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(keyPress(QKeyEvent*)));
         connect(folderView, SIGNAL(retrieveFinished()), this, SLOT(retrieveFinish()));
         connect(folderView, SIGNAL(retrieveStarted(QString)), this, SLOT(retrieveStart(QString)));
         connect(searchBox, SIGNAL(textEdited(QString)), this, SLOT(searchItem(QString)));
@@ -180,8 +183,8 @@ MainWindow::MainWindow(QWidget *parent) :
         checkUpdate(true);
     }
 
-    ui->folderView1->repaint();
-    ui->folderView2->repaint();
+    ui->folderView1->refresh();
+    ui->folderView2->refresh();
 }
 
 MainWindow::~MainWindow()
@@ -204,8 +207,11 @@ FolderView* MainWindow::otherSideView(const FolderView *view) const
 void MainWindow::focusChange(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old);
-    Q_UNUSED(now);
     qDebug() << "MainWindow::focusChange";
+
+    if (now == ui->folderView1 || now == ui->folderView2) {
+        ui->statusBar->showMessage(folderView()->currentItem().absoluteFilePath());
+    }
 
     updateActions();
 }
@@ -265,21 +271,21 @@ void MainWindow::historyForward()
     }
 }
 
-void MainWindow::itemFound(FolderView *view)
+void MainWindow::itemFound()
 {
     qDebug() << "MainWindow::itemFound";
 
-    SearchBox *box = searchBox(view);
+    SearchBox *box = searchBox(static_cast<FolderView*>(sender()));
     QPalette pal = box->palette();
     pal.setColor(QPalette::Text, QPalette().text().color());
     box->setPalette(pal);
 }
 
-void MainWindow::itemNotFound(FolderView *view)
+void MainWindow::itemNotFound()
 {
     qDebug() << "MainWindow::itemNotFound";
 
-    SearchBox *box = searchBox(view);
+    SearchBox *box = searchBox(static_cast<FolderView*>(sender()));
     QPalette pal = box->palette();
     pal.setColor(QPalette::Text, Qt::red);
     box->setPalette(pal);
@@ -366,7 +372,7 @@ void MainWindow::moveItems()
     ui->folderView2->refresh();
 }
 
-void MainWindow::keyPress(FolderView *view, QKeyEvent *event)
+void MainWindow::keyPress(QKeyEvent *event)
 {
     QString ksq = KeyEventToSequence(event);
     if (ksq == "") {
@@ -400,6 +406,7 @@ void MainWindow::keyPress(FolderView *view, QKeyEvent *event)
     }
 
     if (ksq == "Left" || ksq == "Right") {
+        FolderView *view = static_cast<FolderView*>(sender());
         if (view->side() == ksq) {
             setPathToParent();
         }
@@ -475,6 +482,85 @@ void MainWindow::askOverWrite(QString *copyMethod,
     worker->endAsking();
 }
 
+void MainWindow::dataChange()
+{
+    FolderView *view = static_cast<FolderView*>(sender());
+    QFileInfoList list = view->checkedItems();
+    if (list.isEmpty()) {
+        showNameFilters(view);
+    }
+    else {
+        int numFolders = 0;
+        int numFiles = 0;
+        quint64 size = 0;
+        foreach (const QFileInfo &info, list) {
+            if (info.isDir()) {
+                numFolders++;
+            }
+            else {
+                numFiles++;
+                size += info.size();
+            }
+        }
+
+        QString msg = QString::null;
+        if (numFolders > 0) {
+            msg += tr("%1個のフォルダ ").arg(numFolders);
+        }
+        if (numFiles > 0) {
+            msg += tr("%1個のファイル ").arg(numFiles);
+        }
+
+        if (!msg.isEmpty()) {
+            msg += tr("を選択 合計%1").arg(FilesizeToString(size));
+        }
+
+        filterLabel(view)->setText(msg);
+    }
+}
+
+void MainWindow::dropAccept(const QFileInfoList &list)
+{
+    copyItems(list, static_cast<FolderView*>(sender())->dir());
+}
+
+void MainWindow::copyItems(const QFileInfoList &list, const QString &tgtDir)
+{
+    QSettings settings;
+    if (settings.value(IniKey_ConfirmCopy).toBool()) {
+        if (QMessageBox::question(this, tr("確認"), tr("コピーを実行しますか？"))
+            != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    // 上書き確認ダイアログを初期化する
+    m_overwriteDialog->reset();
+
+    // ワーカースレッドを作成する
+    CopyMoveWorker *worker = new CopyMoveWorker();
+    connect(worker, SIGNAL(askOverWrite(QString*,QString*,QString,QString)),
+            this, SLOT(askOverWrite(QString*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(tgtDir);
+    worker->setMoveMode(false);
+
+    // 進捗ダイアログを表示して、処理を開始する
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("コピー"));
+    opDlg.setWorker(worker);
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseCopy).toBool());
+
+    opDlg.exec();
+
+    settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
+
+    // 念のため、リフレッシュ
+    ui->folderView1->refresh();
+    ui->folderView2->refresh();
+}
+
 void MainWindow::copyItems()
 {
     qDebug() << "MainWindow::copyItems";
@@ -485,6 +571,9 @@ void MainWindow::copyItems()
         return;
     }
 
+    FolderView *other = otherSideView(v);
+    copyItems(list, other->dir());
+#if 0
     QSettings settings;
     if (settings.value(IniKey_ConfirmCopy).toBool()) {
         if (QMessageBox::question(this, tr("確認"), tr("コピーを実行しますか？"))
@@ -519,6 +608,7 @@ void MainWindow::copyItems()
     // 念のため、リフレッシュ
     ui->folderView1->refresh();
     ui->folderView2->refresh();
+#endif
 }
 
 void MainWindow::createFile()
@@ -944,6 +1034,11 @@ void MainWindow::setSorting(FolderView *view)
     }
 
     view->setSorting(flags);
+}
+
+void MainWindow::showNameFilters(FolderView *view)
+{
+    filterLabel(view)->setText(tr("フィルタ：") + view->nameFilters().join(" "));
 }
 
 void MainWindow::searchItem(const QString &text)
@@ -1405,7 +1500,7 @@ void MainWindow::setNameFilters(FolderView *view, const QString &filters)
         list << "*";
     }
     view->setNameFilters(list);
-    filterLabel(view)->setText(tr("フィルタ：") + list.join(" "));
+    showNameFilters(view);
 }
 
 QLabel *MainWindow::filterLabel(const FolderView *view) const

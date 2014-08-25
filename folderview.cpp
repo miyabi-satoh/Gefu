@@ -5,6 +5,9 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QSettings>
+#include <QMimeData>
+#include <QApplication>
+#include <QDrag>
 
 QString FilesizeToString(quint64 size)
 {
@@ -22,9 +25,16 @@ QString FilesizeToString(quint64 size)
 
 FolderView::FolderView(QWidget *parent) :
     QTableView(parent),
-    m_model()
+    m_model(),
+    m_dragStartPos(),
+    m_dragging(false)
 {
     setModel(&m_model);
+    connect(&m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+
+    setDragEnabled(true);
+    setAcceptDrops(true);
+    setDropIndicatorShown(true);
 }
 
 QString FolderView::side() const
@@ -48,10 +58,6 @@ void FolderView::initialize()
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
     header->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    // 行の高さを設定する
-    header = verticalHeader();
-    header->setDefaultSectionSize(QFontMetrics(m_model.font()).height() * 1.5);
-
     // 前回終了時のパスを開く
     QSettings settings;
     setPath(settings.value(side() + slash + IniKey_Dir).toString(), true);
@@ -69,6 +75,10 @@ void FolderView::updateAppearance()
     QPalette pal = palette();
     pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>());
     setPalette(pal);
+
+    // 行の高さを設定する
+    QHeaderView *header = verticalHeader();
+    header->setDefaultSectionSize(QFontMetrics(m_model.font()).height() * 1.5);
 }
 
 void FolderView::refresh()
@@ -86,6 +96,7 @@ void FolderView::refresh()
         row = m_model.rowCount() - 1;
     }
     setCurrentIndex(m_model.index(row, 0));
+    selectRow(row);
 }
 
 void FolderView::searchItem(const QString &text)
@@ -97,12 +108,12 @@ void FolderView::searchItem(const QString &text)
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
-            emit itemFound(this);
+            emit itemFound();
             return;
         }
     }
 
-    emit itemNotFound(this);
+    emit itemNotFound();
 }
 
 void FolderView::searchNext(const QString &text)
@@ -114,12 +125,12 @@ void FolderView::searchNext(const QString &text)
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
-            emit itemFound(this);
+            emit itemFound();
             return;
         }
     }
 
-    emit itemNotFound(this);
+    emit itemNotFound();
 }
 
 void FolderView::searchPrev(const QString &text)
@@ -131,12 +142,12 @@ void FolderView::searchPrev(const QString &text)
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
-            emit itemFound(this);
+            emit itemFound();
             return;
         }
     }
 
-    emit itemNotFound(this);
+    emit itemNotFound();
 }
 
 void FolderView::setCheckStateAll(bool checked)
@@ -242,6 +253,13 @@ QFileInfo FolderView::currentItem() const
     return m_model.fileInfo(currentIndex());
 }
 
+QFileInfoList FolderView::checkedItems() const
+{
+    qDebug() << side() << "checkedItems()";
+
+    return m_model.checkedItems();
+}
+
 QFileInfoList FolderView::selectedItems() const
 {
     qDebug() << side() << "selectedItems";
@@ -311,7 +329,7 @@ void FolderView::keyPressEvent(QKeyEvent *event)
 {
     qDebug() << side() << "keyPressEvent";
 
-    emit keyPressed(this, event);
+    emit keyPressed(event);
 
     if (!event->isAccepted()) {
         QTableView::keyPressEvent(event);
@@ -319,4 +337,111 @@ void FolderView::keyPressEvent(QKeyEvent *event)
     else {
         qDebug() << "KeyEvent accepted.";
     }
+}
+
+void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+{
+    Q_UNUSED(topLeft);
+    Q_UNUSED(bottomRight);
+    Q_UNUSED(roles);
+
+    emit dataChanged();
+}
+
+void FolderView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(previous);
+
+    emit currentChanged(m_model.fileInfo(current).absoluteFilePath());
+}
+
+void FolderView::mousePressEvent(QMouseEvent *event)
+{
+    if ((event->buttons() & Qt::LeftButton) || (event->buttons() & Qt::RightButton))
+    {
+        m_dragStartPos = event->pos();
+    }
+
+    QTableView::mousePressEvent(event);
+}
+
+void FolderView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!(event->buttons() & Qt::LeftButton) &&
+            !(event->buttons() & Qt::RightButton))
+    {
+        QTableView::mouseMoveEvent(event);
+        return;
+    }
+    if ((event->pos() - m_dragStartPos).manhattanLength()
+            < QApplication::startDragDistance())
+    {
+        QTableView::mouseMoveEvent(event);
+        return;
+    }
+
+    QFileInfoList list = selectedItems();
+    if (list.isEmpty()) {
+        QTableView::mousePressEvent(event);
+        return;
+    }
+
+    QList<QUrl> urls;
+    foreach (const QFileInfo &info, list) {
+        urls << QUrl::fromLocalFile(info.absoluteFilePath());
+    }
+
+    QDrag *drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+    mimeData->setUrls(urls);
+    drag->setMimeData(mimeData);
+
+    m_dragging = true;
+    if (event->buttons() & Qt::RightButton) {
+        drag->exec(Qt::CopyAction | Qt::MoveAction);
+    }
+    else {
+        drag->exec(Qt::CopyAction);
+    }
+    m_dragging = false;
+}
+
+void FolderView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+        return;
+    }
+
+    QTableView::dragEnterEvent(event);
+}
+
+void FolderView::dropEvent(QDropEvent *event)
+{
+    qDebug() << side() << "dropEvent();";
+
+    if (m_dragging) {
+        event->ignore();
+        return;
+    }
+
+    QFileInfoList list;
+    foreach (const QUrl &url, event->mimeData()->urls()) {
+        QString path = QFileInfo(url.toLocalFile()).canonicalFilePath();
+        if (!path.isEmpty()) {
+            list << path;
+        }
+        else {
+            qDebug() << "path is empty." << url;
+        }
+    }
+
+    if (list.isEmpty()) {
+        event->ignore();
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    emit dropAccepted(list);
 }

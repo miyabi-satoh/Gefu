@@ -35,6 +35,7 @@ public:
     // getter
     QFileInfo currentItem() const;
     QString dir() const { return m_model.absolutePath(); }
+    QFileInfoList checkedItems() const;
     QFileInfoList selectedItems() const;
     const History* history() const { return &m_history; }
     QStringList nameFilters() const { return m_model.nameFilters(); }
@@ -49,22 +50,33 @@ public:
 private:
     FileTableModel m_model;
     History m_history;
-
+    QPoint m_dragStartPos;
+    bool m_dragging;
 
 signals:
-    void itemFound(FolderView *view);
-    void itemNotFound(FolderView *view);
+    void currentChanged(const QString &path);
+    void dataChanged();
+    void dropAccepted(const QFileInfoList &list);
+    void itemFound();
+    void itemNotFound();
     void retrieveStarted(const QString &path);
     void retrieveFinished();
-    void keyPressed(FolderView *view, QKeyEvent *event);
+    void keyPressed(QKeyEvent *event);
 
 public slots:
 
+    // QAbstractItemView interface
+protected slots:
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
 
     // QWidget interface
 protected:
     void keyPressEvent(QKeyEvent *event);
-
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 };
 
 #endif // FOLDERVIEW_H

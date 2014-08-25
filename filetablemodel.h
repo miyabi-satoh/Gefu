@@ -40,8 +40,8 @@ public:
     QFont font() const { return m_font; }
 
 signals:
-    void rootChanged(const QString &root);
-    void stateChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
+//    void rootChanged(const QString &root);
+    void selectionChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
 
 public slots:
     void directoryChange(const QString &path);
@@ -61,7 +61,7 @@ private:
     QBrush m_HiddenBrush;
     QBrush m_ReadonlyBrush;
 
-    void stateChanged();
+//    void stateChanged();
 
     // QAbstractItemModel interface
 public:
