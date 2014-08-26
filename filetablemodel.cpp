@@ -165,9 +165,6 @@ void FileTableModel::updateAppearance()
     m_HiddenBrush = QBrush(settings.value(IniKey_ViewColorFgHidden).value<QColor>());
     m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
     m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
-
-//    beginResetModel();
-//    endResetModel();
 }
 
 void FileTableModel::directoryChange(const QString &path)

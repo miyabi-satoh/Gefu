@@ -26,7 +26,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -497,7 +497,7 @@
           <enum>Qt::StrongFocus</enum>
          </property>
          <property name="text">
-          <string>起動時に最新バージョンをチェックする</string>
+          <string>起動時にアップデートを確認する</string>
          </property>
         </widget>
        </item>

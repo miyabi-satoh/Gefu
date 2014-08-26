@@ -447,10 +447,15 @@
     <addaction name="move_Root"/>
     <addaction name="move_Jump"/>
     <addaction name="separator"/>
-    <addaction name="move_Down"/>
     <addaction name="move_Up"/>
+    <addaction name="move_Down"/>
     <addaction name="move_Begin"/>
     <addaction name="move_End"/>
+    <addaction name="separator"/>
+    <addaction name="move_UpOther"/>
+    <addaction name="move_DownOther"/>
+    <addaction name="move_BeginOther"/>
+    <addaction name="move_EndOther"/>
    </widget>
    <widget class="QMenu" name="menu_Operate">
     <property name="title">
@@ -1122,6 +1127,50 @@
    </property>
    <property name="shortcut">
     <string>-</string>
+   </property>
+  </action>
+  <action name="move_UpOther">
+   <property name="text">
+    <string>隣ペインのカーソルを上に</string>
+   </property>
+   <property name="toolTip">
+    <string>隣ペインのカーソルを上に</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Up</string>
+   </property>
+  </action>
+  <action name="move_DownOther">
+   <property name="text">
+    <string>隣ペインのカーソルを下に</string>
+   </property>
+   <property name="toolTip">
+    <string>隣ペインのカーソルを下に</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Down</string>
+   </property>
+  </action>
+  <action name="move_BeginOther">
+   <property name="text">
+    <string>隣ペインのカーソルを先頭に</string>
+   </property>
+   <property name="toolTip">
+    <string>隣ペインのカーソルを先頭に</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Up</string>
+   </property>
+  </action>
+  <action name="move_EndOther">
+   <property name="text">
+    <string>隣ペインのカーソルを末尾に</string>
+   </property>
+   <property name="toolTip">
+    <string>隣ペインのカーソルを末尾に</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Down</string>
    </property>
   </action>
  </widget>

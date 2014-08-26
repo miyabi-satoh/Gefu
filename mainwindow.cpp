@@ -1131,19 +1131,33 @@ void MainWindow::setCursorToBegin()
 {
     qDebug() << "MainWindow::setCursorToBegin();";
 
-    FolderView *v = folderView();
-    int row = 0;
-    v->setCurrentIndex(v->model()->index(row, 0));
+    if (ui->textView->hasFocus()) {
+        QTextCursor cursor = ui->textView->textCursor();
+        cursor.movePosition(QTextCursor::Start);
+        ui->textView->setTextCursor(cursor);
+    }
+    else {
+        FolderView *v = folderView();
+        int row = 0;
+        v->setCurrentIndex(v->model()->index(row, 0));
+    }
 }
 
 void MainWindow::cursorDown()
 {
     qDebug() << "MainWindow::cursorDown();";
 
-    FolderView *v = folderView();
-    int row = v->currentIndex().row() + 1;
-    if (row < v->model()->rowCount()) {
-        v->setCurrentIndex(v->model()->index(row, 0));
+    if (ui->textView->hasFocus()) {
+        QTextCursor cursor = ui->textView->textCursor();
+        cursor.movePosition(QTextCursor::Down);
+        ui->textView->setTextCursor(cursor);
+    }
+    else {
+        FolderView *v = folderView();
+        int row = v->currentIndex().row() + 1;
+        if (row < v->model()->rowCount()) {
+            v->setCurrentIndex(v->model()->index(row, 0));
+        }
     }
 }
 
@@ -1151,10 +1165,17 @@ void MainWindow::cursorUp()
 {
     qDebug() << "MainWindow::cursorUp();";
 
-    FolderView *v = folderView();
-    int row = v->currentIndex().row() - 1;
-    if (row >= 0) {
-        v->setCurrentIndex(v->model()->index(row, 0));
+    if (ui->textView->hasFocus()) {
+        QTextCursor cursor = ui->textView->textCursor();
+        cursor.movePosition(QTextCursor::Up);
+        ui->textView->setTextCursor(cursor);
+    }
+    else {
+        FolderView *v = folderView();
+        int row = v->currentIndex().row() - 1;
+        if (row >= 0) {
+            v->setCurrentIndex(v->model()->index(row, 0));
+        }
     }
 }
 
@@ -1162,9 +1183,16 @@ void MainWindow::setCursorToEnd()
 {
     qDebug() << "MainWindow::setCursorToEnd();";
 
-    FolderView *v = folderView();
-    int row = v->model()->rowCount() - 1;
-    v->setCurrentIndex(v->model()->index(row, 0));
+    if (ui->textView->hasFocus()) {
+        QTextCursor cursor = ui->textView->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        ui->textView->setTextCursor(cursor);
+    }
+    else {
+        FolderView *v = folderView();
+        int row = v->model()->rowCount() - 1;
+        v->setCurrentIndex(v->model()->index(row, 0));
+    }
 }
 
 void MainWindow::setFontSizeDown()
@@ -1565,6 +1593,10 @@ void MainWindow::updateActions()
         ui->check_Update->setEnabled(true);
         ui->view_FontSizeDown->setEnabled(true);
         ui->view_FontSizeUp->setEnabled(true);
+        ui->move_Begin->setEnabled(true);
+        ui->move_Down->setEnabled(true);
+        ui->move_End->setEnabled(true);
+        ui->move_Up->setEnabled(true);
         ui->copy_Filename->setEnabled(true);
         ui->copy_Fullpath->setEnabled(true);
         ui->help_About->setEnabled(true);

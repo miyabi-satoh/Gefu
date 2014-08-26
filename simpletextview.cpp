@@ -46,13 +46,13 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_copy = new QAction(tr("選択範囲をクリップボードにコピー"), this);
     m_back = new QAction(tr("戻る"), this);
 
-    m_convEUC->setShortcut(QKeySequence("E"));
-    m_convJIS->setShortcut(QKeySequence("J"));
-    m_convSJIS->setShortcut(QKeySequence("S"));
-    m_convUTF8->setShortcut(QKeySequence("U"));
-    m_convUTF16->setShortcut(QKeySequence("I"));
-    m_convUTF16BE->setShortcut(QKeySequence("J"));
-    m_convUTF16LE->setShortcut(QKeySequence("N"));
+    m_convEUC->setShortcut(QKeySequence("Shift+E"));
+    m_convJIS->setShortcut(QKeySequence("Shift+J"));
+    m_convSJIS->setShortcut(QKeySequence("Shift+S"));
+    m_convUTF8->setShortcut(QKeySequence("Shift+U"));
+    m_convUTF16->setShortcut(QKeySequence("Shift+I"));
+    m_convUTF16BE->setShortcut(QKeySequence("Shift+O"));
+    m_convUTF16LE->setShortcut(QKeySequence("Shift+P"));
     m_copy->setShortcut(QKeySequence::Copy);
     m_back->setShortcut(QKeySequence("Return"));
 

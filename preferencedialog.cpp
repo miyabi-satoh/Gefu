@@ -77,8 +77,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     QRadioButton *radioBtn;
 
     //>>>>> 起動と終了
-    // 終了時の確認ダイアログ
-    ui->confirmExit->setChecked(settings.value(IniKey_ConfirmExit).toBool());
     // 起動時のサイズ
     ui->bootSize->setChecked(true);
     strValue = settings.value(IniKey_BootSizeSpec).toString();
@@ -115,6 +113,10 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     ui->relativeTop->setValue(point.y());
     // 起動時の設定削除
     ui->resetOnBoot->setChecked(settings.value(IniKey_ResetOnBoot).toBool());
+    // アップデートの確認
+    ui->checkUpdates->setChecked(settings.value(IniKey_CheckUpdates).toBool());
+    // 終了時の確認ダイアログ
+    ui->confirmExit->setChecked(settings.value(IniKey_ConfirmExit).toBool());
 
     //>>>>> 色とフォント、テキストビューア
     loadAppearance(settings, false);
@@ -491,8 +493,6 @@ void PreferenceDialog::accept()
     QAbstractButton *selected;
 
     //>>>>> 起動と終了
-    // 終了時の確認ダイアログ
-    settings.setValue(IniKey_ConfirmExit, ui->confirmExit->isChecked());
     // 起動時のサイズ
     if (!ui->bootSize->isChecked()) {
         settings.setValue(IniKey_BootSizeSpec, "");
@@ -525,6 +525,10 @@ void PreferenceDialog::accept()
     }
     // 起動時の設定削除
     settings.setValue(IniKey_ResetOnBoot, ui->resetOnBoot->isChecked());
+    // 終了時の確認ダイアログ
+    settings.setValue(IniKey_ConfirmExit, ui->confirmExit->isChecked());
+    // アップデートのチェック
+    settings.setValue(IniKey_CheckUpdates, ui->checkUpdates->isChecked());
 
     //>>>>> 色とフォント
     saveAppearance(settings);
