@@ -348,7 +348,7 @@ void MainWindow::moveItems()
     }
 
     QSettings settings;
-    if (settings.value(IniKey_ConfirmCopy).toBool()) {
+    if (settings.value(IniKey_ConfirmMove).toBool()) {
         if (QMessageBox::question(this, tr("確認"), tr("移動を実行しますか？"))
             != QMessageBox::Yes)
         {
@@ -372,11 +372,11 @@ void MainWindow::moveItems()
     OperationDialog opDlg(this);
     opDlg.setWindowTitle(tr("移動"));
     opDlg.setWorker(worker);
-    opDlg.setAutoClose(settings.value(IniKey_AutoCloseCopy).toBool());
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseMove).toBool());
 
     opDlg.exec();
 
-    settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
+    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
 
     // 念のため、リフレッシュ
     ui->folderView1->refresh();
