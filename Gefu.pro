@@ -56,7 +56,8 @@ HEADERS  += mainwindow.h \
     simpletextview.h \
     searchbox.h \
     folderview.h \
-    locationbox.h
+    locationbox.h \
+    version.h
 
 FORMS    += mainwindow.ui \
     renamesingledialog.ui \

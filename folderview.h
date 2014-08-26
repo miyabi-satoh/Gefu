@@ -54,13 +54,14 @@ private:
     bool m_dragging;
 
 signals:
-    void currentChanged(const QString &path);
+    void currentChanged(const QFileInfo &info);
     void dataChanged();
     void dropAccepted(const QFileInfoList &list);
     void itemFound();
     void itemNotFound();
     void retrieveStarted(const QString &path);
     void retrieveFinished();
+    void requestContextMenu(QContextMenuEvent *event);
     void keyPressed(QKeyEvent *event);
 
 public slots:
@@ -77,6 +78,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 };
 
 #endif // FOLDERVIEW_H

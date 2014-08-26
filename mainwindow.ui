@@ -39,7 +39,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
          <number>0</number>
@@ -113,7 +113,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
          <number>0</number>
@@ -345,7 +345,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_Open"/>
    <addaction name="action_OpenEditor"/>
    <addaction name="action_Search"/>
    <addaction name="separator"/>
@@ -420,6 +419,9 @@
     <addaction name="separator"/>
     <addaction name="view_Hidden"/>
     <addaction name="view_System"/>
+    <addaction name="separator"/>
+    <addaction name="view_FontSizeUp"/>
+    <addaction name="view_FontSizeDown"/>
     <addaction name="separator"/>
     <addaction name="view_Sort"/>
     <addaction name="view_Filter"/>
@@ -1082,6 +1084,36 @@
    </property>
    <property name="shortcut">
     <string>Shift+Return</string>
+   </property>
+  </action>
+  <action name="view_FontSizeUp">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Zoom in.png</normaloff>:/images/Zoom in.png</iconset>
+   </property>
+   <property name="text">
+    <string>文字を大きく</string>
+   </property>
+   <property name="toolTip">
+    <string>文字を大きく</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="view_FontSizeDown">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/Zoom out.png</normaloff>:/images/Zoom out.png</iconset>
+   </property>
+   <property name="text">
+    <string>文字を小さく</string>
+   </property>
+   <property name="toolTip">
+    <string>文字を小さく</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
    </property>
   </action>
  </widget>

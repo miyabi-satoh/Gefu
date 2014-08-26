@@ -8,6 +8,7 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QDrag>
+#include <QMenu>
 
 QString FilesizeToString(quint64 size)
 {
@@ -35,6 +36,8 @@ FolderView::FolderView(QWidget *parent) :
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
+
+    setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 QString FolderView::side() const
@@ -52,10 +55,13 @@ void FolderView::initialize()
 {
     qDebug() << side() << "initialize";
 
+    setColumnWidth(0, 30);
+
     QHeaderView *header;
     // 列のリサイズモードを設定する
     header = horizontalHeader();
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(0, QHeaderView::Fixed);
     header->setSectionResizeMode(1, QHeaderView::Stretch);
 
     // 前回終了時のパスを開く
@@ -348,7 +354,7 @@ void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bott
 
 void FolderView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit currentChanged(m_model.fileInfo(current).absoluteFilePath());
+    emit currentChanged(m_model.fileInfo(current));
 
     QTableView::currentChanged(current, previous);
 }
@@ -442,4 +448,12 @@ void FolderView::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 
     emit dropAccepted(list);
+}
+
+
+void FolderView::contextMenuEvent(QContextMenuEvent *event)
+{
+    qDebug() << side() << "contextMenuEvent();";
+
+    emit requestContextMenu(event);
 }

@@ -14,6 +14,7 @@ RenameMultiDialog::RenameMultiDialog(QWidget *parent) :
     labels << tr("変更前") << tr("変更後");
     ui->tableWidget->setHorizontalHeaderLabels(labels);
 
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
 }
 

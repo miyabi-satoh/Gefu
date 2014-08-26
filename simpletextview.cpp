@@ -32,22 +32,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_back(NULL)
 {
     setReadOnly(true);
-
-    QSettings settings;
-    QPalette palette = this->palette();
-    palette.setColor(QPalette::Base,
-                     settings.value(IniKey_ViewColorBgNormal).value<QColor>());
-    palette.setColor(QPalette::Text,
-                     settings.value(IniKey_ViewColorFgNormal).value<QColor>());
-    setPalette(palette);
-
-    QFont font = this->font();
-#ifdef Q_OS_MAC
-    font.setFamily("Menlo");
-#else
-    font.setFamily("ＭＳ ゴシック");
-#endif
-    setFont(font);
+    updateAppearance();
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
     m_convEUC = new QAction(tr("EUC-JPで再読込"), this);
@@ -127,6 +112,145 @@ void SimpleTextView::setSource(const QByteArray &source)
     codec = QTextCodec::codecForName(code.c_str());
     setPlainText(codec->toUnicode(m_source));
     getMainWnd()->statusBar()->showMessage(code.c_str());
+}
+
+void SimpleTextView::updateAppearance()
+{
+    QSettings settings;
+
+    QPalette pal = this->palette();
+    if (settings.value(IniKey_ViewerInherit).toBool()) {
+        pal.setColor(QPalette::Base,
+                     settings.value(IniKey_ViewColorBgNormal).value<QColor>());
+        pal.setColor(QPalette::Text,
+                     settings.value(IniKey_ViewColorFgNormal).value<QColor>());
+    }
+    else {
+        pal.setColor(QPalette::Base,
+                     settings.value(IniKey_ViewerColorBg).value<QColor>());
+        pal.setColor(QPalette::Text,
+                     settings.value(IniKey_ViewerColorFg).value<QColor>());
+    }
+    setPalette(pal);
+    setFont(settings.value(IniKey_ViewerFont).value<QFont>());
+}
+
+void SimpleTextView::convertFromEUC()
+{
+    QTextCodec *codec = QTextCodec::codecForName("EUC-JP");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("EUC-JP");
+}
+
+void SimpleTextView::convertFromJIS()
+{
+    QTextCodec *codec = QTextCodec::codecForName("ISO 2022-JP");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("ISO 2022-JP");
+}
+
+void SimpleTextView::convertFromSJIS()
+{
+    QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("Shift-JIS");
+
+}
+
+void SimpleTextView::convertFromUTF8()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("UTF-8");
+}
+
+void SimpleTextView::convertFromUTF16()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-16");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("UTF-16");
+}
+
+void SimpleTextView::convertFromUTF16BE()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("UTF-16BE");
+}
+
+void SimpleTextView::convertFromUTF16LE()
+{
+    QTextCodec *codec = QTextCodec::codecForName("UTF-16LE");
+    setPlainText(codec->toUnicode(m_source));
+    getMainWnd()->statusBar()->showMessage("UTF-16LE");
+}
+
+void SimpleTextView::back()
+{
+    emit viewFinished(this);
+}
+
+void SimpleTextView::keyPressEvent(QKeyEvent *event)
+{
+    QString ksq = KeyEventToSequence(event);
+
+    if (ksq == "Return" || ksq == "Backspace" || ksq == "W") {
+        emit viewFinished(this);
+        event->accept();
+        return;
+    }
+
+    if (!ksq.isEmpty()) {
+        foreach (QObject *obj, this->children()) {
+            QAction *action = qobject_cast<QAction*>(obj);
+            if (action && action->isEnabled()) {
+                foreach (const QKeySequence &keySeq, action->shortcuts()) {
+                    if (ksq == keySeq.toString()) {
+                        qDebug() << "emit " << ksq << " " << action->objectName();
+                        emit action->triggered();
+                        event->accept();
+                        return;
+                    }
+                }
+            }
+        }
+
+        foreach (QObject *obj, getMainWnd()->children()) {
+            QAction *action = qobject_cast<QAction*>(obj);
+            if (action && action->isEnabled()) {
+                foreach (const QKeySequence &keySeq, action->shortcuts()) {
+                    if (ksq == keySeq.toString()) {
+                        qDebug() << "emit " << ksq << " " << action->objectName();
+                        emit action->triggered();
+                        event->accept();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if (ksq != "Down" && ksq != "Up") {
+        qDebug() << ksq;
+    }
+
+    QPlainTextEdit::keyPressEvent(event);
+}
+
+
+void SimpleTextView::contextMenuEvent(QContextMenuEvent *event)
+{
+    qDebug() << "contextMenuEvent();";
+    QMenu menu(this);
+    menu.addAction(m_convEUC);
+    menu.addAction(m_convJIS);
+    menu.addAction(m_convSJIS);
+    menu.addAction(m_convUTF8);
+    menu.addAction(m_convUTF16BE);
+    menu.addAction(m_convUTF16LE);
+    menu.addSeparator();
+    menu.addAction(m_back);
+    menu.exec(event->globalPos());
 }
 
 // http://dobon.net/vb/dotnet/string/detectcode.html より拝借
@@ -266,121 +390,4 @@ std::string SimpleTextView::detectCode(const QByteArray &bytes)
 #else
     return "UTF-8";
 #endif
-}
-
-void SimpleTextView::convertFromEUC()
-{
-    QTextCodec *codec = QTextCodec::codecForName("EUC-JP");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("EUC-JP");
-}
-
-void SimpleTextView::convertFromJIS()
-{
-    QTextCodec *codec = QTextCodec::codecForName("ISO 2022-JP");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("ISO 2022-JP");
-}
-
-void SimpleTextView::convertFromSJIS()
-{
-    QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("Shift-JIS");
-
-}
-
-void SimpleTextView::convertFromUTF8()
-{
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-8");
-}
-
-void SimpleTextView::convertFromUTF16()
-{
-    QTextCodec *codec = QTextCodec::codecForName("UTF-16");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16");
-}
-
-void SimpleTextView::convertFromUTF16BE()
-{
-    QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16BE");
-}
-
-void SimpleTextView::convertFromUTF16LE()
-{
-    QTextCodec *codec = QTextCodec::codecForName("UTF-16LE");
-    setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16LE");
-}
-
-void SimpleTextView::back()
-{
-    emit viewFinished(this);
-}
-
-void SimpleTextView::keyPressEvent(QKeyEvent *event)
-{
-    QString ksq = KeyEventToSequence(event);
-
-    if (ksq == "Return" || ksq == "Backspace" || ksq == "W") {
-        emit viewFinished(this);
-        event->accept();
-        return;
-    }
-
-    if (!ksq.isEmpty()) {
-        foreach (QObject *obj, this->children()) {
-            QAction *action = qobject_cast<QAction*>(obj);
-            if (action && action->isEnabled()) {
-                foreach (const QKeySequence &keySeq, action->shortcuts()) {
-                    if (ksq == keySeq.toString()) {
-                        qDebug() << "emit " << ksq << " " << action->objectName();
-                        emit action->triggered();
-                        event->accept();
-                        return;
-                    }
-                }
-            }
-        }
-
-        foreach (QObject *obj, getMainWnd()->children()) {
-            QAction *action = qobject_cast<QAction*>(obj);
-            if (action && action->isEnabled()) {
-                foreach (const QKeySequence &keySeq, action->shortcuts()) {
-                    if (ksq == keySeq.toString()) {
-                        qDebug() << "emit " << ksq << " " << action->objectName();
-                        emit action->triggered();
-                        event->accept();
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    if (ksq != "Down" && ksq != "Up") {
-        qDebug() << ksq;
-    }
-
-    QPlainTextEdit::keyPressEvent(event);
-}
-
-
-void SimpleTextView::contextMenuEvent(QContextMenuEvent *event)
-{
-    qDebug() << "contextMenuEvent();";
-    QMenu menu(this);
-    menu.addAction(m_convEUC);
-    menu.addAction(m_convJIS);
-    menu.addAction(m_convSJIS);
-    menu.addAction(m_convUTF8);
-    menu.addAction(m_convUTF16BE);
-    menu.addAction(m_convUTF16LE);
-    menu.addAction(m_back);
-    menu.exec(event->globalPos());
 }

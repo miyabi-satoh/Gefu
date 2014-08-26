@@ -39,6 +39,9 @@ void OverWriteDialog::reset()
         radio = ui->rbOverWriteIfNew;
     }
     radio->setChecked(true);
+    if (radio != ui->rbRename) {
+        ui->lineEdit->setEnabled(false);
+    }
 
     ui->keepSetting->setChecked(false);
 }

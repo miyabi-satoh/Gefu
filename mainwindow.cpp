@@ -1,4 +1,5 @@
 #include "common.h"
+#include "version.h"
 #include "mainwindow.h"
 #include "preferencedialog.h"
 #include "folderview.h"
@@ -71,12 +72,13 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(folderView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(open(QModelIndex)));
         connect(folderView, SIGNAL(dataChanged()), this, SLOT(dataChange()));
         connect(folderView, SIGNAL(dropAccepted(QFileInfoList)), this, SLOT(dropAccept(QFileInfoList)));
-        connect(folderView, SIGNAL(currentChanged(QString)), ui->statusBar, SLOT(showMessage(QString)));
+        connect(folderView, SIGNAL(currentChanged(QFileInfo)), this, SLOT(currentChange(QFileInfo)));
         connect(folderView, SIGNAL(itemFound()), this, SLOT(itemFound()));
         connect(folderView, SIGNAL(itemNotFound()), this, SLOT(itemNotFound()));
         connect(folderView, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(keyPress(QKeyEvent*)));
         connect(folderView, SIGNAL(retrieveFinished()), this, SLOT(retrieveFinish()));
         connect(folderView, SIGNAL(retrieveStarted(QString)), this, SLOT(retrieveStart(QString)));
+        connect(folderView, SIGNAL(requestContextMenu(QContextMenuEvent*)), this, SLOT(showContextMenu(QContextMenuEvent*)));
         connect(searchBox, SIGNAL(textEdited(QString)), this, SLOT(searchItem(QString)));
         connect(searchBox, SIGNAL(returnPressed()), this, SLOT(returnPressInSearchBox()));
 
@@ -114,16 +116,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->action_Exec->setShortcuts(shortcuts);
 
     // MacだとShift+の形で認識されてしまうもの
+    shortcuts = ui->view_FontSizeUp->shortcuts();
+    shortcuts.append(QKeySequence("Shift++"));
+    ui->view_FontSizeUp->setShortcuts(shortcuts);
+
     shortcuts = ui->view_Filter->shortcuts();
-    shortcuts.append(QKeySequence("Shift+*"));  // マヂで！？
+    shortcuts.append(QKeySequence("Shift+*"));
     ui->view_Filter->setShortcuts(shortcuts);
 
     shortcuts = ui->action_OpenTerminal->shortcuts();
-    shortcuts.append(QKeySequence("Shift+>"));  // マヂで！？
+    shortcuts.append(QKeySequence("Shift+>"));
     ui->action_OpenTerminal->setShortcuts(shortcuts);
 
     shortcuts = ui->help_About->shortcuts();
-    shortcuts.append(QKeySequence("Shift+?"));  // マヂで！？
+    shortcuts.append(QKeySequence("Shift+?"));
     ui->help_About->setShortcuts(shortcuts);
 
     // ウィンドウタイトルを設定する
@@ -486,8 +492,40 @@ void MainWindow::askOverWrite(QString *copyMethod,
     worker->endAsking();
 }
 
+void MainWindow::currentChange(const QFileInfo &info)
+{
+    qDebug() << "MainWindow::currentChange();";
+
+    ui->statusBar->showMessage(info.absoluteFilePath());
+    if (info.isDir()) {
+        ui->action_Open->setIcon(QIcon(":/images/Open.png"));
+        ui->action_Open->setText(tr("開く"));
+        ui->action_Open->setToolTip(tr("開く"));
+    }
+    else {
+        ui->action_Open->setIcon(QIcon(":/images/Search text.png"));
+        ui->action_Open->setText(tr("テキストビューアで開く"));
+        ui->action_Open->setToolTip(tr("テキストビューアで開く"));
+        ui->action_Open->setEnabled(true);
+
+        QSettings settings;
+        if (!settings.value(IniKey_ViewerForceOpen).toBool()) {
+            QStringList list = settings.value(IniKey_ViewerIgnoreExt).toString().split(",");
+            foreach (const QString &ext, list) {
+                if (ext.toLower() == info.suffix().toLower()) {
+                    ui->action_Open->setEnabled(false);
+                    break;
+                }
+            }
+        }
+    }
+
+}
+
 void MainWindow::dataChange()
 {
+    qDebug() << "MainWindow::dataChange();";
+
     FolderView *view = static_cast<FolderView*>(sender());
     QFileInfoList list = view->checkedItems();
     if (list.isEmpty()) {
@@ -1128,6 +1166,34 @@ void MainWindow::setCursorToEnd()
     v->setCurrentIndex(v->model()->index(row, 0));
 }
 
+void MainWindow::setFontSizeDown()
+{
+    qDebug() << "MainWindow::setFontSizeDown();";
+
+    QSettings settings;
+
+    QFont font = settings.value(IniKey_ViewFont).value<QFont>();
+    font.setPointSize(font.pointSize() - 1);
+    settings.setValue(IniKey_ViewFont, font);
+
+    ui->folderView1->updateAppearance();
+    ui->folderView2->updateAppearance();
+}
+
+void MainWindow::setFontSizeUp()
+{
+    qDebug() << "MainWindow::setFontSizeUp();";
+
+    QSettings settings;
+
+    QFont font = settings.value(IniKey_ViewFont).value<QFont>();
+    font.setPointSize(font.pointSize() + 1);
+    settings.setValue(IniKey_ViewFont, font);
+
+    ui->folderView1->updateAppearance();
+    ui->folderView2->updateAppearance();
+}
+
 void MainWindow::setPathFromOther()
 {
     qDebug() << "MainWindow::setPathFromOther();";
@@ -1245,6 +1311,7 @@ void MainWindow::showPreferenceDialog()
         ui->locationBox2->updateAppearance();
         ui->folderView1->updateAppearance();
         ui->folderView2->updateAppearance();
+        ui->textView->updateAppearance();
 
         updateActions();
     }
@@ -1270,6 +1337,37 @@ void MainWindow::toggleShowSystemFiles(bool checked)
 
     ui->folderView2->setFilter(QDir::System, checked);
     ui->folderView2->refresh();
+}
+
+void MainWindow::showContextMenu(QContextMenuEvent *event)
+{
+    qDebug() << "MainWindow::showContextMenu();";
+
+    FolderView *view = static_cast<FolderView*>(sender());
+    QModelIndex index = view->indexAt(event->pos());
+
+    QMenu menu(this);
+    if (index.isValid()) {
+        menu.addAction(ui->action_Open);
+        menu.addAction(ui->action_Exec);
+        menu.addAction(ui->action_OpenEditor);
+        menu.addAction(ui->action_OpenTerminal);
+        menu.addSeparator();
+        menu.addAction(ui->copy_Filename);
+        menu.addAction(ui->copy_Fullpath);
+    }
+    else {
+        menu.addAction(ui->move_Back);
+        menu.addAction(ui->move_Forward);
+        menu.addSeparator();
+        menu.addAction(ui->move_Parent);
+        menu.addAction(ui->move_Home);
+        menu.addAction(ui->move_Root);
+        menu.addAction(ui->move_Jump);
+    }
+
+    menu.exec(event->globalPos());
+
 }
 
 void MainWindow::checkUpdate(bool silent)
@@ -1379,6 +1477,8 @@ void MainWindow::initActionConnections()
     connect(ui->move_Root, SIGNAL(triggered()), this, SLOT(setPathToRoot()));
     connect(ui->move_Up, SIGNAL(triggered()), this, SLOT(cursorUp()));
     connect(ui->view_Filter, SIGNAL(triggered()), this, SLOT(showFilterDialog()));
+    connect(ui->view_FontSizeDown, SIGNAL(triggered()), this, SLOT(setFontSizeDown()));
+    connect(ui->view_FontSizeUp, SIGNAL(triggered()), this, SLOT(setFontSizeUp()));
     connect(ui->view_FromOther, SIGNAL(triggered()), this, SLOT(setPathFromOther()));
     connect(ui->view_Hidden, SIGNAL(toggled(bool)), this, SLOT(toggleShowHiddenFiles(bool)));
     connect(ui->view_Refresh, SIGNAL(triggered()), this, SLOT(refresh()));

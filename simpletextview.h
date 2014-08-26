@@ -10,6 +10,7 @@ public:
     explicit SimpleTextView(QWidget *parent = 0);
 
     void setSource(const QByteArray &source);
+    void updateAppearance();
 
 private:
     QAction *m_convEUC;

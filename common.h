@@ -11,8 +11,6 @@ extern QString FilesizeToString(quint64 size);
 extern QString ViewerIgnoreExt();
 extern QString KeyEventToSequence(const QKeyEvent *event);
 
-#define VERSION_VALUE   0.11
-
 #define slash   QString("/")
 #define QQ(x)   ("\"" + QString(x) + "\"")
 

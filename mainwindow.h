@@ -35,6 +35,7 @@ public slots:
     void askOverWrite(QString *copyMethod, QString *alias,
                       const QString &srcPath, const QString &tgtPath);
 
+    void currentChange(const QFileInfo &info);
     void dataChange();
     void dropAccept(const QFileInfoList &list);
     void focusChange(QWidget * old, QWidget * now);
@@ -77,6 +78,8 @@ public slots:
     void searchPrev();
     void setCursorToBegin();
     void setCursorToEnd();
+    void setFontSizeDown();
+    void setFontSizeUp();
     void setPathFromOther();
     void setPathToHome();
     void setPathToOther();
@@ -91,6 +94,8 @@ public slots:
     void toggleSearchBox(bool checked);
     void toggleShowHiddenFiles(bool checked);
     void toggleShowSystemFiles(bool checked);
+
+    void showContextMenu(QContextMenuEvent *event);
 
     void openRequest(const QFileInfo &info);
     void viewFinish(QWidget *sender);

@@ -222,6 +222,10 @@ void PreferenceDialog::loadAppearance(QSettings &settings, bool import)
     font = settings.value(IniKey_ViewFont).value<QFont>();
     ui->viewFont->setText(tr("%1, %2pt").arg(font.family()).arg(font.pointSize()));
     // サンプル表示
+    QHeaderView *header = ui->sampleTable->verticalHeader();
+    header->setDefaultSectionSize(QFontMetrics(font).height() * 1.5);
+    ui->sampleTable->setMinimumHeight(header->sectionSize(0) * 5);
+    ui->sampleTable->setMaximumHeight(ui->sampleTable->minimumHeight() + 2);
     m_model.setFont(font);
     m_model.update();
 
@@ -277,6 +281,10 @@ void PreferenceDialog::chooseFont()
         label = ui->boxFont;
     }
     else if (sender() == ui->chooseViewFont) {
+        QHeaderView *header = ui->sampleTable->verticalHeader();
+        header->setDefaultSectionSize(QFontMetrics(font).height() * 1.5);
+        ui->sampleTable->setMinimumHeight(header->sectionSize(0) * 5);
+        ui->sampleTable->setMaximumHeight(ui->sampleTable->minimumHeight() + 2);
         m_model.setFont(font);
         m_model.update();
         label = ui->viewFont;
@@ -333,6 +341,18 @@ void PreferenceDialog::setControlsEnabled(bool enabled)
     else if (sender() == ui->viewerInherit) {
         ui->viewerClrBg->setEnabled(!enabled);
         ui->viewerClrFg->setEnabled(!enabled);
+        // サンプル表示も更新
+        QPalette pal = ui->viewerSample->palette();
+        if (enabled) {
+            pal.setColor(QPalette::Base, m_colorMap["clrBgNormal"]);
+            pal.setColor(QPalette::Text, m_colorMap["clrFgNormal"]);
+        }
+        else {
+            QSettings settings;
+            pal.setColor(QPalette::Base, settings.value(IniKey_ViewerColorBg).value<QColor>());
+            pal.setColor(QPalette::Text, settings.value(IniKey_ViewerColorFg).value<QColor>());
+        }
+        ui->viewerSample->setPalette(pal);
     }
     else if (sender() == ui->enableViewerIgnoreExt) {
         ui->viewerIgnoreExt->setEnabled(enabled);

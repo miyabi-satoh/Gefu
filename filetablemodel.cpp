@@ -107,9 +107,6 @@ bool FileTableModel::setPath(const QString &path)
 
     endResetModel();
 
-//    emit rootChanged(m_dir.absolutePath());
-//    stateChanged();
-
     emit dataChanged(QModelIndex(), QModelIndex());
     return !m_fileInfoList.isEmpty();
 }
@@ -130,8 +127,6 @@ void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState stat
     }
     endResetModel();;
     emit dataChanged(index, this->index(index.row(), 3));
-
-//    stateChanged();
 }
 
 void FileTableModel::setCheckStateAll(Qt::CheckState state)
@@ -145,8 +140,6 @@ void FileTableModel::setCheckStateAll(Qt::CheckState state)
     }
     endResetModel();
     emit dataChanged(QModelIndex(), QModelIndex());
-
-//    stateChanged();
 }
 
 QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
@@ -184,26 +177,6 @@ void FileTableModel::directoryChange(const QString &path)
     setPath(path);
 }
 
-//void FileTableModel::stateChanged()
-//{
-//    int numFolder = 0;
-//    int numFile = 0;
-//    quint64 totalSize = 0;
-//    for (int n = 0; n < m_checkStates.size(); n++) {
-//        if (m_checkStates[n] == Qt::Checked) {
-//            if (m_fileInfoList[n].isDir()) {
-//                numFolder++;
-//            }
-//            else {
-//                numFile++;
-//                totalSize += m_fileInfoList[n].size();
-//            }
-//        }
-//    }
-
-//    emit selectionChanged(numFolder, numFile, totalSize);
-//}
-
 QFileInfoList FileTableModel::checkedItems() const
 {
     QFileInfoList list;
@@ -226,7 +199,7 @@ int FileTableModel::rowCount(const QModelIndex &parent) const
 int FileTableModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 4;
+    return 5;
 }
 
 QVariant FileTableModel::data(const QModelIndex &index, int role) const
@@ -244,8 +217,30 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
         case 0: // チェックボックス
             return QString("");
         case 1: // ファイル名
-            return info.fileName();
-        case 2: // サイズ
+            if (info.isDir()) {
+                return info.fileName();
+            }
+            if (info.fileName().left(1) == ".") {   // "."で始まるファイル
+                int pos = info.fileName().lastIndexOf(".");
+                if (pos == 0) {
+                    return info.fileName();
+                }
+            }
+            return info.completeBaseName();
+
+        case 2: // 拡張子
+            if (info.isDir()) {
+                return QString();
+            }
+            if (info.fileName().left(1) == ".") {   // "."で始まるファイル
+                int pos = info.fileName().lastIndexOf(".");
+                if (pos == 0) {
+                    return QString();
+                }
+            }
+            return info.suffix();
+
+        case 3: // サイズ
             if (info.isDir()) {
                 return QString("<DIR>");
             }
@@ -253,7 +248,8 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
                 return FilesizeToString(info.size());
             }
             break;
-        case 3:
+
+        case 4: // 更新日時
             return info.lastModified().toString("yy/MM/dd hh:mm");
         }
         break;
@@ -275,12 +271,11 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
 
     case Qt::TextAlignmentRole:
         switch (index.column()) {
-        case 0:
-        case 1:
-            return Qt::AlignLeft + Qt::AlignVCenter;
-        case 2:
         case 3:
+        case 4:
             return Qt::AlignRight + Qt::AlignVCenter;
+        default:
+            return Qt::AlignLeft + Qt::AlignVCenter;
         }
         break;
 
@@ -329,8 +324,9 @@ QVariant FileTableModel::headerData(int section, Qt::Orientation orientation, in
             switch (section) {
             case 0: return QString("");
             case 1: return tr("名前");
-            case 2: return tr("サイズ");
-            case 3: return tr("更新日時");
+            case 2: return tr("拡張子");
+            case 3: return tr("サイズ");
+            case 4: return tr("更新日時");
             }
         }
     }
@@ -363,7 +359,6 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
         if (index.column() == 0) {
             m_checkStates[index.row()] = static_cast<Qt::CheckState>(value.toInt());
             emit dataChanged(index, this->index(index.row(), 3));
-//            stateChanged();
             return true;
         }
         break;
