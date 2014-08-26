@@ -57,19 +57,21 @@ void FolderView::initialize()
 
     setColumnWidth(0, 30);
 
-    QHeaderView *header;
-    // 列のリサイズモードを設定する
-    header = horizontalHeader();
-    header->setSectionResizeMode(QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(0, QHeaderView::Fixed);
-    header->setSectionResizeMode(1, QHeaderView::Stretch);
-
     // 前回終了時のパスを開く
     QSettings settings;
     setPath(settings.value(side() + slash + IniKey_Dir).toString(), true);
 
     // 色とフォントを設定する
     updateAppearance();
+
+    // 列のリサイズモードを設定する
+    QHeaderView *header;
+    header = horizontalHeader();
+    header->setSectionResizeMode(0, QHeaderView::Fixed);
+    header->setSectionResizeMode(1, QHeaderView::Stretch);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 }
 
 void FolderView::updateAppearance()
@@ -85,6 +87,14 @@ void FolderView::updateAppearance()
     // 行の高さを設定する
     QHeaderView *header = verticalHeader();
     header->setDefaultSectionSize(QFontMetrics(m_model.font()).height() * 1.5);
+
+    // 列の幅を設定する
+    header = horizontalHeader();
+    header->setSectionResizeMode(0, QHeaderView::Fixed);
+    header->setSectionResizeMode(1, QHeaderView::Stretch);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 
     repaint();
 }
