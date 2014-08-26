@@ -20,6 +20,7 @@ private:
     QAction *m_convUTF16;
     QAction *m_convUTF16BE;
     QAction *m_convUTF16LE;
+    QAction *m_copy;
     QAction *m_back;
     QByteArray m_source;
 
@@ -38,6 +39,7 @@ private slots:
     void convertFromUTF16();
     void convertFromUTF16BE();
     void convertFromUTF16LE();
+    void onCopyAvailable(bool yes);
     void back();
 
     // QWidget interface

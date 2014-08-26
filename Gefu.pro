@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     simpletextview.cpp \
     searchbox.cpp \
     folderview.cpp \
-    locationbox.cpp
+    locationbox.cpp \
+    simpleimageview.cpp
 
 HEADERS  += mainwindow.h \
     renamesingledialog.h \
@@ -57,7 +58,8 @@ HEADERS  += mainwindow.h \
     searchbox.h \
     folderview.h \
     locationbox.h \
-    version.h
+    version.h \
+    simpleimageview.h
 
 FORMS    += mainwindow.ui \
     renamesingledialog.ui \

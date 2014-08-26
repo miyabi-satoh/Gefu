@@ -190,7 +190,14 @@
      </widget>
     </item>
     <item>
-     <widget class="SimpleTextView" name="textView"/>
+     <widget class="SimpleImageView" name="graphicsView"/>
+    </item>
+    <item>
+     <widget class="SimpleTextView" name="textView">
+      <property name="plainText">
+       <string>Simple Text</string>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -347,6 +354,7 @@
    </attribute>
    <addaction name="action_OpenEditor"/>
    <addaction name="action_Search"/>
+   <addaction name="action_Setting"/>
    <addaction name="separator"/>
    <addaction name="mark_All"/>
    <addaction name="mark_AllFiles"/>
@@ -1015,13 +1023,13 @@
   </action>
   <action name="check_Update">
    <property name="text">
-    <string>最新バージョンをチェック</string>
+    <string>アップデートの確認</string>
    </property>
    <property name="toolTip">
-    <string>最新バージョンをチェック</string>
+    <string>アップデートの確認</string>
    </property>
    <property name="shortcut">
-    <string>V</string>
+    <string>Shift+Z</string>
    </property>
   </action>
   <action name="copy_Filename">
@@ -1138,6 +1146,11 @@
    <class>LocationBox</class>
    <extends>QLineEdit</extends>
    <header>locationbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SimpleImageView</class>
+   <extends>QGraphicsView</extends>
+   <header>simpleimageview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

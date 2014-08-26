@@ -55,8 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChange(QWidget*,QWidget*)));
     connect(ui->textView, SIGNAL(viewFinished(QWidget*)), this, SLOT(viewFinish(QWidget*)));
 
-    // テキストビューアは初期状態で非表示
+    // ビューアは初期状態で非表示
     ui->textView->setVisible(false);
+    ui->graphicsView->setVisible(false);
 
     for (int i = 1; i <= 2; i++) {
         LocationBox *locationBox = findChild<LocationBox*>(QString("locationBox%1").arg(i));

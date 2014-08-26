@@ -29,6 +29,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF8(NULL),
     m_convUTF16BE(NULL),
     m_convUTF16LE(NULL),
+    m_copy(NULL),
     m_back(NULL)
 {
     setReadOnly(true);
@@ -42,6 +43,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF16 = new QAction(tr("UTF-16で再読込"), this);
     m_convUTF16BE = new QAction(tr("UTF-16BEで再読込"), this);
     m_convUTF16LE = new QAction(tr("UTF-16LEで再読込"), this);
+    m_copy = new QAction(tr("選択範囲をクリップボードにコピー"), this);
     m_back = new QAction(tr("戻る"), this);
 
     m_convEUC->setShortcut(QKeySequence("E"));
@@ -51,6 +53,7 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF16->setShortcut(QKeySequence("I"));
     m_convUTF16BE->setShortcut(QKeySequence("J"));
     m_convUTF16LE->setShortcut(QKeySequence("N"));
+    m_copy->setShortcut(QKeySequence::Copy);
     m_back->setShortcut(QKeySequence("Return"));
 
     connect(m_convEUC, SIGNAL(triggered()), this, SLOT(convertFromEUC()));
@@ -60,7 +63,12 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     connect(m_convUTF16, SIGNAL(triggered()), this, SLOT(convertFromUTF16()));
     connect(m_convUTF16BE, SIGNAL(triggered()), this, SLOT(convertFromUTF16BE()));
     connect(m_convUTF16LE, SIGNAL(triggered()), this, SLOT(convertFromUTF16LE()));
+    connect(m_copy, SIGNAL(triggered()), this, SLOT(copy()));
     connect(m_back, SIGNAL(triggered()), this, SLOT(back()));
+
+    connect(this, SIGNAL(copyAvailable(bool)), this, SLOT(onCopyAvailable(bool)));
+
+    m_copy->setEnabled(false);
 }
 
 void SimpleTextView::setSource(const QByteArray &source)
@@ -185,6 +193,11 @@ void SimpleTextView::convertFromUTF16LE()
     getMainWnd()->statusBar()->showMessage("UTF-16LE");
 }
 
+void SimpleTextView::onCopyAvailable(bool yes)
+{
+    m_copy->setEnabled(yes);
+}
+
 void SimpleTextView::back()
 {
     emit viewFinished(this);
@@ -248,6 +261,8 @@ void SimpleTextView::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(m_convUTF8);
     menu.addAction(m_convUTF16BE);
     menu.addAction(m_convUTF16LE);
+    menu.addSeparator();
+    menu.addAction(m_copy);
     menu.addSeparator();
     menu.addAction(m_back);
     menu.exec(event->globalPos());
