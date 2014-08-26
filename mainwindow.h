@@ -115,6 +115,7 @@ private:
     void setSorting(FolderView *view);
     void showNameFilters(FolderView *view);
     void copyItems(const QFileInfoList &list, const QString &tgtDir);
+    void changeFontSize(int diff);
 
     // getter
     QLabel* filterLabel(const FolderView *view) const;

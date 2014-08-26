@@ -1171,28 +1171,34 @@ void MainWindow::setFontSizeDown()
 {
     qDebug() << "MainWindow::setFontSizeDown();";
 
-    QSettings settings;
-
-    QFont font = settings.value(IniKey_ViewFont).value<QFont>();
-    font.setPointSize(font.pointSize() - 1);
-    settings.setValue(IniKey_ViewFont, font);
-
-    ui->folderView1->updateAppearance();
-    ui->folderView2->updateAppearance();
+    changeFontSize(-1);
 }
 
 void MainWindow::setFontSizeUp()
 {
     qDebug() << "MainWindow::setFontSizeUp();";
+    changeFontSize(1);
+}
 
+void MainWindow::changeFontSize(int diff)
+{
     QSettings settings;
+    QFont font;
+    if (ui->folderView1->hasFocus() || ui->folderView2->hasFocus()) {
+        font = settings.value(IniKey_ViewFont).value<QFont>();
+        font.setPointSize(font.pointSize() + diff);
+        settings.setValue(IniKey_ViewFont, font);
 
-    QFont font = settings.value(IniKey_ViewFont).value<QFont>();
-    font.setPointSize(font.pointSize() + 1);
-    settings.setValue(IniKey_ViewFont, font);
+        ui->folderView1->updateAppearance();
+        ui->folderView2->updateAppearance();
+    }
+    if (ui->textView->hasFocus()) {
+        font = settings.value(IniKey_ViewerFont).value<QFont>();
+        font.setPointSize(font.pointSize() + diff);
+        settings.setValue(IniKey_ViewerFont, font);
 
-    ui->folderView1->updateAppearance();
-    ui->folderView2->updateAppearance();
+        ui->textView->updateAppearance();
+    }
 }
 
 void MainWindow::setPathFromOther()
@@ -1557,6 +1563,8 @@ void MainWindow::updateActions()
         ui->action_Quit->setEnabled(true);
         ui->action_Setting->setEnabled(true);
         ui->check_Update->setEnabled(true);
+        ui->view_FontSizeDown->setEnabled(true);
+        ui->view_FontSizeUp->setEnabled(true);
         ui->copy_Filename->setEnabled(true);
         ui->copy_Fullpath->setEnabled(true);
         ui->help_About->setEnabled(true);

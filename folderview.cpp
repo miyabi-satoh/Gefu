@@ -85,6 +85,8 @@ void FolderView::updateAppearance()
     // 行の高さを設定する
     QHeaderView *header = verticalHeader();
     header->setDefaultSectionSize(QFontMetrics(m_model.font()).height() * 1.5);
+
+    repaint();
 }
 
 void FolderView::refresh()
