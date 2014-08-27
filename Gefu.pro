@@ -35,7 +35,9 @@ SOURCES += main.cpp\
     searchbox.cpp \
     folderview.cpp \
     locationbox.cpp \
-    simpleimageview.cpp
+    simpleimageview.cpp \
+    anyview.cpp \
+    folderpanel.cpp
 
 HEADERS  += mainwindow.h \
     renamesingledialog.h \
@@ -59,7 +61,9 @@ HEADERS  += mainwindow.h \
     folderview.h \
     locationbox.h \
     version.h \
-    simpleimageview.h
+    simpleimageview.h \
+    anyview.h \
+    folderpanel.h
 
 FORMS    += mainwindow.ui \
     renamesingledialog.ui \
@@ -68,7 +72,9 @@ FORMS    += mainwindow.ui \
     overwritedialog.ui \
     sortdialog.ui \
     historydialog.ui \
-    preferencedialog.ui
+    preferencedialog.ui \
+    anyview.ui \
+    folderpanel.ui
 
 RESOURCES += \
     resource.qrc
@@ -76,7 +82,8 @@ RESOURCES += \
 OTHER_FILES += \
     Gefu.rc \
     README.md \
-    ReadMe.txt
+    ReadMe.txt \
+    keybind.txt
 
 macx {
     ICON = ./images/Gefu.icns

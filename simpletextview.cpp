@@ -46,6 +46,16 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_copy = new QAction(tr("選択範囲をクリップボードにコピー"), this);
     m_back = new QAction(tr("戻る"), this);
 
+    m_convEUC->setObjectName("convertFromEUC");
+    m_convJIS->setObjectName("convertFromJIS");
+    m_convSJIS->setObjectName("convertFromSJIS");
+    m_convUTF8->setObjectName("convertFromUTF8");
+    m_convUTF16->setObjectName("convertFromUTF16");
+    m_convUTF16BE->setObjectName("convertFromUTF16BE");
+    m_convUTF16LE->setObjectName("convertFromUTF16LE");
+    m_copy->setObjectName("copy");
+    m_back->setObjectName("back");
+
     m_convEUC->setShortcut(QKeySequence("Shift+E"));
     m_convJIS->setShortcut(QKeySequence("Shift+J"));
     m_convSJIS->setShortcut(QKeySequence("Shift+S"));
@@ -55,6 +65,11 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF16LE->setShortcut(QKeySequence("Shift+P"));
     m_copy->setShortcut(QKeySequence::Copy);
     m_back->setShortcut(QKeySequence("Return"));
+
+    QList<QKeySequence> shortcuts;
+    shortcuts = m_back->shortcuts();
+    shortcuts.append(QKeySequence("Backspace"));
+    m_back->setShortcuts(shortcuts);
 
     connect(m_convEUC, SIGNAL(triggered()), this, SLOT(convertFromEUC()));
     connect(m_convJIS, SIGNAL(triggered()), this, SLOT(convertFromJIS()));
@@ -207,44 +222,14 @@ void SimpleTextView::keyPressEvent(QKeyEvent *event)
 {
     QString ksq = KeyEventToSequence(event);
 
-    if (ksq == "Return" || ksq == "Backspace" || ksq == "W") {
-        emit viewFinished(this);
+    if (ProcessShortcut(ksq, this)) {
         event->accept();
         return;
     }
 
-    if (!ksq.isEmpty()) {
-        foreach (QObject *obj, this->children()) {
-            QAction *action = qobject_cast<QAction*>(obj);
-            if (action && action->isEnabled()) {
-                foreach (const QKeySequence &keySeq, action->shortcuts()) {
-                    if (ksq == keySeq.toString()) {
-                        qDebug() << "emit " << ksq << " " << action->objectName();
-                        emit action->triggered();
-                        event->accept();
-                        return;
-                    }
-                }
-            }
-        }
-
-        foreach (QObject *obj, getMainWnd()->children()) {
-            QAction *action = qobject_cast<QAction*>(obj);
-            if (action && action->isEnabled()) {
-                foreach (const QKeySequence &keySeq, action->shortcuts()) {
-                    if (ksq == keySeq.toString()) {
-                        qDebug() << "emit " << ksq << " " << action->objectName();
-                        emit action->triggered();
-                        event->accept();
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    if (ksq != "Down" && ksq != "Up") {
-        qDebug() << ksq;
+    if (ProcessShortcut(ksq, getMainWnd())) {
+        event->accept();
+        return;
     }
 
     QPlainTextEdit::keyPressEvent(event);

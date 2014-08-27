@@ -1,4 +1,5 @@
 #include "common.h"
+#include "mainwindow.h"
 #include "folderview.h"
 
 #include <QDebug>
@@ -347,14 +348,21 @@ void FolderView::keyPressEvent(QKeyEvent *event)
 {
     qDebug() << side() << "keyPressEvent";
 
-    emit keyPressed(event);
+//    emit keyPressed(event);
 
-    if (!event->isAccepted()) {
-        QTableView::keyPressEvent(event);
+//    if (!event->isAccepted()) {
+//        QTableView::keyPressEvent(event);
+//    }
+//    else {
+//        qDebug() << "KeyEvent accepted.";
+//    }
+    QString ksq = KeyEventToSequence(event);
+    if (ProcessShortcut(ksq, getMainWnd())) {
+        event->accept();
+        return;
     }
-    else {
-        qDebug() << "KeyEvent accepted.";
-    }
+
+    QTableView::keyPressEvent(event);
 }
 
 void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)

@@ -15,6 +15,7 @@
 #include "renamemultidialog.h"
 #include "historydialog.h"
 #include "sortdialog.h"
+#include "simpletextview.h"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -29,6 +30,7 @@
 #include <QDesktopServices>
 #include <QClipboard>
 #include <QFileDialog>
+#include <folderpanel.h>
 
 MainWindow* getMainWnd()
 {
@@ -53,21 +55,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initActionConnections();
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(focusChange(QWidget*,QWidget*)));
-    connect(ui->textView, SIGNAL(viewFinished(QWidget*)), this, SLOT(viewFinish(QWidget*)));
+    connect(ui->pane3->textView(), SIGNAL(viewFinished(QWidget*)), this, SLOT(viewFinish(QWidget*)));
 
     // ビューアは初期状態で非表示
-    ui->textView->setVisible(false);
-    ui->graphicsView->setVisible(false);
+    ui->pane3->setVisible(false);
 
     for (int i = 1; i <= 2; i++) {
-        LocationBox *locationBox = findChild<LocationBox*>(QString("locationBox%1").arg(i));
-        Q_CHECK_PTR(locationBox);
+        AnyView *anyView = findChild<AnyView*>(QString("pane%1").arg(i));
+        Q_CHECK_PTR(anyView);
 
-        FolderView *folderView = findChild<FolderView*>(QString("folderView%1").arg(i));
-        Q_CHECK_PTR(folderView);
+        FolderPanel *fp = anyView->findChild<FolderPanel*>("folderPanel");
+        Q_CHECK_PTR(fp);
+        fp->setObjectName(QString("folderPanel%1").arg(i));
 
-        SearchBox *searchBox = findChild<SearchBox*>(QString("searchBox%1").arg(i));
-        Q_CHECK_PTR(searchBox);
+        LocationBox *locationBox = fp->locationBox();
+        FolderView *folderView = fp->folderView();
+        SearchBox *searchBox = fp->serachBox();
+
+        if (i == 1) {
+            folderView->setObjectName("folderView1");
+        }
+        else {
+            folderView->setObjectName("folderView2");
+        }
 
         // シグナル＆スロット
         connect(folderView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(open(QModelIndex)));
@@ -76,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(folderView, SIGNAL(currentChanged(QFileInfo)), this, SLOT(currentChange(QFileInfo)));
         connect(folderView, SIGNAL(itemFound()), this, SLOT(itemFound()));
         connect(folderView, SIGNAL(itemNotFound()), this, SLOT(itemNotFound()));
-        connect(folderView, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(keyPress(QKeyEvent*)));
+//        connect(folderView, SIGNAL(keyPressed(QKeyEvent*)), this, SLOT(keyPress(QKeyEvent*)));
         connect(folderView, SIGNAL(retrieveFinished()), this, SLOT(retrieveFinish()));
         connect(folderView, SIGNAL(retrieveStarted(QString)), this, SLOT(retrieveStart(QString)));
         connect(folderView, SIGNAL(requestContextMenu(QContextMenuEvent*)), this, SLOT(showContextMenu(QContextMenuEvent*)));
@@ -190,8 +200,11 @@ MainWindow::MainWindow(QWidget *parent) :
         checkUpdate(true);
     }
 
-    ui->folderView1->refresh();
-    ui->folderView2->refresh();
+    ui->pane2->changeView(AnyView::ViewFolder);
+    ui->pane2->folderPanel()->folderView()->repaint();
+
+    ui->pane1->changeView(AnyView::ViewFolder);
+    ui->pane1->folderPanel()->folderView()->repaint();
 }
 
 MainWindow::~MainWindow()
@@ -203,24 +216,33 @@ FolderView* MainWindow::otherSideView(const FolderView *view) const
 {
     qDebug() << "MainWindow::otherSideView()" << view->objectName();
 
-    if (view == ui->folderView1) {
-        return ui->folderView2;
+    if (view == ui->pane1->folderPanel()->folderView()) {
+        return ui->pane2->folderPanel()->folderView();
     }
 
-    Q_ASSERT(view == ui->folderView2);
-    return ui->folderView1;
+    Q_ASSERT(view == ui->pane2->folderPanel()->folderView());
+    return ui->pane1->folderPanel()->folderView();
 }
 
 void MainWindow::focusChange(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old);
     qDebug() << "MainWindow::focusChange";
+    if (now != NULL) {
+        qDebug() << "Now Focus" << now->objectName();
+    }
 
-    if (now == ui->folderView1 || now == ui->folderView2) {
+    if (now &&
+        (now == ui->pane1->folderPanel()->folderView() ||
+         now == ui->pane2->folderPanel()->folderView()))
+    {
         ui->statusBar->showMessage(folderView()->currentItem().absoluteFilePath());
     }
 
-    if (old == ui->searchBox1 || old == ui->searchBox2) {
+    if (old &&
+        (old == ui->pane1->folderPanel()->serachBox() ||
+         old == ui->pane2->folderPanel()->serachBox()))
+    {
         old->setVisible(false);
     }
 
@@ -379,56 +401,60 @@ void MainWindow::moveItems()
     settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
 
     // 念のため、リフレッシュ
-    ui->folderView1->refresh();
-    ui->folderView2->refresh();
+//    ui->folderView1->refresh();
+//    ui->folderView2->refresh();
 }
 
-void MainWindow::keyPress(QKeyEvent *event)
+//void MainWindow::keyPress(QKeyEvent *event)
+//{
+//    QString ksq = KeyEventToSequence(event);
+//    if (ksq == "") {
+//        event->ignore();
+//        return;
+//    }
+
+//    qDebug() << "MainWindow::keyPress" << ksq;
+
+//    if (ProcessShortcut(ksq, this)) {
+//        event->accept();
+//        return;
+//    }
+
+//    event->ignore();
+//}
+
+void MainWindow::leftKeyPress()
 {
-    QString ksq = KeyEventToSequence(event);
-    if (ksq == "") {
-        event->ignore();
-        return;
+    qDebug() << "MainWindow::leftKeyPress();";
+
+    if (ui->pane3->textView()->hasFocus()) {
+        QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_PageUp, Qt::NoModifier);
+        QApplication::sendEvent(ui->pane3->textView(), &event);
     }
-
-    qDebug() << "MainWindow::keyPress" << ksq;
-
-    foreach (QObject *obj, children()) {
-        QAction *action = qobject_cast<QAction*>(obj);
-        if (!action) {
-            continue;
-        }
-
-        foreach (const QKeySequence &k, action->shortcuts()) {
-            if (ksq == k.toString()) {
-                if (action->isEnabled()) {
-                    if (action->isCheckable()) {
-                        action->setChecked(!action->isChecked());
-                    }
-                    else {
-                        emit action->triggered();
-                    }
-                    qDebug() << "emit" << action->objectName();
-                }
-                event->accept();
-                return;
-            }
-        }
+    else if (ui->pane1->folderPanel()->folderView()->hasFocus()) {
+        setPathToParent();
     }
-
-    if (ksq == "Left" || ksq == "Right") {
-        FolderView *view = static_cast<FolderView*>(sender());
-        if (view->side() == ksq) {
-            setPathToParent();
-        }
-        else {
-            otherSideView(view)->setFocus();
-        }
-        event->accept();
-        return;
+    else if (ui->pane2->folderPanel()->folderView()->hasFocus()) {
+//        ui->folderView1->setFocus();
+        ui->pane1->setFocus();
     }
+}
 
-    event->ignore();
+void MainWindow::rightKeyPress()
+{
+    qDebug() << "MainWindow::rightKeyPress();";
+
+    if (ui->pane3->textView()->hasFocus()) {
+        QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_PageDown, Qt::NoModifier);
+        QApplication::sendEvent(ui->pane3->textView(), &event);
+    }
+    else if (ui->pane1->folderPanel()->folderView()->hasFocus()) {
+        //        ui->folderView2->setFocus();
+                ui->pane2->setFocus();
+    }
+    else if (ui->pane2->folderPanel()->folderView()->hasFocus()) {
+        setPathToParent();
+    }
 }
 
 void MainWindow::returnPressInSearchBox()
@@ -521,6 +547,21 @@ void MainWindow::currentChange(const QFileInfo &info)
         }
     }
 
+    if (ui->view_HalfMode->isChecked()) {
+        FolderView *view = static_cast<FolderView*>(sender());
+        if (!view->hasFocus()) {
+            return;
+        }
+
+        if (ui->pane1->folderPanel()->folderView()->hasFocus()) {
+            ui->pane2->setViewItem(folderView()->currentItem());
+        }
+        else {
+            Q_ASSERT(ui->pane2->folderPanel()->folderView()->hasFocus());
+            ui->pane1->setViewItem(folderView()->currentItem());
+        }
+        updateActions();
+    }
 }
 
 void MainWindow::dataChange()
@@ -600,8 +641,8 @@ void MainWindow::copyItems(const QFileInfoList &list, const QString &tgtDir)
     settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
 
     // 念のため、リフレッシュ
-    ui->folderView1->refresh();
-    ui->folderView2->refresh();
+//    ui->folderView1->refresh();
+//    ui->folderView2->refresh();
 }
 
 void MainWindow::copyItems()
@@ -750,8 +791,8 @@ void MainWindow::deleteItems()
     settings.setValue(IniKey_AutoCloseDelete, opDlg.autoClose());
 
     // 念のため、リフレッシュ
-    ui->folderView1->refresh();
-    ui->folderView2->refresh();
+//    ui->folderView1->refresh();
+//    ui->folderView2->refresh();
 }
 
 void MainWindow::open(const QModelIndex &index)
@@ -780,8 +821,6 @@ void MainWindow::open(const QModelIndex &index)
         }
     }
 
-    setUpdatesEnabled(false);
-
     foreach (QObject *obj, this->children()) {
         QAction *action = qobject_cast<QAction*>(obj);
         if (action) {
@@ -799,16 +838,8 @@ void MainWindow::open(const QModelIndex &index)
     }
 
     m_focusedView = folderView();
+    ui->pane3->setViewItem(info);
     ui->splitter->setVisible(false);
-    ui->textView->setVisible(true);
-    ui->textView->setFocus();
-
-    setUpdatesEnabled(true);
-
-    QFile file(info.absoluteFilePath());
-    if (file.open(QIODevice::ReadOnly)) {
-        ui->textView->setSource(file.readAll());
-    }
 }
 
 void MainWindow::openEditor(const QString &path)
@@ -948,12 +979,12 @@ void MainWindow::retrieveStart(const QString &path)
     qDebug() << "MainWindow::retrieveStart();" << path;
 
     ui->statusBar->showMessage(tr("ファイルリストを取得しています..."));
-    if (sender() == ui->folderView1) {
-        ui->locationBox1->setText(path);
+    if (sender() == ui->pane1->folderPanel()->folderView()) {
+        ui->pane1->folderPanel()->locationBox()->setText(path);
     }
     else {
-        Q_ASSERT(sender() == ui->folderView2);
-        ui->locationBox2->setText(path);
+        Q_ASSERT(sender() == ui->pane2->folderPanel()->folderView());
+        ui->pane2->folderPanel()->locationBox()->setText(path);
     }
 }
 
@@ -1035,13 +1066,52 @@ void MainWindow::swapView()
 {
     qDebug() << "MainWindow::swapView();";
 
-    QString dir1 = ui->folderView1->dir();
-    QString dir2 = ui->folderView2->dir();
+    QString dir1 = ui->pane1->folderPanel()->folderView()->dir();
+    QString dir2 = ui->pane2->folderPanel()->folderView()->dir();
 
-    ui->folderView1->setPath(dir2, true);
-    ui->folderView2->setPath(dir1, true);
+    ui->pane1->folderPanel()->folderView()->setPath(dir2, true);
+    ui->pane2->folderPanel()->folderView()->setPath(dir1, true);
 
     updateActions();
+}
+
+void MainWindow::switchHalfMode(bool checked)
+{
+    qDebug() << "MainWindow::switchHalfMode();" << checked;
+
+    FolderView *view;
+    if (checked) {
+        view = ui->pane1->folderPanel()->folderView();
+        if (view->hasFocus()) {
+            ui->pane2->setViewItem(view->currentItem());
+            updateActions();
+//            view->setFocus();
+            return;
+        }
+
+        view = ui->pane2->folderPanel()->folderView();
+        if (view->hasFocus()) {
+            ui->pane1->setViewItem(view->currentItem());
+            updateActions();
+//            view->setFocus();
+            return;
+        }
+    }
+    else {
+        view = ui->pane1->folderPanel()->folderView();
+        if (view->isVisible()) {
+            ui->pane2->changeView(AnyView::ViewFolder);
+            updateActions();
+            return;
+        }
+
+        view = ui->pane2->folderPanel()->folderView();
+        if (view->isVisible()) {
+            ui->pane1->changeView(AnyView::ViewFolder);
+            updateActions();
+            return;
+        }
+    }
 }
 
 void MainWindow::setSorting(FolderView *view)
@@ -1090,14 +1160,14 @@ void MainWindow::searchItem(const QString &text)
 
     FolderView *v;
     SearchBox *box;
-    if (ui->searchBox1->hasFocus()) {
-        v = ui->folderView1;
-        box = ui->searchBox1;
+    if (ui->pane1->folderPanel()->serachBox()->hasFocus()) {
+        v = ui->pane1->folderPanel()->folderView();
+        box = ui->pane1->folderPanel()->serachBox();
     }
     else {
-        Q_ASSERT(ui->searchBox2->hasFocus());
-        v = ui->folderView2;
-        box = ui->searchBox2;
+        Q_ASSERT(ui->pane2->folderPanel()->serachBox()->hasFocus());
+        v = ui->pane2->folderPanel()->folderView();
+        box = ui->pane2->folderPanel()->serachBox();
     }
 
     if (text.right(1) == "/") {
@@ -1131,68 +1201,79 @@ void MainWindow::setCursorToBegin()
 {
     qDebug() << "MainWindow::setCursorToBegin();";
 
-    if (ui->textView->hasFocus()) {
-        QTextCursor cursor = ui->textView->textCursor();
-        cursor.movePosition(QTextCursor::Start);
-        ui->textView->setTextCursor(cursor);
-    }
-    else {
-        FolderView *v = folderView();
-        int row = 0;
-        v->setCurrentIndex(v->model()->index(row, 0));
-    }
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::ControlModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event);
+//    if (ui->textView->hasFocus()) {
+//        QTextCursor cursor = ui->textView->textCursor();
+//        cursor.movePosition(QTextCursor::Start);
+//        ui->textView->setTextCursor(cursor);
+//    }
+//    else {
+//        FolderView *v = folderView();
+//        int row = 0;
+//        v->setCurrentIndex(v->model()->index(row, 0));
+//    }
 }
 
 void MainWindow::cursorDown()
 {
     qDebug() << "MainWindow::cursorDown();";
 
-    if (ui->textView->hasFocus()) {
-        QTextCursor cursor = ui->textView->textCursor();
-        cursor.movePosition(QTextCursor::Down);
-        ui->textView->setTextCursor(cursor);
-    }
-    else {
-        FolderView *v = folderView();
-        int row = v->currentIndex().row() + 1;
-        if (row < v->model()->rowCount()) {
-            v->setCurrentIndex(v->model()->index(row, 0));
-        }
-    }
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::DownArrow, Qt::NoModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event);
+
+//    if (ui->textView->hasFocus()) {
+//        QTextCursor cursor = ui->textView->textCursor();
+//        cursor.movePosition(QTextCursor::Down);
+//        ui->textView->setTextCursor(cursor);
+//    }
+//    else {
+//        FolderView *v = folderView();
+//        int row = v->currentIndex().row() + 1;
+//        if (row < v->model()->rowCount()) {
+//            v->setCurrentIndex(v->model()->index(row, 0));
+//        }
+//    }
 }
 
 void MainWindow::cursorUp()
 {
     qDebug() << "MainWindow::cursorUp();";
 
-    if (ui->textView->hasFocus()) {
-        QTextCursor cursor = ui->textView->textCursor();
-        cursor.movePosition(QTextCursor::Up);
-        ui->textView->setTextCursor(cursor);
-    }
-    else {
-        FolderView *v = folderView();
-        int row = v->currentIndex().row() - 1;
-        if (row >= 0) {
-            v->setCurrentIndex(v->model()->index(row, 0));
-        }
-    }
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_Up, Qt::NoModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event);
+
+//    if (ui->textView->hasFocus()) {
+//        QTextCursor cursor = ui->textView->textCursor();
+//        cursor.movePosition(QTextCursor::Up);
+//        ui->textView->setTextCursor(cursor);
+//    }
+//    else {
+//        FolderView *v = folderView();
+//        int row = v->currentIndex().row() - 1;
+//        if (row >= 0) {
+//            v->setCurrentIndex(v->model()->index(row, 0));
+//        }
+//    }
 }
 
 void MainWindow::setCursorToEnd()
 {
     qDebug() << "MainWindow::setCursorToEnd();";
 
-    if (ui->textView->hasFocus()) {
-        QTextCursor cursor = ui->textView->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        ui->textView->setTextCursor(cursor);
-    }
-    else {
-        FolderView *v = folderView();
-        int row = v->model()->rowCount() - 1;
-        v->setCurrentIndex(v->model()->index(row, 0));
-    }
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::ControlModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event);
+
+//    if (ui->textView->hasFocus()) {
+//        QTextCursor cursor = ui->textView->textCursor();
+//        cursor.movePosition(QTextCursor::End);
+//        ui->textView->setTextCursor(cursor);
+//    }
+//    else {
+//        FolderView *v = folderView();
+//        int row = v->model()->rowCount() - 1;
+//        v->setCurrentIndex(v->model()->index(row, 0));
+//    }
 }
 
 void MainWindow::setFontSizeDown()
@@ -1212,20 +1293,22 @@ void MainWindow::changeFontSize(int diff)
 {
     QSettings settings;
     QFont font;
-    if (ui->folderView1->hasFocus() || ui->folderView2->hasFocus()) {
+    if (ui->pane1->folderPanel()->folderView()->hasFocus() ||
+        ui->pane2->folderPanel()->folderView()->hasFocus())
+    {
         font = settings.value(IniKey_ViewFont).value<QFont>();
         font.setPointSize(font.pointSize() + diff);
         settings.setValue(IniKey_ViewFont, font);
 
-        ui->folderView1->updateAppearance();
-        ui->folderView2->updateAppearance();
+        ui->pane1->folderPanel()->folderView()->updateAppearance();
+        ui->pane2->folderPanel()->folderView()->updateAppearance();
     }
-    if (ui->textView->hasFocus()) {
+    if (ui->pane3->textView()->hasFocus()) {
         font = settings.value(IniKey_ViewerFont).value<QFont>();
         font.setPointSize(font.pointSize() + diff);
         settings.setValue(IniKey_ViewerFont, font);
 
-        ui->textView->updateAppearance();
+        ui->pane3->textView()->updateAppearance();
     }
 }
 
@@ -1288,12 +1371,12 @@ void MainWindow::toggleSearchBox(bool checked)
 
     if (checked) {
         v = folderView();
-        if (v == ui->folderView1) {
-            box = ui->searchBox1;
+        if (v == ui->pane1->folderPanel()->folderView()) {
+            box = ui->pane1->folderPanel()->serachBox();
         }
         else {
-            Q_ASSERT(v == ui->folderView2);
-            box = ui->searchBox2;
+            Q_ASSERT(v == ui->pane2->folderPanel()->folderView());
+            box = ui->pane2->folderPanel()->serachBox();
         }
 
         box->setVisible(true);
@@ -1301,14 +1384,14 @@ void MainWindow::toggleSearchBox(bool checked)
         box->selectAll();
     }
     else {
-        if (ui->searchBox1->isVisible()) {
-            box = ui->searchBox1;
-            v = ui->folderView1;
+        if (ui->pane1->folderPanel()->serachBox()->isVisible()) {
+            box = ui->pane1->folderPanel()->serachBox();
+            v = ui->pane1->folderPanel()->folderView();
         }
         else {
-            Q_ASSERT(ui->searchBox2->isVisible());
-            box = ui->searchBox2;
-            v = ui->folderView2;
+            Q_ASSERT(ui->pane2->folderPanel()->serachBox()->isVisible());
+            box = ui->pane2->folderPanel()->serachBox();
+            v = ui->pane2->folderPanel()->folderView();
         }
 
         if (box->hasFocus()) {
@@ -1325,9 +1408,10 @@ void MainWindow::openRequest(const QFileInfo &info)
     QFile file(info.absoluteFilePath());
     if (file.open(QIODevice::ReadOnly)) {
         ui->splitter->setVisible(false);
-        ui->textView->setVisible(true);
-        ui->textView->setFocus();
-        ui->textView->setSource(file.readAll());
+//        ui->textView->setVisible(true);
+//        ui->textView->setFocus();
+//        ui->textView->setSource(file.readAll());
+        file.close();
     }
     else {
         QMessageBox::critical(
@@ -1342,11 +1426,13 @@ void MainWindow::showPreferenceDialog()
 
     PreferenceDialog dlg(this);
     if (dlg.exec() == QDialog::Accepted) {
-        ui->locationBox1->updateAppearance();
-        ui->locationBox2->updateAppearance();
-        ui->folderView1->updateAppearance();
-        ui->folderView2->updateAppearance();
-        ui->textView->updateAppearance();
+        ui->pane1->folderPanel()->locationBox()->updateAppearance();
+        ui->pane2->folderPanel()->locationBox()->updateAppearance();
+        ui->pane1->folderPanel()->folderView()->updateAppearance();
+        ui->pane2->folderPanel()->folderView()->updateAppearance();
+        ui->pane1->textView()->updateAppearance();
+        ui->pane2->textView()->updateAppearance();
+        ui->pane3->textView()->updateAppearance();
 
         updateActions();
     }
@@ -1356,22 +1442,22 @@ void MainWindow::toggleShowHiddenFiles(bool checked)
 {
     qDebug() << "MainWindow::toggleShowHiddenFiles" << checked;
 
-    ui->folderView1->setFilter(QDir::Hidden, checked);
-    ui->folderView1->refresh();
+    ui->pane1->folderPanel()->folderView()->setFilter(QDir::Hidden, checked);
+    ui->pane1->folderPanel()->folderView()->refresh();
 
-    ui->folderView2->setFilter(QDir::Hidden, checked);
-    ui->folderView2->refresh();
+    ui->pane2->folderPanel()->folderView()->setFilter(QDir::Hidden, checked);
+    ui->pane2->folderPanel()->folderView()->refresh();
 }
 
 void MainWindow::toggleShowSystemFiles(bool checked)
 {
     qDebug() << "MainWindow::toggleShowSystemFiles" << checked;
 
-    ui->folderView1->setFilter(QDir::System, checked);
-    ui->folderView1->refresh();
+    ui->pane1->folderPanel()->folderView()->setFilter(QDir::System, checked);
+    ui->pane1->folderPanel()->folderView()->refresh();
 
-    ui->folderView2->setFilter(QDir::System, checked);
-    ui->folderView2->refresh();
+    ui->pane2->folderPanel()->folderView()->setFilter(QDir::System, checked);
+    ui->pane2->folderPanel()->folderView()->refresh();
 }
 
 void MainWindow::showContextMenu(QContextMenuEvent *event)
@@ -1465,7 +1551,8 @@ void MainWindow::viewFinish(QWidget *sender)
 {
     qDebug() << "MainWindow::viewFinish();" << sender->objectName();
 
-    sender->setVisible(false);
+//    sender->setVisible(false);
+    ui->pane3->setVisible(false);
     ui->splitter->setVisible(true);
     m_focusedView->setFocus();
 }
@@ -1474,6 +1561,9 @@ void MainWindow::viewFinish(QWidget *sender)
 void MainWindow::initActionConnections()
 {
     qDebug() << "MainWindow::initActionConnections";
+
+    connect(ui->key_Left, SIGNAL(triggered()), this, SLOT(leftKeyPress()));
+    connect(ui->key_Right, SIGNAL(triggered()), this, SLOT(rightKeyPress()));
 
     connect(ui->action_Command, SIGNAL(triggered()), this, SLOT(executeCommand()));
     connect(ui->action_Exec, SIGNAL(triggered()), this, SLOT(shellExecute()));
@@ -1515,6 +1605,7 @@ void MainWindow::initActionConnections()
     connect(ui->view_FontSizeDown, SIGNAL(triggered()), this, SLOT(setFontSizeDown()));
     connect(ui->view_FontSizeUp, SIGNAL(triggered()), this, SLOT(setFontSizeUp()));
     connect(ui->view_FromOther, SIGNAL(triggered()), this, SLOT(setPathFromOther()));
+    connect(ui->view_HalfMode, SIGNAL(toggled(bool)), this, SLOT(switchHalfMode(bool)));
     connect(ui->view_Hidden, SIGNAL(toggled(bool)), this, SLOT(toggleShowHiddenFiles(bool)));
     connect(ui->view_Refresh, SIGNAL(triggered()), this, SLOT(refresh()));
     connect(ui->view_Sort, SIGNAL(triggered()), this, SLOT(showSortDialog()));
@@ -1528,11 +1619,18 @@ FolderView *MainWindow::folderView() const
     qDebug() << "MainWindow::folderView";
 
     QWidget *w = qApp->focusWidget();
-    if (w == ui->folderView1 || w == ui->searchBox1 || w == ui->locationBox1) {
-        return ui->folderView1;
+    if (w == ui->pane1->folderPanel()->folderView() ||
+        w == ui->pane1->folderPanel()->serachBox() ||
+        w == ui->pane1->folderPanel()->locationBox())
+    {
+        return ui->pane1->folderPanel()->folderView();
     }
-    if (w == ui->folderView2 || w == ui->searchBox2 || w == ui->locationBox2) {
-        return ui->folderView2;
+
+    if (w == ui->pane2->folderPanel()->folderView() ||
+        w == ui->pane2->folderPanel()->serachBox() ||
+        w == ui->pane2->folderPanel()->locationBox())
+    {
+        return ui->pane2->folderPanel()->folderView();
     }
 
     qDebug() << w->objectName();
@@ -1559,12 +1657,12 @@ SearchBox *MainWindow::searchBox(FolderView *view) const
 {
     qDebug() << "MainWindow::searchBox()" << view->objectName();
 
-    if (view == ui->folderView1) {
-        return ui->searchBox1;
+    if (view == ui->pane1->folderPanel()->folderView()) {
+        return ui->pane1->folderPanel()->serachBox();
     }
     else {
-        Q_ASSERT(view == ui->folderView2);
-        return ui->searchBox2;
+        Q_ASSERT(view == ui->pane1->folderPanel()->folderView());
+        return ui->pane2->folderPanel()->serachBox();
     }
 }
 
@@ -1585,7 +1683,11 @@ void MainWindow::updateActions()
 {
     qDebug() << "MainWindow::updateActions";
 
-    if (ui->textView->hasFocus()) {
+    QWidget *w = QApplication::focusWidget();
+    if (qobject_cast<SimpleTextView*>(w) != NULL ||
+        ui->pane1->textView()->isVisible() ||
+        ui->pane2->textView()->isVisible())
+    {
         // テキストビューア時
         setEnabledAllActions(false);
         ui->action_Quit->setEnabled(true);
@@ -1597,20 +1699,25 @@ void MainWindow::updateActions()
         ui->move_Down->setEnabled(true);
         ui->move_End->setEnabled(true);
         ui->move_Up->setEnabled(true);
-        ui->copy_Filename->setEnabled(true);
-        ui->copy_Fullpath->setEnabled(true);
         ui->help_About->setEnabled(true);
+        ui->key_Left->setEnabled(true);
+        ui->key_Right->setEnabled(true);
+        // 片面ビューアモード時
+        if (ui->pane1->textView()->isVisible() ||
+            ui->pane2->textView()->isVisible())
+        {
+            ui->view_HalfMode->setEnabled(true);
+        }
     }
-    else if (ui->searchBox1->hasFocus() || ui->searchBox2->hasFocus()) {
+    else if (qobject_cast<SearchBox*>(w) != NULL) {
         // ファイル検索時
         setEnabledAllActions(false);
         ui->action_Search->setEnabled(true);
         ui->action_SearchNext->setEnabled(true);
         ui->action_SearchPrev->setEnabled(true);
         ui->help_About->setEnabled(true);
-        ui->action_Quit->setEnabled(true);
     }
-    else if (ui->folderView1->hasFocus() || ui->folderView2->hasFocus()) {
+    else if (qobject_cast<FolderView*>(w) != NULL) {
         // 通常時
         setEnabledAllActions(true);
         ui->action_SearchNext->setEnabled(false);
@@ -1622,6 +1729,9 @@ void MainWindow::updateActions()
         QSettings settings;
         ui->action_OpenEditor->setEnabled(!settings.value(IniKey_EditorPath).toString().isEmpty());
         ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_TerminalPath).toString().isEmpty());
+    }
+    else if (w){
+        qDebug() << w->objectName() << "has focus.";
     }
 }
 
@@ -1651,12 +1761,12 @@ void MainWindow::setNameFilters(FolderView *view, const QString &filters)
 QLabel *MainWindow::filterLabel(const FolderView *view) const
 {
     qDebug() << "MainWindow::filterLabel()" << view->objectName();
-    if (view == ui->folderView1) {
-        return ui->filterLabel1;
+    if (view == ui->pane1->folderPanel()->folderView()) {
+        return ui->pane1->folderPanel()->filterLabel();
     }
     else {
-        Q_ASSERT(view == ui->folderView2);
-        return ui->filterLabel2;
+        Q_ASSERT(view == ui->pane2->folderPanel()->folderView());
+        return ui->pane2->folderPanel()->filterLabel();
     }
 }
 
@@ -1692,8 +1802,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.setValue(IniKey_ConfirmExit, !checkBox->isChecked());
     }
 
-    settings.setValue(QString("Left/") + IniKey_Dir, ui->folderView1->dir());
-    settings.setValue(QString("Right/") + IniKey_Dir, ui->folderView2->dir());
+    settings.setValue(QString("Left/") + IniKey_Dir, ui->pane1->folderPanel()->folderView()->dir());
+    settings.setValue(QString("Right/") + IniKey_Dir, ui->pane2->folderPanel()->folderView()->dir());
     settings.setValue(IniKey_ShowHidden, ui->view_Hidden->isChecked());
     settings.setValue(IniKey_ShowSystem, ui->view_System->isChecked());
     settings.setValue(IniKey_WindowGeometry, saveGeometry());

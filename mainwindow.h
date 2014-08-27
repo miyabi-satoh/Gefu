@@ -39,7 +39,9 @@ public slots:
     void dataChange();
     void dropAccept(const QFileInfoList &list);
     void focusChange(QWidget * old, QWidget * now);
-    void keyPress(QKeyEvent *event);
+//    void keyPress(QKeyEvent *event);
+    void leftKeyPress();
+    void rightKeyPress();
     void returnPressInSearchBox();
 
     void about();
@@ -91,6 +93,7 @@ public slots:
     void showPreferenceDialog();
     void showSortDialog();
     void swapView();
+    void switchHalfMode(bool checked);
     void toggleSearchBox(bool checked);
     void toggleShowHiddenFiles(bool checked);
     void toggleShowSystemFiles(bool checked);

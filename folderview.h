@@ -62,7 +62,7 @@ signals:
     void retrieveStarted(const QString &path);
     void retrieveFinished();
     void requestContextMenu(QContextMenuEvent *event);
-    void keyPressed(QKeyEvent *event);
+//    void keyPressed(QKeyEvent *event);
 
 public slots:
 

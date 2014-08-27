@@ -1,9 +1,41 @@
 #include "common.h"
 #include "mainwindow.h"
 
+#include <QDebug>
 #include <QApplication>
 #include <QSettings>
 #include <QDir>
+#include <QAction>
+
+bool ProcessShortcut(const QString &ksq, const QObject *object)
+{
+    qDebug() << "ProcessShortcut()";
+
+    if (ksq.isEmpty()) {
+        return false;
+    }
+
+    foreach (QObject *obj, object->children()) {
+        QAction *action = qobject_cast<QAction*>(obj);
+        if (!action || !action->isEnabled()) {
+            continue;
+        }
+
+        foreach (const QKeySequence &k, action->shortcuts()) {
+            if (ksq == k.toString()) {
+                if (action->isCheckable()) {
+                    action->setChecked(!action->isChecked());
+                }
+                else {
+                    emit action->triggered();
+                }
+                qDebug() << "emit" << action->objectName();
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 int main(int argc, char *argv[])
 {
@@ -157,7 +189,7 @@ QString ViewerIgnoreExt()
     list << "o" << "obj" << "ocx" << "a" << "so" << "app";
     // アーカイブ系
     list << "lzh" << "zip" << "cab" << "tar" << "rar" << "gz" << "tgz";
-    list << "bz2" << "xz" << "jar" << "7z";
+    list << "bz2" << "xz" << "jar" << "7z" << "dmg";
     // ドキュメント系
     list << "pdf" << "doc" << "docx" << "xls" << "xlsx" << "ppt" << "pptx";
     // フォント
