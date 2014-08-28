@@ -19,14 +19,14 @@
   <property name="windowTitle">
    <string>環境設定</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -1525,19 +1525,19 @@ $P ... フルパス</string>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>121</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
        </item>
       </layout>
-      <zorder>verticalSpacer_4</zorder>
       <zorder></zorder>
       <zorder>optExplain</zorder>
+      <zorder>verticalSpacer_4</zorder>
      </widget>
      <widget class="QWidget" name="tabTextViewer">
       <attribute name="title">
-       <string>テキストビューア</string>
+       <string>内蔵ビューア</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_13">
        <property name="spacing">
@@ -1558,7 +1558,7 @@ $P ... フルパス</string>
        <item>
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
-          <string>外観</string>
+          <string>テキストビューアの外観</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <property name="spacing">
@@ -1769,7 +1769,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
            <item>
             <widget class="QCheckBox" name="enableViewerIgnoreExt">
              <property name="text">
-              <string>以下の拡張子は、外部アプリを優先する</string>
+              <string>以下の拡張子は外部アプリを優先する</string>
              </property>
             </widget>
            </item>
@@ -1996,8 +1996,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="sizeOptions"/>
   <buttongroup name="overwriteOptions"/>
+  <buttongroup name="sizeOptions"/>
   <buttongroup name="posOptions"/>
  </buttongroups>
 </ui>

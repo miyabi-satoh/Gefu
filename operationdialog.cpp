@@ -12,7 +12,7 @@ OperationDialog::OperationDialog(QWidget *parent) :
     m_Error(false)
 {
     ui->setupUi(this);
-    resize(getMainWnd()->width() * 0.8, height());
+    resize(parent->width() * 0.8, height());
 }
 
 OperationDialog::~OperationDialog()

@@ -27,7 +27,8 @@ private:
     std::string detectCode(const QByteArray &bytes);
 
 signals:
-    void viewFinished(QWidget *sender);
+    void viewFinished();
+    void fileInfo(const QString &info);
 
 public slots:
 

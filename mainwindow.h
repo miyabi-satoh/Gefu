@@ -5,10 +5,11 @@
 #include <QModelIndex>
 #include <QMainWindow>
 class QNetworkReply;
-class FolderView;
-class SearchBox;
 class OverWriteDialog;
 class QLabel;
+class FolderView;
+class SearchBox;
+class AnyView;
 
 namespace Ui {
 class MainWindow;
@@ -25,8 +26,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    FolderView *otherSideView(const FolderView *view) const;
-
 signals:
     void showHiddenFiles(bool show);
     void showSystemFiles(bool show);
@@ -36,13 +35,12 @@ public slots:
                       const QString &srcPath, const QString &tgtPath);
 
     void currentChange(const QFileInfo &info);
-    void dataChange();
     void dropAccept(const QFileInfoList &list);
     void focusChange(QWidget * old, QWidget * now);
-//    void keyPress(QKeyEvent *event);
     void leftKeyPress();
     void rightKeyPress();
     void returnPressInSearchBox();
+    void showFileInfo(const QString &str);
 
     void about();
     void checkUpdate(bool silent = false);
@@ -100,13 +98,21 @@ public slots:
 
     void showContextMenu(QContextMenuEvent *event);
 
-    void openRequest(const QFileInfo &info);
-    void viewFinish(QWidget *sender);
+    void viewFinish();
 
 private:
+    enum Mode {
+        ModeBasic = 0x00,
+        ModeSearch = 0x01,
+        ModeFullView = 0x02,
+        ModeHalfView = 0x04,
+    };
+    typedef QFlags<Mode> ModeFlags;
+
     Ui::MainWindow *ui;
     QWidget *m_focusedView;
     OverWriteDialog *m_overwriteDialog;
+    ModeFlags m_viewMode;
 
     // action
     void initActionConnections();
@@ -114,16 +120,15 @@ private:
     bool startProcess(const QString &cmd, const QString &workDir, const QString &errMsg);
     void updateActions();
     void setEnabledAllActions(bool enable);
-    void setNameFilters(FolderView *view, const QString& filters = QString());
-    void setSorting(FolderView *view);
     void showNameFilters(FolderView *view);
     void copyItems(const QFileInfoList &list, const QString &tgtDir);
     void changeFontSize(int diff);
 
     // getter
-    QLabel* filterLabel(const FolderView *view) const;
-    FolderView* folderView() const;
-    SearchBox* searchBox(FolderView *view) const;
+    FolderView* otherSideFolderView(const FolderView *view) const;
+
+    // setter
+    void setViewMode(ModeFlags flags);
 
     // QWidget interface
 protected:

@@ -44,45 +44,46 @@ void AnyView::changeView(int viewType)
     w->setVisible(true);
 }
 
-void AnyView::setViewItem(const QFileInfo &info)
+bool AnyView::setViewItem(const QFileInfo &info)
 {
-    setUpdatesEnabled(false);
-
+    // フォルダ
     if (info.isDir()) {
         changeView(ViewFolder);
         ui->folderPanel->folderView()->setPath(info.absoluteFilePath(), true);
-    }
-    else {
-        QSettings settings;
-        bool isBinary = false;
-        if (!settings.value(IniKey_ViewerForceOpen).toBool()) {
-            QStringList list = settings.value(IniKey_ViewerIgnoreExt).toString().split(",");
-            foreach (const QString &ext, list) {
-                if (ext.toLower() == info.suffix().toLower()) {
-                    isBinary = true;
-                    break;
-                }
-            }
-        }
-
-        // TODO:画像ビューアで表示できるか？
-
-        if (!isBinary) {
-            changeView(ViewText);
-            QFile file(info.absoluteFilePath());
-            if (file.open(QIODevice::ReadOnly)) {
-                ui->textView->setSource(file.readAll());
-                file.close();
-            }
-        }
-        else {
-            changeView(ViewText);
-            ui->textView->setSource("");
-        }
-
+        return true;
     }
 
-    setUpdatesEnabled(true);
+    // 画像ファイル
+    if (ui->graphicsView->setSource(info.absoluteFilePath())) {
+        changeView(ViewImage);
+        return true;
+    }
+
+    QSettings settings;
+    bool isBinary = false;
+    if (!settings.value(IniKey_ViewerForceOpen).toBool()) {
+        QStringList list = settings.value(IniKey_ViewerIgnoreExt).toString().split(",");
+        foreach (const QString &ext, list) {
+            if (ext.toLower() == info.suffix().toLower()) {
+                isBinary = true;
+                break;
+            }
+        }
+    }
+
+    if (!isBinary) {
+        changeView(ViewText);
+        QFile file(info.absoluteFilePath());
+        if (file.open(QIODevice::ReadOnly)) {
+            ui->textView->setSource(file.readAll());
+            file.close();
+            return true;
+        }
+    }
+
+    changeView(ViewText);
+    ui->textView->setSource("");
+    return false;
 }
 
 FolderPanel *AnyView::folderPanel() const

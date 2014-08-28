@@ -27,7 +27,7 @@ public:
 
     // action
     void changeView(int viewType);
-    void setViewItem(const QFileInfo &info);
+    bool setViewItem(const QFileInfo &info);
 
     // getter
     FolderPanel* folderPanel() const;

@@ -45,7 +45,7 @@ public:
     void setFilter(QDir::Filters filter, bool enable);
     void setHistoryIndexAt(int index);
     void setNameFilters(const QStringList &list);
-    void setSorting(QDir::SortFlags flags);
+    void setSorting();
 
 private:
     FileTableModel m_model;

@@ -9,10 +9,25 @@ class SimpleImageView : public QGraphicsView
 public:
     explicit SimpleImageView(QWidget *parent = 0);
 
+    bool setSource(const QString &path);
+
+private:
+    QImage m_img;
+    QAction *m_back;
+
 signals:
+    void viewFinished();
+    void fileInfo(const QString &info);
 
 public slots:
+    void back();
 
+
+    // QWidget interface
+protected:
+    void paintEvent(QPaintEvent *);
+    void keyPressEvent(QKeyEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 };
 
 #endif // SIMPLEIMAGEVIEW_H

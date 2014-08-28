@@ -58,6 +58,12 @@ void FolderView::initialize()
 
     setColumnWidth(0, 30);
 
+    // ソート順を初期化する
+    setSorting();
+
+    // ネームフィルタを初期化する
+    setNameFilters(QStringList() << "*");
+
     // 前回終了時のパスを開く
     QSettings settings;
     setPath(settings.value(side() + slash + IniKey_Dir).toString(), true);
@@ -120,7 +126,7 @@ void FolderView::refresh()
 
 void FolderView::searchItem(const QString &text)
 {
-    qDebug() << "FolderView::searchItem" << text;
+    qDebug() << side() << "searchItem" << text;
 
     for (int row = 0; row < m_model.rowCount(); row++) {
         QModelIndex index = m_model.index(row, 0);
@@ -137,7 +143,7 @@ void FolderView::searchItem(const QString &text)
 
 void FolderView::searchNext(const QString &text)
 {
-    qDebug() << "FolderView::searchNext" << text;
+    qDebug() << side() << "searchNext" << text;
 
     for (int row = currentIndex().row() + 1; row < m_model.rowCount(); row++) {
         QModelIndex index = m_model.index(row, 0);
@@ -265,9 +271,7 @@ bool FolderView::historyForward()
 
 QFileInfo FolderView::currentItem() const
 {
-    qDebug() << "FolderView::currentItem";
-
-    Q_ASSERT(currentIndex().isValid());
+    qDebug() << side() << "currentItem";
 
     return m_model.fileInfo(currentIndex());
 }
@@ -335,38 +339,57 @@ void FolderView::setHistoryIndexAt(int index)
 void FolderView::setNameFilters(const QStringList &list)
 {
     m_model.setNameFilters(list);
-    refresh();
 }
 
-void FolderView::setSorting(QDir::SortFlags flags)
+void FolderView::setSorting()
 {
+    qDebug() << side() << "setSorting();";
+
+    QSettings settings;
+    QDir::SortFlags flags;
+
+    int sortBy = settings.value(side() + slash + IniKey_SortBy).toInt();
+    switch (sortBy) {
+    case SortByDate:    flags |= QDir::Time; break;
+    case SortBySize:    flags |= QDir::Size; break;
+    case SortByType:    flags |= QDir::Type; break;
+    default:            flags |= QDir::Name; break;
+    }
+
+    // デフォルトだと文字列は昇順で、数値は降順…orz
+    int orderBy = settings.value(side() + slash + IniKey_OrderBy).toInt();
+    if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
+        ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
+    {
+        flags |= QDir::Reversed;
+    }
+
+    switch (settings.value(side() + slash + IniKey_PutDirs).toInt()) {
+    case PutDirsFirst:  flags |= QDir::DirsFirst; break;
+    case PutDirsLast:   flags |= QDir::DirsLast; break;
+    }
+
+    if (settings.value(side() + slash + IniKey_IgnoreCase).toBool()) {
+        flags |= QDir::IgnoreCase;
+    }
+
     m_model.setSorting(flags);
-    refresh();
 }
 
 void FolderView::keyPressEvent(QKeyEvent *event)
 {
     qDebug() << side() << "keyPressEvent";
 
-//    emit keyPressed(event);
-
-//    if (!event->isAccepted()) {
-//        QTableView::keyPressEvent(event);
-//    }
-//    else {
-//        qDebug() << "KeyEvent accepted.";
-//    }
-    QString ksq = KeyEventToSequence(event);
-    if (ProcessShortcut(ksq, getMainWnd())) {
-        event->accept();
-        return;
-    }
-
     QTableView::keyPressEvent(event);
+
+    // MainWindowへ
+    event->ignore();
 }
 
 void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
+    qDebug() << side() << "dataChanged();";
+
     emit dataChanged();
 
     QTableView::dataChanged(topLeft, bottomRight, roles);
@@ -374,6 +397,8 @@ void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bott
 
 void FolderView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    qDebug() << side() << "currentChanged();";
+
     emit currentChanged(m_model.fileInfo(current));
 
     QTableView::currentChanged(current, previous);

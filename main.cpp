@@ -6,36 +6,7 @@
 #include <QSettings>
 #include <QDir>
 #include <QAction>
-
-bool ProcessShortcut(const QString &ksq, const QObject *object)
-{
-    qDebug() << "ProcessShortcut()";
-
-    if (ksq.isEmpty()) {
-        return false;
-    }
-
-    foreach (QObject *obj, object->children()) {
-        QAction *action = qobject_cast<QAction*>(obj);
-        if (!action || !action->isEnabled()) {
-            continue;
-        }
-
-        foreach (const QKeySequence &k, action->shortcuts()) {
-            if (ksq == k.toString()) {
-                if (action->isCheckable()) {
-                    action->setChecked(!action->isChecked());
-                }
-                else {
-                    emit action->triggered();
-                }
-                qDebug() << "emit" << action->objectName();
-                return true;
-            }
-        }
-    }
-    return false;
-}
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
@@ -178,8 +149,7 @@ QString ViewerIgnoreExt()
 {
     QStringList list;
     // 画像系
-    list << "gif" << "jpg" << "jpeg" << "png" << "bmp" << "ico" << "ai";
-    list << "psd" << "xcf" << "tif" << "tiff" << "wmf";
+    list << "ico" << "ai" << "psd" << "xcf" << "tif" << "tiff" << "wmf";
     // 音・動画系
     list << "wav" << "mp3" << "ogg" << "midi" << "mid" << "aif" << "aiff";
     list << "mov" << "mpg" << "mpeg" << "wma" << "wmv" << "asf" << "avi";
@@ -198,4 +168,41 @@ QString ViewerIgnoreExt()
     list.sort();
 
     return list.join(",");
+}
+
+bool ProcessShortcut(const QString &ksq, const QObject *object)
+{
+    qDebug() << "ProcessShortcut()";
+
+    if (ksq.isEmpty()) {
+        return false;
+    }
+
+    foreach (QObject *obj, object->children()) {
+        QAction *action = qobject_cast<QAction*>(obj);
+        if (!action || !action->isEnabled()) {
+            continue;
+        }
+
+        foreach (const QKeySequence &k, action->shortcuts()) {
+            if (ksq == k.toString()) {
+                if (action->isCheckable()) {
+                    action->setChecked(!action->isChecked());
+                }
+                else {
+                    emit action->triggered();
+                }
+                qDebug() << "emit" << action->objectName();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Sleep(int msec)
+{
+    QEventLoop loop;
+    QTimer::singleShot(msec, &loop, SLOT(quit()));
+    loop.exec();
 }

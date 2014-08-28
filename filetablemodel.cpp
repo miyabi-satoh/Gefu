@@ -32,6 +32,8 @@ FileTableModel::FileTableModel(QObject *parent) :
 
 bool FileTableModel::setPath(const QString &path)
 {
+    qDebug() << "FileTableModel::setPath" << path;
+
     if (!QFileInfo::exists(path)) {
         qDebug() << "パスが存在しません";
         qDebug() << path;
@@ -108,6 +110,7 @@ bool FileTableModel::setPath(const QString &path)
     endResetModel();
 
     emit dataChanged(QModelIndex(), QModelIndex());
+
     return !m_fileInfoList.isEmpty();
 }
 
@@ -118,6 +121,8 @@ Qt::CheckState FileTableModel::checkState(const QModelIndex &index) const
 
 void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState state)
 {
+    qDebug() << "FileTableModel::setCheckState();";
+
     beginResetModel();
     m_checkStates[index.row()] = state;
     if (state == Qt::Checked && index.row() == 0 &&
@@ -131,6 +136,8 @@ void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState stat
 
 void FileTableModel::setCheckStateAll(Qt::CheckState state)
 {
+    qDebug() << "FileTableModel::setCheckStateAll();";
+
     beginResetModel();
     m_checkStates.fill(state);
     if (state == Qt::Checked && m_fileInfoList.size() > 1 &&
@@ -347,6 +354,8 @@ Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
 
 bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    qDebug() << "FileTableModel::setData()";
+
     if (!index.isValid()) {
         return false;
     }

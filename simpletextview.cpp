@@ -64,11 +64,10 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_convUTF16BE->setShortcut(QKeySequence("Shift+O"));
     m_convUTF16LE->setShortcut(QKeySequence("Shift+P"));
     m_copy->setShortcut(QKeySequence::Copy);
-    m_back->setShortcut(QKeySequence("Return"));
 
     QList<QKeySequence> shortcuts;
-    shortcuts = m_back->shortcuts();
-    shortcuts.append(QKeySequence("Backspace"));
+    shortcuts << QKeySequence("Return");
+    shortcuts << QKeySequence("Backspace");
     m_back->setShortcuts(shortcuts);
 
     connect(m_convEUC, SIGNAL(triggered()), this, SLOT(convertFromEUC()));
@@ -90,51 +89,12 @@ void SimpleTextView::setSource(const QByteArray &source)
 {
     m_source = source;
 
-    // BOMで文字コードを判別する
-    const char UTF8_BOM[] = { 0xEF, 0xBB, 0xBF };
-    const char UTF16BE_BOM[] = { 0xFE, 0xFF };
-    const char UTF16LE_BOM[] = { 0xFF, 0xFE };
+    std::string code = detectCode(m_source.left(1024));
+    QTextCodec *codec = QTextCodec::codecForName(code.c_str());
 
-    if (m_source.indexOf(QByteArray(UTF8_BOM)) == 0) {
-        qDebug() << "Detect UTF-8 BOM";
-        convertFromUTF8();
-    }
-    else if (m_source.indexOf(QByteArray(UTF16BE_BOM)) == 0 ||
-             m_source.indexOf(QByteArray(UTF16LE_BOM)) == 0)
-    {
-        qDebug() << "Detect UTF-16 BOM";
-        convertFromUTF16();
-    }
-
-    QByteArray first1KB = m_source.left(1024);
-    // 文字コードを示す文字列で判別する
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    QString text = codec->toUnicode(first1KB).toLower();
-    if (text.indexOf("utf8") != -1 || text.indexOf("utf-8") != -1) {
-        convertFromUTF8();
-        return;
-    }
-    if (text.indexOf("sjis") != -1 || text.indexOf("shift-jis") != -1 ||
-        text.indexOf("shift_jis") != -1)
-    {
-        convertFromSJIS();
-        return;
-    }
-    if (text.indexOf("euc") != -1 || text.indexOf("euc-jp") != -1 ||
-        text.indexOf("euc_jp") != -1)
-    {
-        convertFromEUC();
-        return;
-    }
-    if (text.indexOf("jis") != -1 || text.indexOf("iso 2022-jp") != -1) {
-        convertFromJIS();
-        return;
-    }
-
-    std::string code = detectCode(first1KB);
-    codec = QTextCodec::codecForName(code.c_str());
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage(code.c_str());
+
+    emit fileInfo(code.c_str());
 }
 
 void SimpleTextView::updateAppearance()
@@ -162,50 +122,49 @@ void SimpleTextView::convertFromEUC()
 {
     QTextCodec *codec = QTextCodec::codecForName("EUC-JP");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("EUC-JP");
+    emit fileInfo("EUC-JP");
 }
 
 void SimpleTextView::convertFromJIS()
 {
     QTextCodec *codec = QTextCodec::codecForName("ISO 2022-JP");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("ISO 2022-JP");
+    emit fileInfo("ISO 2022-JP");
 }
 
 void SimpleTextView::convertFromSJIS()
 {
     QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("Shift-JIS");
-
+    emit fileInfo("Shift-JIS");
 }
 
 void SimpleTextView::convertFromUTF8()
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-8");
+    emit fileInfo("UTF-8");
 }
 
 void SimpleTextView::convertFromUTF16()
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF-16");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16");
+    emit fileInfo("UTF-16");
 }
 
 void SimpleTextView::convertFromUTF16BE()
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF-16BE");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16BE");
+    emit fileInfo("UTF-16BE");
 }
 
 void SimpleTextView::convertFromUTF16LE()
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF-16LE");
     setPlainText(codec->toUnicode(m_source));
-    getMainWnd()->statusBar()->showMessage("UTF-16LE");
+    emit fileInfo("UTF-16LE");
 }
 
 void SimpleTextView::onCopyAvailable(bool yes)
@@ -215,7 +174,7 @@ void SimpleTextView::onCopyAvailable(bool yes)
 
 void SimpleTextView::back()
 {
-    emit viewFinished(this);
+    emit viewFinished();
 }
 
 void SimpleTextView::keyPressEvent(QKeyEvent *event)
@@ -227,18 +186,17 @@ void SimpleTextView::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    if (ProcessShortcut(ksq, getMainWnd())) {
-        event->accept();
-        return;
-    }
-
     QPlainTextEdit::keyPressEvent(event);
+
+    // MainWindowへ
+    event->ignore();
 }
 
 
 void SimpleTextView::contextMenuEvent(QContextMenuEvent *event)
 {
-    qDebug() << "contextMenuEvent();";
+    qDebug() << "SimpleTextView::contextMenuEvent();";
+
     QMenu menu(this);
     menu.addAction(m_convEUC);
     menu.addAction(m_convJIS);

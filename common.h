@@ -6,12 +6,13 @@ typedef QMap<QString, QString> StringMap;
 
 class QObject;
 class QKeyEvent;
-class MainWindow;
-extern MainWindow* getMainWnd();
+//class MainWindow;
+//extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
 extern QString ViewerIgnoreExt();
 extern QString KeyEventToSequence(const QKeyEvent *event);
 extern bool ProcessShortcut(const QString &ksq, const QObject *object);
+extern void Sleep(int msec);
 
 #define slash   QString("/")
 #define QQ(x)   ("\"" + QString(x) + "\"")
