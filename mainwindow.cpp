@@ -1002,57 +1002,11 @@ void MainWindow::switchHalfMode(bool checked)
     updateActions();
 }
 
-//void MainWindow::setSorting(FolderView *view)
-//{
-//    qDebug() << "MainWindow::setSorting();" << view->objectName();
-
-//    QSettings settings;
-//    QDir::SortFlags flags;
-
-//    int sortBy = settings.value(view->side() + slash + IniKey_SortBy).toInt();
-//    switch (sortBy) {
-//    case SortByDate:    flags |= QDir::Time; break;
-//    case SortBySize:    flags |= QDir::Size; break;
-//    case SortByType:    flags |= QDir::Type; break;
-//    default:            flags |= QDir::Name; break;
-//    }
-
-//    // デフォルトだと文字列は昇順で、数値は降順…orz
-//    int orderBy = settings.value(view->side() + slash + IniKey_OrderBy).toInt();
-//    if (((sortBy == SortByName || sortBy == SortByType) && orderBy == OrderByDesc) ||
-//        ((sortBy == SortByDate || sortBy == SortBySize) && orderBy == OrderByAsc))
-//    {
-//        flags |= QDir::Reversed;
-//    }
-
-//    switch (settings.value(view->side() + slash + IniKey_PutDirs).toInt()) {
-//    case PutDirsFirst:  flags |= QDir::DirsFirst; break;
-//    case PutDirsLast:   flags |= QDir::DirsLast; break;
-//    }
-
-//    if (settings.value(view->side() + slash + IniKey_IgnoreCase).toBool()) {
-//        flags |= QDir::IgnoreCase;
-//    }
-
-//    view->setSorting(flags);
-//}
-
-//void MainWindow::showNameFilters(FolderView *view)
-//{
-//    QLabel *label = view->parent()->findChild<QLabel*>("filterLabel");
-//    Q_CHECK_PTR(label);
-
-//    label->setText(tr("フィルタ：") + view->nameFilters().join(" "));
-//}
-
 void MainWindow::searchItem(const QString &text)
 {
     qDebug() << "MainWindow::searchItem" << text;
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    SearchBox *box = view->parent()->findChild<SearchBox*>("searchBox");
+    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
     Q_CHECK_PTR(box);
 
     if (text.right(1) == "/") {
@@ -1061,7 +1015,10 @@ void MainWindow::searchItem(const QString &text)
         ui->action_Search->setChecked(false);
     }
     else {
-        view->searchItem(box->text());
+        FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
+        Q_CHECK_PTR(fp);
+
+        fp->folderView()->searchItem(box->text());
     }
 }
 
@@ -1069,26 +1026,26 @@ void MainWindow::searchNext()
 {
     qDebug() << "MainWindow::searchNext";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    SearchBox *box = view->parent()->findChild<SearchBox*>("searchBox");
+    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
     Q_CHECK_PTR(box);
 
-    view->searchNext(box->text());
+    FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
+    Q_CHECK_PTR(fp);
+
+    fp->folderView()->searchNext(box->text());
 }
 
 void MainWindow::searchPrev()
 {
     qDebug() << "MainWindow::searchPrev";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    SearchBox *box = view->parent()->findChild<SearchBox*>("searchBox");
+    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
     Q_CHECK_PTR(box);
 
-    view->searchPrev(box->text());
+    FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
+    Q_CHECK_PTR(fp);
+
+    fp->folderView()->searchPrev(box->text());
 }
 
 void MainWindow::setCursorToBegin()
