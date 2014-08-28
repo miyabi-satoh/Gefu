@@ -119,8 +119,8 @@
    <addaction name="move_Forward"/>
    <addaction name="move_Root"/>
    <addaction name="move_Home"/>
-   <addaction name="separator"/>
    <addaction name="move_Jump"/>
+   <addaction name="separator"/>
    <addaction name="cmd_Copy"/>
    <addaction name="cmd_Move"/>
    <addaction name="cmd_Delete"/>
