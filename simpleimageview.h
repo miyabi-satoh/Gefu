@@ -12,7 +12,7 @@ public:
     bool setSource(const QString &path);
 
 private:
-    QImage m_img;
+    QPixmap m_img;
     QAction *m_back;
 
 signals:
@@ -21,7 +21,6 @@ signals:
 
 public slots:
     void back();
-
 
     // QWidget interface
 protected:

@@ -120,8 +120,8 @@ void FolderView::refresh()
     else if (row >= m_model.rowCount()) {
         row = m_model.rowCount() - 1;
     }
-    setCurrentIndex(m_model.index(row, 0));
-    selectRow(row);
+    setCurrentIndex(m_model.index(row, 1));
+//    selectRow(row);
 }
 
 void FolderView::searchItem(const QString &text)
@@ -129,7 +129,7 @@ void FolderView::searchItem(const QString &text)
     qDebug() << side() << "searchItem" << text;
 
     for (int row = 0; row < m_model.rowCount(); row++) {
-        QModelIndex index = m_model.index(row, 0);
+        QModelIndex index = m_model.index(row, 1);
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
@@ -146,7 +146,7 @@ void FolderView::searchNext(const QString &text)
     qDebug() << side() << "searchNext" << text;
 
     for (int row = currentIndex().row() + 1; row < m_model.rowCount(); row++) {
-        QModelIndex index = m_model.index(row, 0);
+        QModelIndex index = m_model.index(row, 1);
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
@@ -163,7 +163,7 @@ void FolderView::searchPrev(const QString &text)
     qDebug() << side() << "searchPrev" << text;
 
     for (int row = currentIndex().row() - 1; row >= 0; row--) {
-        QModelIndex index = m_model.index(row, 0);
+        QModelIndex index = m_model.index(row, 1);
         QString name = m_model.fileInfo(index).fileName().toLower();
         if (name.indexOf(text.toLower()) != -1) {
             setCurrentIndex(index);
@@ -196,7 +196,7 @@ void FolderView::setCheckStateAllFiles()
 
     setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
-        QModelIndex index = m_model.index(n, 0);
+        QModelIndex index = m_model.index(n, 1);
         QFileInfo info = m_model.fileInfo(index);
         if (info.isDir()) {
             m_model.setCheckState(index, Qt::Unchecked);
@@ -218,7 +218,7 @@ void FolderView::invertCheckState()
 
     setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
-        QModelIndex index = m_model.index(n, 0);
+        QModelIndex index = m_model.index(n, 1);
         if (m_model.checkState(index) == Qt::Checked) {
             m_model.setCheckState(index, Qt::Unchecked);
         }
@@ -233,6 +233,8 @@ void FolderView::invertCheckState()
 
 void FolderView::toggleCheckState(const QModelIndex &index)
 {
+    qDebug() << side() << "toggleCheckState();" << index;
+
     QFileInfo info = m_model.fileInfo(index);
     if (info.fileName() != "..") {
         if (m_model.checkState(index) == Qt::Checked) {
@@ -308,7 +310,7 @@ void FolderView::setPath(const QString &path, bool addHistory)
 
     setUpdatesEnabled(false);
     m_model.setPath(path);
-    setCurrentIndex(m_model.index(0, 0));
+    setCurrentIndex(m_model.index(0, 1));
     setUpdatesEnabled(true);
 
     if (addHistory) {
@@ -397,7 +399,7 @@ void FolderView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bott
 
 void FolderView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    qDebug() << side() << "currentChanged();";
+    qDebug() << side() << "currentChanged();" << current;
 
     emit currentChanged(m_model.fileInfo(current));
 

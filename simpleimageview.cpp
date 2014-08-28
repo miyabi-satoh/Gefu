@@ -5,6 +5,7 @@
 #include <QKeyEvent>
 #include <QAction>
 #include <QMenu>
+#include <QSettings>
 
 SimpleImageView::SimpleImageView(QWidget *parent) :
     QGraphicsView(parent),
@@ -27,7 +28,7 @@ bool SimpleImageView::setSource(const QString &path)
 {
     qDebug() << "SimpleImageView::setSource()";
 
-    m_img = QImage(path);
+    m_img = QPixmap(path);
 
     emit fileInfo(QString("%1x%2x%3bpp")
                   .arg(m_img.width())
@@ -47,7 +48,7 @@ void SimpleImageView::paintEvent(QPaintEvent *)
     qDebug() << "SimpleImageView::paintEvent();";
 
     QPainter painter(viewport());
-    QImage scaledImg;
+    QPixmap scaledImg;
 
     if (m_img.width() < viewport()->width() &&
         m_img.height() < viewport()->height())
@@ -60,7 +61,10 @@ void SimpleImageView::paintEvent(QPaintEvent *)
                                  Qt::SmoothTransformation);
     }
 
-    painter.drawImage(
+    QSettings settings;
+    painter.setBrush(settings.value(IniKey_ViewColorBgNormal).value<QColor>());
+    painter.drawRect(viewport()->rect());
+    painter.drawPixmap(
                 (viewport()->width() - scaledImg.width()) / 2,
                 (viewport()->height() - scaledImg.height()) / 2,
                 scaledImg);

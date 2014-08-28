@@ -93,8 +93,8 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>16</width>
-     <height>16</height>
+     <width>24</width>
+     <height>24</height>
     </size>
    </property>
    <attribute name="toolBarArea">
@@ -119,8 +119,8 @@
    <addaction name="move_Forward"/>
    <addaction name="move_Root"/>
    <addaction name="move_Home"/>
-   <addaction name="move_Jump"/>
    <addaction name="separator"/>
+   <addaction name="move_Jump"/>
    <addaction name="cmd_Copy"/>
    <addaction name="cmd_Move"/>
    <addaction name="cmd_Delete"/>
@@ -951,13 +951,13 @@
      <normaloff>:/images/Preview.png</normaloff>:/images/Preview.png</iconset>
    </property>
    <property name="text">
-    <string>片面ビューアモード</string>
+    <string>プレビューモード</string>
    </property>
    <property name="toolTip">
-    <string>片面ビューアモード</string>
+    <string>プレビューモード</string>
    </property>
    <property name="shortcut">
-    <string>V</string>
+    <string>P</string>
    </property>
   </action>
  </widget>

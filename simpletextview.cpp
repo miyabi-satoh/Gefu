@@ -88,6 +88,11 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
 void SimpleTextView::setSource(const QByteArray &source)
 {
     m_source = source;
+    if (m_source.size() == 0) {
+        setPlainText("");
+        emit fileInfo("");
+        return;
+    }
 
     std::string code = detectCode(m_source.left(1024));
     QTextCodec *codec = QTextCodec::codecForName(code.c_str());

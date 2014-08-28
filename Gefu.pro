@@ -12,6 +12,11 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Gefu
 TEMPLATE = app
+VERSION = 0.1.6
+QMAKE_TARGET_COMPANY = gefu.sourceforge.jp
+QMAKE_TARGET_PRODUCT = Gefu
+QMAKE_TARGET_DESCRIPTION = Gefu is an Experimental File Utility.
+QMAKE_TARGET_COPYRIGHT = Copyright(c) 2014 @miyabi_satoh
 
 
 SOURCES += main.cpp\

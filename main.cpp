@@ -11,8 +11,8 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setOrganizationName("miyabi");
-    a.setOrganizationDomain("rakusaba.jp");
+    a.setOrganizationName("gefu");
+    a.setOrganizationDomain("sourceforge.jp");
     a.setApplicationName("Gefu");
 #if defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACX)
     a.setWindowIcon(QIcon(":/images/Gefu.icns"));
@@ -26,14 +26,13 @@ int main(int argc, char *argv[])
         settings.clear();
     }
 
-    // オラはやっちまっただぁ…
-    QString strValue = settings.value("TerminalOption", "").toString();
-    if (!strValue.isEmpty()) {
-        settings.remove("TerminalOption");
-        settings.setValue(IniKey_TerminalOption, strValue);
-    }
-
     // 各オプションのデフォルト値を設定する
+    QFont font = a.font();
+#ifdef Q_OS_WIN
+    font.setFamily("ＭＳ ゴシック");
+#else
+    font.setFamily("Monaco");
+#endif
     //>>>>> 起動と終了
     if (settings.value(IniKey_ConfirmExit, "").toString().isEmpty()) {
         settings.setValue(IniKey_ConfirmExit, true);
@@ -46,12 +45,12 @@ int main(int argc, char *argv[])
     }
     //>>>>> 色とフォント
     if (settings.value(IniKey_BoxFont, "").toString().isEmpty()) {
-        settings.setValue(IniKey_BoxFont, a.font());
+        settings.setValue(IniKey_BoxFont, font);
         settings.setValue(IniKey_BoxColorBg, QPalette().base().color());
         settings.setValue(IniKey_BoxColorFg, QPalette().text().color());
     }
     if (settings.value(IniKey_ViewFont, "").toString().isEmpty()) {
-        settings.setValue(IniKey_ViewFont, a.font());
+        settings.setValue(IniKey_ViewFont, font);
         settings.setValue(IniKey_ViewColorBgMark, QColor(0,192,0));
         settings.setValue(IniKey_ViewColorBgNormal, QPalette().base().color());
         settings.setValue(IniKey_ViewColorFgHidden, QColor(128,128,128));
@@ -106,7 +105,7 @@ int main(int argc, char *argv[])
     if (settings.value(IniKey_ViewerFont, "").toString().isEmpty()) {
         settings.setValue(IniKey_ViewerColorBg, QPalette().base().color());
         settings.setValue(IniKey_ViewerColorFg, QPalette().text().color());
-        settings.setValue(IniKey_ViewerFont, a.font());
+        settings.setValue(IniKey_ViewerFont, font);
         settings.setValue(IniKey_ViewerForceOpen, false);
         settings.setValue(IniKey_ViewerInherit, true);
         settings.setValue(IniKey_ViewerIgnoreExt, ViewerIgnoreExt());

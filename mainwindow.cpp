@@ -385,13 +385,17 @@ void MainWindow::moveItems()
     opDlg.setWorker(worker);
     opDlg.setAutoClose(settings.value(IniKey_AutoCloseMove).toBool());
 
+    int row = view->currentIndex().row();
+
     opDlg.exec();
 
-    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
+    if (row >= view->model()->rowCount()) {
+        row = view->model()->rowCount() - 1;
+    }
+    //view->selectRow(row);
+    view->setCurrentIndex(view->model()->index(row, 1));
 
-    // 念のため、リフレッシュ
-//    ui->folderView1->refresh();
-//    ui->folderView2->refresh();
+    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
 }
 
 void MainWindow::leftKeyPress()
@@ -579,10 +583,6 @@ void MainWindow::copyItems(const QFileInfoList &list, const QString &tgtDir)
     opDlg.exec();
 
     settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
-
-    // 念のため、リフレッシュ
-//    ui->folderView1->refresh();
-//    ui->folderView2->refresh();
 }
 
 void MainWindow::copyItems()
@@ -630,6 +630,9 @@ void MainWindow::createFile()
         if (settings.value(IniKey_OpenAfterCreateFile).toBool()) {
             openEditor(dir.absoluteFilePath(name));
         }
+
+        view->refresh();
+        view->searchItem(name);
     }
 }
 
@@ -659,6 +662,9 @@ void MainWindow::createFolder()
         if (settings.value(IniKey_MoveAfterCreateFolder).toBool()) {
             view->setPath(dir.absoluteFilePath(name), true);
         }
+
+        view->refresh();
+        view->searchItem(name);
     }
 }
 
@@ -699,13 +705,18 @@ void MainWindow::deleteItems()
     opDlg.setWorker(worker);
     opDlg.setAutoClose(settings.value(IniKey_AutoCloseDelete).toBool());
 
+    int row = view->currentIndex().row();
+
     opDlg.exec();
+    view->refresh();
+
+    if (row >= view->model()->rowCount()) {
+        row = view->model()->rowCount() - 1;
+    }
+//    view->selectRow(row);
+    view->setCurrentIndex(view->model()->index(row, 1));
 
     settings.setValue(IniKey_AutoCloseDelete, opDlg.autoClose());
-
-    // 念のため、リフレッシュ
-//    ui->folderView1->refresh();
-//    ui->folderView2->refresh();
 }
 
 void MainWindow::open(const QModelIndex &index)
@@ -777,7 +788,6 @@ void MainWindow::openEditor(const QString &path)
         if (!startProcess(command, info.absolutePath(), tr("外部エディタの起動に失敗しました。"))) {
             break;
         }
-        Sleep(100);
     }
 }
 
@@ -809,7 +819,7 @@ void MainWindow::openTerminal()
         if (!startProcess(command, info.absolutePath(), tr("ターミナルの起動に失敗しました。"))) {
             break;
         }
-        Sleep(100);
+        Sleep(1000);
     }
 }
 
@@ -867,6 +877,10 @@ void MainWindow::renameItems()
     opDlg.setAutoClose(settings.value(IniKey_AutoCloseRename).toBool());
 
     opDlg.exec();
+    view->refresh();
+
+    QFileInfo info(dlg->renameMap().first());
+    view->searchItem(info.fileName());
 
     settings.setValue(IniKey_AutoCloseRename, opDlg.autoClose());
 }
@@ -916,7 +930,16 @@ void MainWindow::showFilterDialog()
 
     if (dlg.exec() == QDialog::Accepted) {
         static_cast<FolderPanel*>(view->parent())->setNameFilters(dlg.textValue());
+        int row = view->currentIndex().row();
+
         view->refresh();
+
+        if (row >= view->model()->rowCount()) {
+            row = view->model()->rowCount() - 1;
+        }
+//        view->selectRow(row);
+        view->setCurrentIndex(view->model()->index(row, 1));
+
     }
 }
 
@@ -1222,25 +1245,6 @@ void MainWindow::toggleSearchBox(bool checked)
     }
 }
 
-//void MainWindow::openRequest(const QFileInfo &info)
-//{
-//    m_focusedView = QApplication::focusWidget();
-
-//    QFile file(info.absoluteFilePath());
-//    if (file.open(QIODevice::ReadOnly)) {
-//        ui->splitter->setVisible(false);
-//        ui->textView->setVisible(true);
-//        ui->textView->setFocus();
-//        ui->textView->setSource(file.readAll());
-//        file.close();
-//    }
-//    else {
-//        QMessageBox::critical(
-//                    this, tr("エラー"),
-//                    tr("ファイルの読み込みに失敗しました。"));
-//    }
-//}
-
 void MainWindow::showPreferenceDialog()
 {
     qDebug() << "MainWindow::showPreferenceDialog";
@@ -1491,6 +1495,7 @@ void MainWindow::updateActions()
     FolderView *view;
     if ((view = qobject_cast<FolderView*>(w))) {
         setEnabledAllActions(true);
+        qDebug() << ">>>>> フォルダビューの共通メニュー設定 <<<<<";
         ui->action_SearchNext->setEnabled(false);
         ui->action_SearchPrev->setEnabled(false);
 
@@ -1516,6 +1521,14 @@ void MainWindow::updateActions()
                     }
                 }
             }
+        }
+
+        if (info.fileName() == "..") {
+            // ファイル操作を抑止
+            ui->cmd_Copy->setEnabled(false);
+            ui->cmd_Delete->setEnabled(false);
+            ui->cmd_Move->setEnabled(false);
+            ui->cmd_Rename->setEnabled(false);
         }
 
         if (m_viewMode & ModeBasic) {
