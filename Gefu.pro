@@ -88,7 +88,9 @@ OTHER_FILES += \
     Gefu.rc \
     README.md \
     ReadMe.txt \
-    keybind.txt
+    keybind.txt \
+    installer-full.nsi \
+    installer.nsi
 
 macx {
     ICON = ./images/Gefu.icns
