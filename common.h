@@ -6,8 +6,6 @@ typedef QMap<QString, QString> StringMap;
 
 class QObject;
 class QKeyEvent;
-//class MainWindow;
-//extern MainWindow* getMainWnd();
 extern QString FilesizeToString(quint64 size);
 extern QString ViewerIgnoreExt();
 extern QString KeyEventToSequence(const QKeyEvent *event);
@@ -23,6 +21,8 @@ extern void Sleep(int msec);
 #define IniKey_MoveAfterCreateFolder    "Common/MoveAfterFolderCreation"
 #define IniKey_OpenAfterCreateFile      "Common/OpenAfterFileCreation"
 #define IniKey_CheckUpdates             "Common/CheckUpdates"
+#define IniKey_BookmarkEntryName(x)     QString("Bookmark/Name%1").arg(x)
+#define IniKey_BookmarkEntryPath(x)     QString("Bookmark/Path%1").arg(x)
 #define IniKey_BootSizeSpec             "BootAndExit/SizeSpec"
 #define IniKey_BootSizeRel              "BootAndExit/SizeRel"
 #define IniKey_BootSizeAbs              "BootAndExit/SizeAbs"

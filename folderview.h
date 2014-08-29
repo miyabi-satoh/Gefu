@@ -5,6 +5,7 @@
 #include "history.h"
 
 #include <QTableView>
+class MainWindow;
 
 class FolderView : public QTableView
 {
@@ -15,7 +16,7 @@ public:
     QString side() const;
 
     // actions
-    void initialize();
+    void initialize(MainWindow *mainWnd);
     void updateAppearance();
     void refresh();
 
@@ -30,7 +31,6 @@ public:
 
     bool historyBack();
     bool historyForward();
-
 
     // getter
     QFileInfo currentItem() const;
@@ -48,6 +48,7 @@ public:
     void setSorting();
 
 private:
+    MainWindow *m_mainWnd;
     FileTableModel m_model;
     History m_history;
     QPoint m_dragStartPos;
@@ -60,7 +61,6 @@ signals:
     void itemFound();
     void itemNotFound();
     void retrieveStarted(const QString &path);
-    void retrieveFinished();
     void requestContextMenu(QContextMenuEvent *event);
 //    void keyPressed(QKeyEvent *event);
 

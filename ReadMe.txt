@@ -38,9 +38,8 @@
 
 ◇ インストール ◇
  Windows
-  1. GefuXXX.zip をダウンロード、展開します。
-  2. Gefu_QtDLL.zip をダウンロード、展開します。
-  3. 展開された Gefu.exe とQtライブラリ(*.dll)を同じフォルダに格納します。
+  1. GefuXXX_full_setup.exe をダウンロード、実行します。
+  2. インストールウィザードの指示に従ってください。
 
  Mac
   1. GefuXXX.app.zip をダウンロード、展開します。
@@ -48,9 +47,8 @@
 
 ◇ アップデート ◇
  Windows
-  1. GefuXXX.zip をダウンロード、展開します。
-  2. Gefu.exe が起動している場合は、終了します。
-  3. 展開された Gefu.exe を、既存の Gefu.exe に上書きします。
+  1. GefuXXX_Setuo.exe をダウンロード、実行します。
+  2. インストールウィザードの指示に従ってください。
 
  Mac
   1. GefuXXX.app.zip をダウンロード、展開します。
@@ -59,14 +57,13 @@
 
 ◇ アンインストール ◇
  Windows
-  1. Gefu.exe と Qtライブラリ(*.dll)を削除します。
-  2. 設定ファイルまで削除したい場合は、以下のファイルを削除します。
-     %APPDATA%¥miyabi¥Gefu.ini
+  1. スタートメニューからGefu → Uninstallをクリックします。
+  2. 画面の指示に従ってください。
 
  Mac
   1. Gefu.app を削除します。
   2. 設定ファイルまで削除したい場合は、以下のファイルを削除します。
-     ~/.config/rakusaba.jp/Gefu.ini
+     ~/.config/sourceforge.jp/Gefu.ini
 
 ◇ 使い方 ◇
  基本的には、WindowsのエクスプローラやMacのFinderと同じ感覚で使ってください。
@@ -79,6 +76,8 @@
    導入方法などを解説しています。
  Wiki ... http://sourceforge.jp/projects/gefu/wiki/FrontPage
    各種ドキュメントを閲覧できます。
+ Gefuの作業部屋 ... http://masayuki_satoh.b.sourceforge.jp/
+   開発ブログです。
 
 ◇ 免責事項 ◇
  - Gefu(げふぅ)はオープンソース・フリーソフトウェアです。
@@ -92,10 +91,17 @@
 ◇ 連絡先 ◇
  Web:     https://sourceforge.jp/projects/gefu/
           http://gefu.sourceforge.jp/
+          http://masayuki_satoh.b.sourceforge.jp/
  Mail:    miyabi.satoh@gmail.com
  Twitter: https://twitter.com/miyabi_satoh
 
 ◇ 履歴 ◇
+#### 2014/08/29 Ver0.17
+  * コンテキストメニューにファイル操作系アクションを追加。
+  * ブックマーク機能を実装。
+  * 不具合修正
+    * 検索ボックスでのEnterキーイベントが2回処理されていたのを修正。
+
 #### 2014/08/28 Ver0.16
   * 設定ファイルの格納先を変更。
   * アップデート確認先のURLを変更。

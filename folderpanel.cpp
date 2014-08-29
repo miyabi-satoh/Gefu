@@ -6,10 +6,13 @@
 #include "ui_folderpanel.h"
 
 #include <QDebug>
+#include <QSettings>
+#include <QStatusBar>
 
 FolderPanel::FolderPanel(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::FolderPanel)
+    ui(new Ui::FolderPanel),
+    m_mainWnd(NULL)
 {
     ui->setupUi(this);
 }
@@ -22,20 +25,19 @@ FolderPanel::~FolderPanel()
 void FolderPanel::initialize(MainWindow *mainWnd)
 {
     qDebug() << "FolderPanel::initialize();";
+    m_mainWnd = mainWnd;
 
     // シグナル＆スロット
-    connect(ui->folderView, SIGNAL(dataChanged()), this, SLOT(dataChange()));
+    connect(ui->searchBox, SIGNAL(textEdited(QString)), this, SLOT(searchItem(QString)));
     connect(ui->folderView, SIGNAL(doubleClicked(QModelIndex)), mainWnd, SLOT(open(QModelIndex)));
     connect(ui->folderView, SIGNAL(dropAccepted(QFileInfoList)), mainWnd, SLOT(dropAccept(QFileInfoList)));
     connect(ui->folderView, SIGNAL(currentChanged(QFileInfo)), mainWnd, SLOT(currentChange(QFileInfo)));
-    connect(ui->folderView, SIGNAL(itemFound()), mainWnd, SLOT(itemFound()));
-    connect(ui->folderView, SIGNAL(itemNotFound()), mainWnd, SLOT(itemNotFound()));
-    connect(ui->folderView, SIGNAL(retrieveFinished()), mainWnd, SLOT(retrieveFinish()));
     connect(ui->folderView, SIGNAL(requestContextMenu(QContextMenuEvent*)), mainWnd, SLOT(showContextMenu(QContextMenuEvent*)));
-    connect(ui->folderView, SIGNAL(retrieveStarted(QString)), mainWnd, SLOT(retrieveStart(QString)));
     connect(ui->folderView, SIGNAL(retrieveStarted(QString)), ui->locationBox, SLOT(setText(QString)));
-    connect(ui->searchBox, SIGNAL(textEdited(QString)), mainWnd, SLOT(searchItem(QString)));
-    connect(ui->searchBox, SIGNAL(returnPressed()), mainWnd, SLOT(returnPressInSearchBox()));
+    connect(ui->folderView, SIGNAL(dataChanged()), this, SLOT(dataChange()));
+    connect(ui->folderView, SIGNAL(itemFound()), this, SLOT(itemFound()));
+    connect(ui->folderView, SIGNAL(itemNotFound()), this, SLOT(itemNotFound()));
+    connect(ui->bookmarkBtn, SIGNAL(clicked()), this, SLOT(addBookmark()));
 
     // 初期状態では検索ボックスは非表示
     ui->searchBox->setVisible(false);
@@ -44,7 +46,7 @@ void FolderPanel::initialize(MainWindow *mainWnd)
     ui->locationBox->initialize();
 
     // フォルダビューを初期化する
-    ui->folderView->initialize();
+    ui->folderView->initialize(mainWnd);
 }
 
 LocationBox *FolderPanel::locationBox() const
@@ -120,6 +122,59 @@ void FolderPanel::dataChange()
         }
 
         ui->filterLabel->setText(msg);
+    }
+}
+
+void FolderPanel::addBookmark()
+{
+    qDebug() << "FolderPanel::addBookmark();";
+
+    QSettings settings;
+    int i = 0;
+    while (!settings.value(IniKey_BookmarkEntryName(i), "").toString().isEmpty()) {
+        i++;
+    }
+
+    QFileInfo info(ui->folderView->dir());
+    QString name = info.fileName();
+    if (name.isEmpty()) {
+        name = "root";
+    }
+    settings.setValue(IniKey_BookmarkEntryName(i), name);
+    settings.setValue(IniKey_BookmarkEntryPath(i), info.absoluteFilePath());
+
+    m_mainWnd->statusBar()->showMessage(tr("%1をブックマークに追加しました").arg(name));
+}
+
+void FolderPanel::itemFound()
+{
+    qDebug() << "FolderPanel::itemFound";
+
+    QPalette pal = ui->searchBox->palette();
+    pal.setColor(QPalette::Text, QPalette().text().color());
+    ui->searchBox->setPalette(pal);
+}
+
+void FolderPanel::itemNotFound()
+{
+    qDebug() << "FolderPanel::itemNotFound";
+
+    QPalette pal = ui->searchBox->palette();
+    pal.setColor(QPalette::Text, Qt::red);
+    ui->searchBox->setPalette(pal);
+}
+
+void FolderPanel::searchItem(const QString &text)
+{
+    qDebug() << "FolderPanel::searchItem" << text;
+
+    if (text.right(1) == "/") {
+        // '/'が入力されたら、検索終了
+        ui->searchBox->setText(text.left(text.length() - 1));
+        ui->folderView->setFocus();
+    }
+    else {
+        ui->folderView->searchItem(ui->searchBox->text());
     }
 }
 

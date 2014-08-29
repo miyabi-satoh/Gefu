@@ -39,7 +39,6 @@ public slots:
     void focusChange(QWidget * old, QWidget * now);
     void leftKeyPress();
     void rightKeyPress();
-    void returnPressInSearchBox();
     void showFileInfo(const QString &str);
 
     void about();
@@ -55,11 +54,10 @@ public slots:
     void cursorDown();
     void cursorUp();
     void deleteItems();
+    void editBookmark();
     void executeCommand();
     void historyBack();
     void historyForward();
-    void itemFound();
-    void itemNotFound();
     void markAll();
     void markAllFiles();
     void markAllOff();
@@ -69,11 +67,9 @@ public slots:
     void open(const QModelIndex &index = QModelIndex());
     void openEditor(const QString &path = QString());
     void openTerminal();
+    void openBookmark();
     void refresh();
     void renameItems();
-    void retrieveFinish();
-    void retrieveStart(const QString &path);
-    void searchItem(const QString& text);
     void searchNext();
     void searchPrev();
     void setCursorToBegin();
@@ -86,6 +82,7 @@ public slots:
     void setPathToParent();
     void setPathToRoot();
     void shellExecute();
+    void showBookmarkDialog();
     void showFilterDialog();
     void showHistoryDialog();
     void showPreferenceDialog();
@@ -123,6 +120,7 @@ private:
     void showNameFilters(FolderView *view);
     void copyItems(const QFileInfoList &list, const QString &tgtDir);
     void changeFontSize(int diff);
+    void initBookmark();
 
     // getter
     FolderView* otherSideFolderView(const FolderView *view) const;

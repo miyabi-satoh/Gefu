@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QDrag>
 #include <QMenu>
+#include <QStatusBar>
 
 QString FilesizeToString(quint64 size)
 {
@@ -27,6 +28,7 @@ QString FilesizeToString(quint64 size)
 
 FolderView::FolderView(QWidget *parent) :
     QTableView(parent),
+    m_mainWnd(NULL),
     m_model(),
     m_dragStartPos(),
     m_dragging(false)
@@ -52,9 +54,11 @@ QString FolderView::side() const
     }
 }
 
-void FolderView::initialize()
+void FolderView::initialize(MainWindow *mainWnd)
 {
     qDebug() << side() << "initialize";
+
+    m_mainWnd = mainWnd;
 
     setColumnWidth(0, 30);
 
@@ -306,6 +310,7 @@ void FolderView::setPath(const QString &path, bool addHistory)
 
     Q_ASSERT(QFileInfo(path).isDir());
 
+    m_mainWnd->statusBar()->showMessage(tr("ファイルリストを取得しています..."));
     emit retrieveStarted(path);
 
     setUpdatesEnabled(false);
@@ -317,7 +322,7 @@ void FolderView::setPath(const QString &path, bool addHistory)
         m_history.add(path);
     }
 
-    emit retrieveFinished();
+    m_mainWnd->statusBar()->showMessage(tr("レディ"));
 }
 
 void FolderView::setFilter(QDir::Filters filter, bool enable)

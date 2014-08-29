@@ -233,10 +233,18 @@
     <addaction name="check_Update"/>
     <addaction name="help_About"/>
    </widget>
+   <widget class="QMenu" name="menu_Bookmark">
+    <property name="title">
+     <string>ブックマーク</string>
+    </property>
+    <addaction name="bookmark_Edit"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Mark"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Move"/>
+   <addaction name="menu_Bookmark"/>
    <addaction name="menu_Operate"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -958,6 +966,25 @@
    </property>
    <property name="shortcut">
     <string>P</string>
+   </property>
+  </action>
+  <action name="bookmark_Edit">
+   <property name="text">
+    <string>ブックマークを編集...</string>
+   </property>
+   <property name="toolTip">
+    <string>ブックマークを編集...</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+B</string>
+   </property>
+  </action>
+  <action name="bookmark_Show">
+   <property name="text">
+    <string>ブックマークを表示</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
    </property>
   </action>
  </widget>

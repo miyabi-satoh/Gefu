@@ -17,6 +17,7 @@
 #include "simpleimageview.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "bookmarkdialog.h"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -81,6 +82,9 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     QSettings settings;
+    // ブックマークメニューを初期化する
+    initBookmark();
+
     // メニュー項目の状態を初期化する
     ui->view_Hidden->setChecked(settings.value(IniKey_ShowHidden).toBool());
     ui->view_System->setChecked(settings.value(IniKey_ShowSystem).toBool());
@@ -272,30 +276,6 @@ void MainWindow::historyForward()
     }
 }
 
-void MainWindow::itemFound()
-{
-    qDebug() << "MainWindow::itemFound";
-
-    SearchBox *box = sender()->parent()->findChild<SearchBox*>("searchBox");
-    Q_CHECK_PTR(box);
-
-    QPalette pal = box->palette();
-    pal.setColor(QPalette::Text, QPalette().text().color());
-    box->setPalette(pal);
-}
-
-void MainWindow::itemNotFound()
-{
-    qDebug() << "MainWindow::itemNotFound";
-
-    SearchBox *box = sender()->parent()->findChild<SearchBox*>("searchBox");
-    Q_CHECK_PTR(box);
-
-    QPalette pal = box->palette();
-    pal.setColor(QPalette::Text, Qt::red);
-    box->setPalette(pal);
-}
-
 void MainWindow::markAll()
 {
     qDebug() << "MainWindow::markAll();";
@@ -430,26 +410,12 @@ void MainWindow::rightKeyPress()
     }
 }
 
-void MainWindow::returnPressInSearchBox()
-{
-    qDebug() << "MainWindow::returnPressInSearchBox";
-
-    if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
-        emit ui->action_SearchPrev->triggered();
-    }
-    else {
-        emit ui->action_SearchNext->triggered();
-    }
-}
-
 void MainWindow::showFileInfo(const QString &str)
 {
     qDebug() << "MainWindow::showFileInfo();" << str;
     QLabel *label = ui->statusBar->findChild<QLabel*>("Right");
     Q_CHECK_PTR(label);
 
-//    label->resize(QFontMetrics(label->font()).boundingRect(str).width(),
-//                  label->height());
     label->setText(str);
 }
 
@@ -742,8 +708,6 @@ void MainWindow::open(const QModelIndex &index)
         ui->splitter->setVisible(false);
 
         setViewMode(ModeFullView);
-        // focusChangeでupdateActionsされるので不要
-//        updateActions();
     }
     else {
         ui->pane3->setVisible(false);
@@ -823,6 +787,21 @@ void MainWindow::openTerminal()
     }
 }
 
+void MainWindow::openBookmark()
+{
+    qDebug() << "MainWindow::openBookmark();";
+
+    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
+    Q_CHECK_PTR(view);
+
+    QAction *action = qobject_cast<QAction*>(sender());
+    Q_CHECK_PTR(action);
+
+    QSettings settings;
+    int i = action->data().toInt();
+    view->setPath(settings.value(IniKey_BookmarkEntryPath(i)).toString(), true);
+}
+
 void MainWindow::refresh()
 {
     qDebug() << "MainWindow::refresh();";
@@ -885,20 +864,6 @@ void MainWindow::renameItems()
     settings.setValue(IniKey_AutoCloseRename, opDlg.autoClose());
 }
 
-void MainWindow::retrieveFinish()
-{
-    qDebug() << "MainWindow::retrieveFinish();";
-
-    ui->statusBar->showMessage(tr("レディ"), 5000);
-}
-
-void MainWindow::retrieveStart(const QString &path)
-{
-    qDebug() << "MainWindow::retrieveStart();" << path;
-
-    ui->statusBar->showMessage(tr("ファイルリストを取得しています..."));
-}
-
 void MainWindow::shellExecute()
 {
     qDebug() << "MainWindow::shellExecute";
@@ -909,6 +874,33 @@ void MainWindow::shellExecute()
     foreach (const QFileInfo &info, view->selectedItems()) {
         QString path = QDir::toNativeSeparators(info.absoluteFilePath());
         QDesktopServices::openUrl(QUrl("file:///" + path));
+    }
+}
+
+void MainWindow::showBookmarkDialog()
+{
+    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
+    Q_CHECK_PTR(view);
+
+    BookmarkDialog dlg(this);
+    dlg.setEditMode(false);
+    if (dlg.exec() == QDialog::Accepted) {
+        int n = dlg.selectedIndex();
+
+        QSettings settings;
+        view->setPath(settings.value(IniKey_BookmarkEntryPath(n)).toString(), true);
+    }
+}
+
+void MainWindow::editBookmark()
+{
+    qDebug() << "MainWindow::showBookmarkDialog();";
+
+    BookmarkDialog dlg(this);
+    dlg.setEditMode(true);
+
+    if (dlg.exec() == QDialog::Accepted) {
+        initBookmark();
     }
 }
 
@@ -1025,25 +1017,25 @@ void MainWindow::switchHalfMode(bool checked)
     updateActions();
 }
 
-void MainWindow::searchItem(const QString &text)
-{
-    qDebug() << "MainWindow::searchItem" << text;
+//void MainWindow::searchItem(const QString &text)
+//{
+//    qDebug() << "MainWindow::searchItem" << text;
 
-    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
-    Q_CHECK_PTR(box);
+//    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
+//    Q_CHECK_PTR(box);
 
-    if (text.right(1) == "/") {
-        // '/'が入力されたら、検索終了
-        box->setText(text.left(text.length() - 1));
-        ui->action_Search->setChecked(false);
-    }
-    else {
-        FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
-        Q_CHECK_PTR(fp);
+//    if (text.right(1) == "/") {
+//        // '/'が入力されたら、検索終了
+//        box->setText(text.left(text.length() - 1));
+//        ui->action_Search->setChecked(false);
+//    }
+//    else {
+//        FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
+//        Q_CHECK_PTR(fp);
 
-        fp->folderView()->searchItem(box->text());
-    }
-}
+//        fp->folderView()->searchItem(box->text());
+//    }
+//}
 
 void MainWindow::searchNext()
 {
@@ -1146,6 +1138,27 @@ void MainWindow::changeFontSize(int diff)
         ui->pane1->textView()->updateAppearance();
         ui->pane2->textView()->updateAppearance();
         ui->pane3->textView()->updateAppearance();
+    }
+}
+
+void MainWindow::initBookmark()
+{
+    QSettings settings;
+    QFileIconProvider iconProvider;
+
+    ui->menu_Bookmark->clear();
+    ui->menu_Bookmark->addAction(ui->bookmark_Edit);
+    ui->menu_Bookmark->addSeparator();
+    int i = 0;
+    while (!settings.value(IniKey_BookmarkEntryName(i), "").toString().isEmpty()) {
+        QString path = settings.value(IniKey_BookmarkEntryPath(i)).toString();
+        QAction *action = new QAction(this);
+        action->setText(settings.value(IniKey_BookmarkEntryName(i)).toString());
+        action->setData(i);
+        action->setIcon(iconProvider.icon(QFileInfo(path)));
+        ui->menu_Bookmark->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(openBookmark()));
+        i++;
     }
 }
 
@@ -1301,8 +1314,15 @@ void MainWindow::showContextMenu(QContextMenuEvent *event)
         menu.addAction(ui->action_OpenEditor);
         menu.addAction(ui->action_OpenTerminal);
         menu.addSeparator();
+        menu.addAction(ui->cmd_Copy);
+        menu.addAction(ui->cmd_Move);
+        menu.addSeparator();
+        menu.addAction(ui->cmd_Delete);
+        menu.addSeparator();
         menu.addAction(ui->copy_Filename);
         menu.addAction(ui->copy_Fullpath);
+        menu.addSeparator();
+        menu.addAction(ui->cmd_Rename);
     }
     else {
         menu.addAction(ui->move_Back);
@@ -1312,6 +1332,9 @@ void MainWindow::showContextMenu(QContextMenuEvent *event)
         menu.addAction(ui->move_Home);
         menu.addAction(ui->move_Root);
         menu.addAction(ui->move_Jump);
+        menu.addSeparator();
+        menu.addAction(ui->cmd_NewFile);
+        menu.addAction(ui->cmd_NewFolder);
     }
 
     menu.exec(event->globalPos());
@@ -1437,6 +1460,8 @@ void MainWindow::initActionConnections()
     connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(swapView()));
     connect(ui->view_System, SIGNAL(toggled(bool)), this, SLOT(toggleShowSystemFiles(bool)));
     connect(ui->view_ToOther, SIGNAL(triggered()), this, SLOT(setPathToOther()));
+    connect(ui->bookmark_Edit, SIGNAL(triggered()), this, SLOT(editBookmark()));
+    connect(ui->bookmark_Show, SIGNAL(triggered()), this, SLOT(showBookmarkDialog()));
 }
 
 void MainWindow::replaceVars(QString &str, const QFileInfo info)

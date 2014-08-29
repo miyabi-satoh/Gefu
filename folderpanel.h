@@ -33,11 +33,16 @@ public:
 
 private:
     Ui::FolderPanel *ui;
+    MainWindow *m_mainWnd;
 
     void showNameFilters();
 
 public slots:
     void dataChange();
+    void addBookmark();
+    void itemFound();
+    void itemNotFound();
+    void searchItem(const QString& text);
 
     // QWidget interface
 protected:

@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     locationbox.cpp \
     simpleimageview.cpp \
     anyview.cpp \
-    folderpanel.cpp
+    folderpanel.cpp \
+    bookmarkdialog.cpp
 
 HEADERS  += mainwindow.h \
     renamesingledialog.h \
@@ -68,7 +69,8 @@ HEADERS  += mainwindow.h \
     version.h \
     simpleimageview.h \
     anyview.h \
-    folderpanel.h
+    folderpanel.h \
+    bookmarkdialog.h
 
 FORMS    += mainwindow.ui \
     renamesingledialog.ui \
@@ -79,7 +81,8 @@ FORMS    += mainwindow.ui \
     historydialog.ui \
     preferencedialog.ui \
     anyview.ui \
-    folderpanel.ui
+    folderpanel.ui \
+    bookmarkdialog.ui
 
 RESOURCES += \
     resource.qrc
