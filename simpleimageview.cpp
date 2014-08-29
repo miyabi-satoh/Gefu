@@ -105,6 +105,8 @@ bool SimpleImageView::setSource(const QString &path)
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->addPixmap(pixmap);
     setScene(scene);
+    resizeImage();
+
     return true;
 }
 
@@ -133,7 +135,7 @@ double SimpleImageView::scaleFactor(const QSize &size)
 void SimpleImageView::sizeChanged()
 {
     QString str;
-    str = tr("%1px x %2px x %3bpp(%4%)")
+    str = tr("%1 x %2 x %3(%4%)")
             .arg(m_imgSrc.width())
             .arg(m_imgSrc.height())
             .arg(m_imgSrc.depth())
