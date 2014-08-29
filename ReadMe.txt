@@ -1,8 +1,8 @@
 ===============================================================================
     Gefu(げふぅ) - Gefu is an Experimental File Utility - 
-    Version 0.17
+    Version 0.18
 ===============================================================================
-                                                       2014/08/29 @miyabi_satoh
+                                                       2014/08/30 @miyabi_satoh
 
 ◇ 概要 ◇
 
@@ -72,18 +72,18 @@
  ドラッグ＆ドロップすれば、コピーします。
 
 ◇ 関連リソース ◇
- Webページ ... http://gefu.sourceforge.jp/
+ 公式サイト ... http://gefu.sourceforge.jp/
    導入方法などを解説しています。
- Wiki ... http://sourceforge.jp/projects/gefu/wiki/FrontPage
+ プロジェクトWiki ... http://sourceforge.jp/projects/gefu/wiki/FrontPage
    各種ドキュメントを閲覧できます。
  Gefuの作業部屋 ... http://masayuki_satoh.b.sourceforge.jp/
    開発ブログです。
 
 ◇ 免責事項 ◇
- - Gefu(げふぅ)はオープンソース・フリーソフトウェアです。
+ - Gefuはオープンソース・フリーソフトウェアです。
    個人・法人に限らず、どなたでも自由にご使用ください。
  - 著作権は @miyabi_satoh が保有します。
- - Gefu(げふぅ)を利用したことによる損害には、一切の責任を負いません。
+ - Gefuを利用したことによる損害には、一切の責任を負いません。
    自己の責任の上でご利用ください。
  - 配布・転載を行う場合は @miyabi_satoh までご連絡ください。
    特に利益を生じる無断配布・無断転載は固く禁じます。
@@ -96,6 +96,9 @@
  Twitter: https://twitter.com/miyabi_satoh
 
 ◇ 履歴 ◇
+#### 2014/08/30 Ver0.18
+  * 画像ビューアに拡大・縮小・回転表示機能を追加。
+
 #### 2014/08/29 Ver0.17
   * コンテキストメニューにファイル操作系アクションを追加。
   * ブックマーク機能を実装。

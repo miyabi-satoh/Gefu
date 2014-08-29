@@ -557,7 +557,7 @@
     <string>フォルダを選択して移動</string>
    </property>
    <property name="shortcut">
-    <string>Shift+J</string>
+    <string>G</string>
    </property>
   </action>
   <action name="move_Home">
@@ -583,7 +583,7 @@
     <string>カーソルを先頭に</string>
    </property>
    <property name="shortcut">
-    <string>G</string>
+    <string>Shift+J</string>
    </property>
   </action>
   <action name="move_End">
@@ -594,7 +594,7 @@
     <string>カーソルを末尾に</string>
    </property>
    <property name="shortcut">
-    <string>Shift+G</string>
+    <string>Shift+K</string>
    </property>
   </action>
   <action name="action_OpenEditor">
@@ -789,10 +789,10 @@
   </action>
   <action name="check_Update">
    <property name="text">
-    <string>アップデートの確認</string>
+    <string>アップデートを確認</string>
    </property>
    <property name="toolTip">
-    <string>アップデートの確認</string>
+    <string>アップデートを確認</string>
    </property>
    <property name="shortcut">
     <string>Shift+Z</string>

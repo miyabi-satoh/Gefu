@@ -40,10 +40,10 @@ SOURCES += main.cpp\
     searchbox.cpp \
     folderview.cpp \
     locationbox.cpp \
-    simpleimageview.cpp \
     anyview.cpp \
     folderpanel.cpp \
-    bookmarkdialog.cpp
+    bookmarkdialog.cpp \
+    simpleimageview.cpp
 
 HEADERS  += mainwindow.h \
     renamesingledialog.h \
@@ -67,10 +67,10 @@ HEADERS  += mainwindow.h \
     folderview.h \
     locationbox.h \
     version.h \
-    simpleimageview.h \
     anyview.h \
     folderpanel.h \
-    bookmarkdialog.h
+    bookmarkdialog.h \
+    simpleimageview.h
 
 FORMS    += mainwindow.ui \
     renamesingledialog.ui \

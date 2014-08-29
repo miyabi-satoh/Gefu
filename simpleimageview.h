@@ -12,21 +12,40 @@ public:
     bool setSource(const QString &path);
 
 private:
-    QPixmap m_img;
     QAction *m_back;
+    QAction *m_fitToWindow;
+    QAction *m_scaleUp;
+    QAction *m_scaleDown;
+    QAction *m_scaleNormal;
+    QAction *m_rot90;
+    QAction *m_rot180;
+    QPixmap m_imgSrc;
+    double m_scaleFactor;
+    int m_rotateDeg;
+
+private:
+    double scaleFactor(const QSize &size);
+    void updateActions();
+    void sizeChanged();
+    double resizeImage();
 
 signals:
     void viewFinished();
     void fileInfo(const QString &info);
 
-public slots:
-    void back();
+private slots:
+    void fitToWindow(bool checked);
+    void scaleNormal();
+    void scaleUp();
+    void scaleDown();
+    void rotate90();
+    void rotate180();
 
     // QWidget interface
 protected:
-    void paintEvent(QPaintEvent *);
     void keyPressEvent(QKeyEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+    void resizeEvent(QResizeEvent *event);
 };
 
 #endif // SIMPLEIMAGEVIEW_H

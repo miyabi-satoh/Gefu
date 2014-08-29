@@ -54,8 +54,8 @@ bool AnyView::setViewItem(const QFileInfo &info)
     }
 
     // 画像ファイル
+    changeView(ViewImage);
     if (ui->graphicsView->setSource(info.absoluteFilePath())) {
-        changeView(ViewImage);
         return true;
     }
 

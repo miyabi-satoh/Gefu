@@ -88,6 +88,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="buttonAdd">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>追加</string>
          </property>
@@ -135,6 +138,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tableWidget</tabstop>
+  <tabstop>buttonUp</tabstop>
+  <tabstop>buttonDown</tabstop>
+  <tabstop>buttonAdd</tabstop>
+  <tabstop>buttonDelete</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
