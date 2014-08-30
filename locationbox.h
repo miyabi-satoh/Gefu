@@ -9,8 +9,8 @@ class LocationBox : public QLineEdit
 public:
     explicit LocationBox(QWidget *parent = 0);
 
-    void initialize();
-    void updateAppearance();
+    void initialize(bool left);
+    void updateAppearance(bool darker = false);
 
 signals:
 

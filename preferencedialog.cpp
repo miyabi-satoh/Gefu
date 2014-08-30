@@ -45,6 +45,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     connect(ui->boxClrBg, SIGNAL(clicked()), this, SLOT(selectBoxColor()));
     connect(ui->boxClrFg, SIGNAL(clicked()), this, SLOT(selectBoxColor()));
+    connect(ui->chooseBoxFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
 
     connect(ui->clrBgMark, SIGNAL(clicked()), this, SLOT(selectViewColor()));
     connect(ui->clrBgNormal, SIGNAL(clicked()), this, SLOT(selectViewColor()));
@@ -53,12 +54,13 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     connect(ui->clrFgNormal, SIGNAL(clicked()), this, SLOT(selectViewColor()));
     connect(ui->clrFgReadonly, SIGNAL(clicked()), this, SLOT(selectViewColor()));
     connect(ui->clrFgSystem, SIGNAL(clicked()), this, SLOT(selectViewColor()));
-
-    connect(ui->chooseBoxFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
     connect(ui->chooseViewFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
+
+    connect(ui->enableDarker, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
 
     connect(ui->importAppearance, SIGNAL(clicked()), this, SLOT(importAppearance()));
     connect(ui->exportAppearance, SIGNAL(clicked()), this, SLOT(exportAppearance()));
+
     connect(ui->termBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
     connect(ui->editorBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
 
@@ -120,6 +122,8 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     //>>>>> 色とフォント、テキストビューア
     loadAppearance(settings, false);
+    ui->enableDarker->setChecked(settings.value(IniKey_EnableDarker).toBool());
+    ui->dark->setValue(settings.value(IniKey_Darkness).toInt());
 
     //>>>>> ファイル操作
     // 確認ダイアログの表示
@@ -359,6 +363,9 @@ void PreferenceDialog::setControlsEnabled(bool enabled)
     else if (sender() == ui->enableViewerIgnoreExt) {
         ui->viewerIgnoreExt->setEnabled(enabled);
     }
+    else if (sender() == ui->enableDarker) {
+        ui->dark->setEnabled(enabled);
+    }
 }
 
 void PreferenceDialog::setIgnoreExtDefault()
@@ -532,6 +539,8 @@ void PreferenceDialog::accept()
 
     //>>>>> 色とフォント
     saveAppearance(settings);
+    settings.setValue(IniKey_EnableDarker, ui->enableDarker->isChecked());
+    settings.setValue(IniKey_Darkness, ui->dark->value());
 
     //>>>>> ファイル操作
     settings.setValue(IniKey_ConfirmCopy, ui->confirmCopy->isChecked());

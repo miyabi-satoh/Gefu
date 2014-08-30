@@ -101,6 +101,19 @@ SimpleTextView *AnyView::textView() const
     return ui->textView;
 }
 
+QWidget *AnyView::visibleView() const
+{
+    if (ui->folderPanel->isVisible()) {
+        return ui->folderPanel->folderView();
+    }
+    if (ui->graphicsView->isVisible()) {
+        return ui->graphicsView;
+    }
+    if (ui->textView->isVisible()) {
+        return ui->textView;
+    }
+    return NULL;
+}
 
 void AnyView::focusInEvent(QFocusEvent *)
 {

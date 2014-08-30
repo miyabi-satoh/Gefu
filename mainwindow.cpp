@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
         fp->setObjectName(QString("folderPanel%1").arg(i));
         fp->folderView()->setObjectName(QString("folderView%1").arg(i));
 
-        fp->initialize(this);
+        fp->initialize(this, i == 1);
     }
 
     QSettings settings;
@@ -1101,6 +1101,44 @@ void MainWindow::setCursorToEnd()
     QApplication::sendEvent(QApplication::focusWidget(), &event2);
 }
 
+void MainWindow::setCursorToBeginOther()
+{
+    qDebug() << "MainWindow::setCursorToBeginOther();";
+
+    QKeyEvent event1 = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::NoModifier);
+    sendEventOther(&event1);
+
+    QKeyEvent event2 = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::ControlModifier);
+    sendEventOther(&event2);
+}
+
+void MainWindow::cursorDownOther()
+{
+    qDebug() << "MainWindow::cursorDownOther();";
+
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_Down, Qt::NoModifier);
+    sendEventOther(&event);
+}
+
+void MainWindow::cursorUpOther()
+{
+    qDebug() << "MainWindow::cursorUpOther();";
+
+    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_Up, Qt::NoModifier);
+    sendEventOther(&event);
+}
+
+void MainWindow::setCursorToEndOther()
+{
+    qDebug() << "MainWindow::setCursorToEndOther();";
+
+    QKeyEvent event1 = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::NoModifier);
+    sendEventOther(&event1);
+
+    QKeyEvent event2 = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::ControlModifier);
+    sendEventOther(&event2);
+}
+
 void MainWindow::setFontSizeDown()
 {
     qDebug() << "MainWindow::setFontSizeDown();";
@@ -1177,6 +1215,43 @@ void MainWindow::initBookmark()
         connect(action, SIGNAL(triggered()), this, SLOT(openBookmark()));
         i++;
     }
+}
+
+void MainWindow::sendEventOther(QEvent *event)
+{
+    qDebug() << "MainWindow::sendEventOther();";
+
+    QWidget *widget = NULL;
+
+    if (m_viewMode & ModeBasic) {
+        // 検索ボックスにフォーカスがある場合も考慮して、
+        // FolderPanalを介してViewを取得する
+        FolderPanel *fp = qobject_cast<FolderPanel*>(qApp->focusWidget()->parentWidget());
+        Q_CHECK_PTR(fp);
+
+        widget = otherSideFolderView(fp->folderView());
+    }
+    else if (m_viewMode & ModeHalfView) {
+        AnyView *focusedView = qobject_cast<AnyView*>(qApp->focusWidget()->parentWidget());
+        if (!focusedView) {
+            focusedView = qobject_cast<AnyView*>(qApp->focusWidget()->parentWidget()->parentWidget());
+        }
+        Q_CHECK_PTR(focusedView);
+
+        if (focusedView == ui->pane1) {
+            widget = ui->pane2->visibleView();
+        }
+        else {
+            Q_ASSERT(focusedView == ui->pane2);
+            widget = ui->pane1->visibleView();
+        }
+    }
+    else {
+        return;
+    }
+
+    Q_CHECK_PTR(widget);
+    QApplication::sendEvent(widget, event);
 }
 
 void MainWindow::setPathFromOther()
@@ -1281,10 +1356,13 @@ void MainWindow::showPreferenceDialog()
 
     PreferenceDialog dlg(this);
     if (dlg.exec() == QDialog::Accepted) {
-        ui->pane1->folderPanel()->locationBox()->updateAppearance();
-        ui->pane2->folderPanel()->locationBox()->updateAppearance();
-        ui->pane1->folderPanel()->folderView()->updateAppearance();
-        ui->pane2->folderPanel()->folderView()->updateAppearance();
+        bool dark1 = !ui->pane1->folderPanel()->folderView()->hasFocus();
+        bool dark2 = !ui->pane2->folderPanel()->folderView()->hasFocus();
+
+        ui->pane1->folderPanel()->locationBox()->updateAppearance(dark1);
+        ui->pane2->folderPanel()->locationBox()->updateAppearance(dark2);
+        ui->pane1->folderPanel()->folderView()->updateAppearance(dark1);
+        ui->pane2->folderPanel()->folderView()->updateAppearance(dark2);
         ui->pane1->textView()->updateAppearance();
         ui->pane2->textView()->updateAppearance();
         ui->pane3->textView()->updateAppearance();
@@ -1459,13 +1537,17 @@ void MainWindow::initActionConnections()
     connect(ui->move_Begin, SIGNAL(triggered()), this, SLOT(setCursorToBegin()));
     connect(ui->move_Down, SIGNAL(triggered()), this, SLOT(cursorDown()));
     connect(ui->move_End, SIGNAL(triggered()), this, SLOT(setCursorToEnd()));
+    connect(ui->move_Up, SIGNAL(triggered()), this, SLOT(cursorUp()));
+    connect(ui->move_BeginOther, SIGNAL(triggered()), this, SLOT(setCursorToBeginOther()));
+    connect(ui->move_DownOther, SIGNAL(triggered()), this, SLOT(cursorDownOther()));
+    connect(ui->move_EndOther, SIGNAL(triggered()), this, SLOT(setCursorToEndOther()));
+    connect(ui->move_UpOther, SIGNAL(triggered()), this, SLOT(cursorUpOther()));
     connect(ui->move_Forward, SIGNAL(triggered()), this, SLOT(historyForward()));
     connect(ui->move_History, SIGNAL(triggered()), this, SLOT(showHistoryDialog()));
     connect(ui->move_Home, SIGNAL(triggered()), this, SLOT(setPathToHome()));
     connect(ui->move_Jump, SIGNAL(triggered()), this, SLOT(chooseFolder()));
     connect(ui->move_Parent, SIGNAL(triggered()), this, SLOT(setPathToParent()));
     connect(ui->move_Root, SIGNAL(triggered()), this, SLOT(setPathToRoot()));
-    connect(ui->move_Up, SIGNAL(triggered()), this, SLOT(cursorUp()));
     connect(ui->view_Filter, SIGNAL(triggered()), this, SLOT(showFilterDialog()));
     connect(ui->view_FontSizeDown, SIGNAL(triggered()), this, SLOT(setFontSizeDown()));
     connect(ui->view_FontSizeUp, SIGNAL(triggered()), this, SLOT(setFontSizeUp()));
@@ -1685,9 +1767,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+
     QString ksq = KeyEventToSequence(event);
 
     qDebug() << ">>>>> キーイベントを受信(MainWindow)" << ksq << "<<<<<";
+    qDebug() << qApp->keyboardModifiers().testFlag(Qt::ShiftModifier);
 
     if (ProcessShortcut(ksq, this)) {
         event->accept();

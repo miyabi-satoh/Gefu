@@ -33,6 +33,7 @@ public:
     FolderPanel* folderPanel() const;
     SimpleImageView* imageView() const;
     SimpleTextView* textView() const;
+    QWidget* visibleView() const;
 
 private:
     Ui::AnyView *ui;

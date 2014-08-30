@@ -20,7 +20,7 @@ public:
     explicit FolderPanel(QWidget *parent = 0);
     ~FolderPanel();
 
-    void initialize(MainWindow *mainWnd);
+    void initialize(MainWindow *mainWnd, bool left);
 
     // getter
     LocationBox* locationBox() const;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>617</width>
-    <height>498</height>
+    <width>581</width>
+    <height>584</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,7 +26,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -80,15 +80,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="absoluteWidth">
+                <property name="suffix">
+                 <string> px</string>
+                </property>
                 <property name="maximum">
                  <number>9999</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>px</string>
                 </property>
                </widget>
               </item>
@@ -105,15 +101,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="absoluteHeight">
+                <property name="suffix">
+                 <string> px</string>
+                </property>
                 <property name="maximum">
                  <number>9999</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>px</string>
                 </property>
                </widget>
               </item>
@@ -155,15 +147,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="relativeWidth">
+                <property name="suffix">
+                 <string> %</string>
+                </property>
                 <property name="maximum">
                  <number>100</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>%</string>
                 </property>
                </widget>
               </item>
@@ -193,15 +181,14 @@
               </item>
               <item>
                <widget class="QSpinBox" name="relativeHeight">
+                <property name="suffix">
+                 <string> %</string>
+                </property>
+                <property name="prefix">
+                 <string/>
+                </property>
                 <property name="maximum">
                  <number>100</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>%</string>
                 </property>
                </widget>
               </item>
@@ -301,15 +288,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="absoluteLeft">
+                <property name="suffix">
+                 <string> px</string>
+                </property>
                 <property name="maximum">
                  <number>9999</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_14">
-                <property name="text">
-                 <string>px</string>
                 </property>
                </widget>
               </item>
@@ -326,15 +309,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="absoluteTop">
+                <property name="suffix">
+                 <string> px</string>
+                </property>
                 <property name="maximum">
                  <number>9999</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_16">
-                <property name="text">
-                 <string>px</string>
                 </property>
                </widget>
               </item>
@@ -370,15 +349,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="relativeLeft">
+                <property name="suffix">
+                 <string> %</string>
+                </property>
                 <property name="maximum">
                  <number>100</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_10">
-                <property name="text">
-                 <string>%</string>
                 </property>
                </widget>
               </item>
@@ -408,15 +383,11 @@
               </item>
               <item>
                <widget class="QSpinBox" name="relativeTop">
+                <property name="suffix">
+                 <string> %</string>
+                </property>
                 <property name="maximum">
                  <number>100</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_12">
-                <property name="text">
-                 <string>%</string>
                 </property>
                </widget>
               </item>
@@ -540,22 +511,7 @@
       <attribute name="title">
        <string>色とフォント</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <property name="spacing">
-        <number>4</number>
-       </property>
-       <property name="leftMargin">
-        <number>4</number>
-       </property>
-       <property name="topMargin">
-        <number>4</number>
-       </property>
-       <property name="rightMargin">
-        <number>4</number>
-       </property>
-       <property name="bottomMargin">
-        <number>4</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
@@ -917,6 +873,51 @@
              <bool>false</bool>
             </attribute>
            </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="enableDarker">
+         <property name="title">
+          <string>非アクティブパネルの色を暗くする</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>暗さ(0〜100)</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="dark">
+            <property name="prefix">
+             <string/>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -1996,8 +1997,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="overwriteOptions"/>
-  <buttongroup name="sizeOptions"/>
   <buttongroup name="posOptions"/>
+  <buttongroup name="sizeOptions"/>
+  <buttongroup name="overwriteOptions"/>
  </buttongroups>
 </ui>

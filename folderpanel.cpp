@@ -22,7 +22,7 @@ FolderPanel::~FolderPanel()
     delete ui;
 }
 
-void FolderPanel::initialize(MainWindow *mainWnd)
+void FolderPanel::initialize(MainWindow *mainWnd, bool left)
 {
     qDebug() << "FolderPanel::initialize();";
     m_mainWnd = mainWnd;
@@ -43,10 +43,10 @@ void FolderPanel::initialize(MainWindow *mainWnd)
     ui->searchBox->setVisible(false);
 
     // ロケーションボックスを初期化する
-    ui->locationBox->initialize();
+    ui->locationBox->initialize(left);
 
     // フォルダビューを初期化する
-    ui->folderView->initialize(mainWnd);
+    ui->folderView->initialize(mainWnd, left);
 }
 
 LocationBox *FolderPanel::locationBox() const

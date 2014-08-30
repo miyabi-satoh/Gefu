@@ -9,6 +9,7 @@ class QKeyEvent;
 extern QString FilesizeToString(quint64 size);
 extern QString ViewerIgnoreExt();
 extern QString KeyEventToSequence(const QKeyEvent *event);
+extern bool IsKeyUpDown(const QKeyEvent *event);
 extern bool ProcessShortcut(const QString &ksq, const QObject *object);
 extern void Sleep(int msec);
 
@@ -41,6 +42,8 @@ extern void Sleep(int msec);
 #define IniKey_ViewColorFgSystem        "Appearance/ViewColorFgSystem"
 #define IniKey_ViewColorFgHidden        "Appearance/ViewColorFgHidden"
 #define IniKey_ViewColorFgReadonly      "Appearance/ViewColorFgReadonly"
+#define IniKey_EnableDarker             "Appearance/Darker"
+#define IniKey_Darkness                 "Appearance/Darkness"
 #define IniKey_ConfirmExit              "Confirm/Exit"
 #define IniKey_ConfirmCopy              "Confirm/Copy"
 #define IniKey_ConfirmMove              "Confirm/Move"

@@ -26,6 +26,8 @@ FileTableModel::FileTableModel(QObject *parent) :
     m_HiddenBrush(),
     m_ReadonlyBrush()
 {
+    m_fsWatcher = new QFileSystemWatcher(this);
+
     // デフォルトフィルタを設定する
     setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
 }
@@ -99,10 +101,6 @@ bool FileTableModel::setPath(const QString &path)
     m_checkStates.resize(m_fileInfoList.size());
     m_checkStates.fill(Qt::Unchecked);
 
-    if (m_fsWatcher) {
-        delete m_fsWatcher;
-    }
-    m_fsWatcher = new QFileSystemWatcher(this);
     m_fsWatcher->addPath(path);
     connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
             this, SLOT(directoryChange(QString)));
@@ -158,26 +156,30 @@ QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
     return m_fileInfoList[index.row()];
 }
 
-void FileTableModel::updateAppearance()
+void FileTableModel::updateAppearance(bool darker)
 {
     QSettings settings;
-    QPalette palette(QApplication::palette("QTableView"));
-
+    int darkness = 100;
+    if (darker && settings.value(IniKey_EnableDarker).toBool()) {
+        darkness += settings.value(IniKey_Darkness).toInt();
+    }
     m_font = settings.value(IniKey_ViewFont).value<QFont>();
-    m_NormalBrush = QBrush(settings.value(IniKey_ViewColorBgNormal).value<QColor>());
-    m_NormalTextBrush = QBrush(settings.value(IniKey_ViewColorFgNormal).value<QColor>());
-    m_MarkBrush = QBrush(settings.value(IniKey_ViewColorBgMark).value<QColor>());
-    m_MarkTextBrush = QBrush(settings.value(IniKey_ViewColorFgMark).value<QColor>());
-    m_SystemBrush = QBrush(settings.value(IniKey_ViewColorFgSystem).value<QColor>());
-    m_HiddenBrush = QBrush(settings.value(IniKey_ViewColorFgHidden).value<QColor>());
-    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
-    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>());
+
+    m_NormalBrush = QBrush(settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
+    m_NormalTextBrush = QBrush(settings.value(IniKey_ViewColorFgNormal).value<QColor>().darker(darkness));
+    m_MarkBrush = QBrush(settings.value(IniKey_ViewColorBgMark).value<QColor>().darker(darkness));
+    m_MarkTextBrush = QBrush(settings.value(IniKey_ViewColorFgMark).value<QColor>().darker(darkness));
+    m_SystemBrush = QBrush(settings.value(IniKey_ViewColorFgSystem).value<QColor>().darker(darkness));
+    m_HiddenBrush = QBrush(settings.value(IniKey_ViewColorFgHidden).value<QColor>().darker(darkness));
+    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>().darker(darkness));
+    m_ReadonlyBrush = QBrush(settings.value(IniKey_ViewColorFgReadonly).value<QColor>().darker(darkness));
 }
 
 void FileTableModel::directoryChange(const QString &path)
 {
     qDebug() << "FileTableModel::directoryChange";
 
+    m_fsWatcher->removePath(m_dir.absolutePath());
     setPath(path);
 }
 

@@ -35,7 +35,7 @@ public:
     QFileInfoList checkedItems() const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
-    void updateAppearance();
+    void updateAppearance(bool darker = false);
 
     QFont font() const { return m_font; }
 

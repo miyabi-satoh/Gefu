@@ -1,5 +1,7 @@
 #include "common.h"
 #include "mainwindow.h"
+#include "folderpanel.h"
+#include "locationbox.h"
 #include "folderview.h"
 
 #include <QDebug>
@@ -54,7 +56,7 @@ QString FolderView::side() const
     }
 }
 
-void FolderView::initialize(MainWindow *mainWnd)
+void FolderView::initialize(MainWindow *mainWnd, bool left)
 {
     qDebug() << side() << "initialize";
 
@@ -73,7 +75,7 @@ void FolderView::initialize(MainWindow *mainWnd)
     setPath(settings.value(side() + slash + IniKey_Dir).toString(), true);
 
     // 色とフォントを設定する
-    updateAppearance();
+    updateAppearance(!left);
 
     // 列のリサイズモードを設定する
     QHeaderView *header;
@@ -85,14 +87,18 @@ void FolderView::initialize(MainWindow *mainWnd)
     header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
 }
 
-void FolderView::updateAppearance()
+void FolderView::updateAppearance(bool darker)
 {
     qDebug() << side() << "updateAppearance";
-    m_model.updateAppearance();
+    m_model.updateAppearance(darker);
 
     QSettings settings;
     QPalette pal = palette();
-    pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>());
+    int darkness = 100;
+    if (darker && settings.value(IniKey_EnableDarker).toBool()) {
+        darkness += settings.value(IniKey_Darkness).toInt();
+    }
+    pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
     setPalette(pal);
 
     // 行の高さを設定する
@@ -387,7 +393,11 @@ void FolderView::keyPressEvent(QKeyEvent *event)
 {
     qDebug() << side() << "keyPressEvent";
 
-    QTableView::keyPressEvent(event);
+    if (IsKeyUpDown(event)) {
+        QTableView::keyPressEvent(event);
+        event->accept();
+        return;
+    }
 
     // MainWindowへ
     event->ignore();
@@ -508,4 +518,31 @@ void FolderView::contextMenuEvent(QContextMenuEvent *event)
     qDebug() << side() << "contextMenuEvent();";
 
     emit requestContextMenu(event);
+}
+
+
+void FolderView::focusInEvent(QFocusEvent *event)
+{
+    if (!currentIndex().isValid()) {
+        setCurrentIndex(m_model.index(0, 1));
+    }
+
+    this->updateAppearance();
+
+    FolderPanel *fp = qobject_cast<FolderPanel*>(parentWidget());
+    fp->locationBox()->updateAppearance();
+
+    QTableView::focusInEvent(event);
+}
+
+void FolderView::focusOutEvent(QFocusEvent *event)
+{
+    m_model.updateAppearance(true);
+
+    this->updateAppearance(true);
+
+    FolderPanel *fp = qobject_cast<FolderPanel*>(parentWidget());
+    fp->locationBox()->updateAppearance(true);
+
+    QTableView::focusOutEvent(event);
 }

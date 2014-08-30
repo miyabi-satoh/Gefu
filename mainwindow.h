@@ -53,6 +53,8 @@ public slots:
     void createFolder();
     void cursorDown();
     void cursorUp();
+    void cursorDownOther();
+    void cursorUpOther();
     void deleteItems();
     void editBookmark();
     void executeCommand();
@@ -74,6 +76,8 @@ public slots:
     void searchPrev();
     void setCursorToBegin();
     void setCursorToEnd();
+    void setCursorToBeginOther();
+    void setCursorToEndOther();
     void setFontSizeDown();
     void setFontSizeUp();
     void setPathFromOther();
@@ -99,10 +103,10 @@ public slots:
 
 private:
     enum Mode {
-        ModeBasic = 0x00,
-        ModeSearch = 0x01,
-        ModeFullView = 0x02,
-        ModeHalfView = 0x04,
+        ModeBasic = 0x01,
+        ModeSearch = 0x02,
+        ModeFullView = 0x04,
+        ModeHalfView = 0x08,
     };
     typedef QFlags<Mode> ModeFlags;
 
@@ -121,6 +125,7 @@ private:
     void copyItems(const QFileInfoList &list, const QString &tgtDir);
     void changeFontSize(int diff);
     void initBookmark();
+    void sendEventOther(QEvent *event);
 
     // getter
     FolderView* otherSideFolderView(const FolderView *view) const;

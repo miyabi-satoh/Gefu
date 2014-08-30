@@ -240,6 +240,10 @@ void SimpleImageView::keyPressEvent(QKeyEvent *event)
     }
 
     QGraphicsView::keyReleaseEvent(event);
+    if (IsKeyUpDown(event)) {
+        event->accept();
+        return;
+    }
 
     // MainWindowへ
     event->ignore();

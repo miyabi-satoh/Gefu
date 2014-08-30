@@ -8,17 +8,53 @@
 #include <QShortcut>
 #include <QTextCodec>
 #include <QStatusBar>
+#include <QApplication>
 
+///////////////////////////////////////////////////////////////////////////////
+/// \brief KeyEventToSequence
+/// \param event キーイベントオブジェクト
+/// \return キーシーケンスの文字列(Ctrl+C等)
+///
+/// キーイベントで押されているキーをキーシーケンス文字列に変換します
+///
 QString KeyEventToSequence(const QKeyEvent *event)
 {
     QString modifier = QString::null;
+
     if (event->modifiers() & Qt::ShiftModifier)     { modifier += "Shift+"; }
     if (event->modifiers() & Qt::ControlModifier)   { modifier += "Ctrl+"; }
     if (event->modifiers() & Qt::AltModifier)       { modifier += "Alt+"; }
     if (event->modifiers() & Qt::MetaModifier)      { modifier += "Meta+"; }
 
     QString key = QKeySequence(event->key()).toString();
-    return QKeySequence(modifier + key).toString();
+
+    return modifier + key;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief IsKeyUpDown
+/// \param event キーイベントオブジェクト
+/// \return (Up/Down/Home/End)+(!Shift)の場合true
+///
+/// カーソル移動系のキーが押されたかを判定します
+///
+bool IsKeyUpDown(const QKeyEvent *event)
+{
+    QString ksq = KeyEventToSequence(event);
+
+    switch (event->key()) {
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+    case Qt::Key_Home:
+    case Qt::Key_End:
+        if (event->modifiers() & Qt::ShiftModifier) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    return false;
 }
 
 SimpleTextView::SimpleTextView(QWidget *parent) :
@@ -56,13 +92,13 @@ SimpleTextView::SimpleTextView(QWidget *parent) :
     m_copy->setObjectName("copy");
     m_back->setObjectName("back");
 
-    m_convEUC->setShortcut(QKeySequence("Shift+E"));
-    m_convJIS->setShortcut(QKeySequence("Shift+J"));
-    m_convSJIS->setShortcut(QKeySequence("Shift+S"));
-    m_convUTF8->setShortcut(QKeySequence("Shift+U"));
-    m_convUTF16->setShortcut(QKeySequence("Shift+I"));
-    m_convUTF16BE->setShortcut(QKeySequence("Shift+O"));
-    m_convUTF16LE->setShortcut(QKeySequence("Shift+P"));
+    m_convEUC->setShortcut(QKeySequence("Ctrl+E"));
+    m_convJIS->setShortcut(QKeySequence("Ctrl+J"));
+    m_convSJIS->setShortcut(QKeySequence("Ctrl+S"));
+    m_convUTF8->setShortcut(QKeySequence("Ctrl+U"));
+    m_convUTF16->setShortcut(QKeySequence("Ctrl+I"));
+    m_convUTF16BE->setShortcut(QKeySequence("Ctrl+O"));
+    m_convUTF16LE->setShortcut(QKeySequence("Ctrl+P"));
     m_copy->setShortcut(QKeySequence::Copy);
 
     QList<QKeySequence> shortcuts;
@@ -192,6 +228,10 @@ void SimpleTextView::keyPressEvent(QKeyEvent *event)
     }
 
     QPlainTextEdit::keyPressEvent(event);
+    if (IsKeyUpDown(event)) {
+        event->accept();
+        return;
+    }
 
     // MainWindowへ
     event->ignore();

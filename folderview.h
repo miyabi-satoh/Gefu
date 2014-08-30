@@ -16,8 +16,8 @@ public:
     QString side() const;
 
     // actions
-    void initialize(MainWindow *mainWnd);
-    void updateAppearance();
+    void initialize(MainWindow *mainWnd, bool left);
+    void updateAppearance(bool darker = false);
     void refresh();
 
     void searchItem(const QString &text);
@@ -79,6 +79,8 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
 };
 
 #endif // FOLDERVIEW_H
