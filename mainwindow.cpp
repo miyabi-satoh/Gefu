@@ -1067,8 +1067,11 @@ void MainWindow::setCursorToBegin()
 {
     qDebug() << "MainWindow::setCursorToBegin();";
 
-    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::ControlModifier);
-    QApplication::sendEvent(QApplication::focusWidget(), &event);
+    QKeyEvent event1 = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::NoModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event1);
+
+    QKeyEvent event2 = QKeyEvent(QEvent::KeyPress, Qt::Key_Home, Qt::ControlModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event2);
 }
 
 void MainWindow::cursorDown()
@@ -1091,8 +1094,11 @@ void MainWindow::setCursorToEnd()
 {
     qDebug() << "MainWindow::setCursorToEnd();";
 
-    QKeyEvent event = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::ControlModifier);
-    QApplication::sendEvent(QApplication::focusWidget(), &event);
+    QKeyEvent event1 = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::NoModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event1);
+
+    QKeyEvent event2 = QKeyEvent(QEvent::KeyPress, Qt::Key_End, Qt::ControlModifier);
+    QApplication::sendEvent(QApplication::focusWidget(), &event2);
 }
 
 void MainWindow::setFontSizeDown()
@@ -1147,6 +1153,8 @@ void MainWindow::changeFontSize(int diff)
         ui->pane3->imageView()->hasFocus())
     {
         ui->pane1->imageView()->changeScale(diff > 0);
+        ui->pane2->imageView()->changeScale(diff > 0);
+        ui->pane3->imageView()->changeScale(diff > 0);
     }
 }
 
