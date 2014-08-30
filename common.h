@@ -42,7 +42,6 @@ extern void Sleep(int msec);
 #define IniKey_ViewColorFgSystem        "Appearance/ViewColorFgSystem"
 #define IniKey_ViewColorFgHidden        "Appearance/ViewColorFgHidden"
 #define IniKey_ViewColorFgReadonly      "Appearance/ViewColorFgReadonly"
-#define IniKey_EnableDarker             "Appearance/Darker"
 #define IniKey_Darkness                 "Appearance/Darkness"
 #define IniKey_ConfirmExit              "Confirm/Exit"
 #define IniKey_ConfirmCopy              "Confirm/Copy"

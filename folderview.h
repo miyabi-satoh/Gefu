@@ -24,7 +24,7 @@ public:
     void searchNext(const QString &text);
     void searchPrev(const QString &text);
 
-    void setCheckStateAll(bool checked);
+    void setCheckStateAll(Qt::CheckState state);
     void setCheckStateAllFiles();
     void invertCheckState();
     void toggleCheckState(const QModelIndex &index);

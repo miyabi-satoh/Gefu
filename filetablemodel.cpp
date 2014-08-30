@@ -16,7 +16,7 @@ FileTableModel::FileTableModel(QObject *parent) :
     m_fileInfoList(),
     m_checkStates(),
     m_IconFactory(),
-    m_fsWatcher(NULL),
+    m_fsWatcher(this),
     m_font(),
     m_NormalBrush(),
     m_NormalTextBrush(),
@@ -26,8 +26,6 @@ FileTableModel::FileTableModel(QObject *parent) :
     m_HiddenBrush(),
     m_ReadonlyBrush()
 {
-    m_fsWatcher = new QFileSystemWatcher(this);
-
     // デフォルトフィルタを設定する
     setFilter(QDir::NoDot | QDir::AllDirs | QDir::Files);
 }
@@ -101,8 +99,8 @@ bool FileTableModel::setPath(const QString &path)
     m_checkStates.resize(m_fileInfoList.size());
     m_checkStates.fill(Qt::Unchecked);
 
-    m_fsWatcher->addPath(path);
-    connect(m_fsWatcher, SIGNAL(directoryChanged(QString)),
+    m_fsWatcher.addPath(path);
+    connect(&m_fsWatcher, SIGNAL(directoryChanged(QString)),
             this, SLOT(directoryChange(QString)));
 
     endResetModel();
@@ -112,55 +110,23 @@ bool FileTableModel::setPath(const QString &path)
     return !m_fileInfoList.isEmpty();
 }
 
-Qt::CheckState FileTableModel::checkState(const QModelIndex &index) const
-{
-    return m_checkStates[index.row()];
-}
-
-void FileTableModel::setCheckState(const QModelIndex &index, Qt::CheckState state)
-{
-    qDebug() << "FileTableModel::setCheckState();";
-
-    beginResetModel();
-    m_checkStates[index.row()] = state;
-    if (state == Qt::Checked && index.row() == 0 &&
-        m_fileInfoList[0].fileName() == "..")
-    {
-        m_checkStates[0] = Qt::Unchecked;
-    }
-    endResetModel();;
-    emit dataChanged(index, this->index(index.row(), 3));
-}
-
-void FileTableModel::setCheckStateAll(Qt::CheckState state)
-{
-    qDebug() << "FileTableModel::setCheckStateAll();";
-
-    beginResetModel();
-    m_checkStates.fill(state);
-    if (state == Qt::Checked && m_fileInfoList.size() > 1 &&
-        m_fileInfoList[0].fileName() == "..")
-    {
-        m_checkStates[0] = Qt::Unchecked;
-    }
-    endResetModel();
-    emit dataChanged(QModelIndex(), QModelIndex());
-}
-
 QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
 {
-    if (!index.isValid()) {
-        qDebug() << "fileInfo() : index is invalid.";
-        return QFileInfo();
+    qDebug() << "FileTableModel::fileInfo()" << index;
+
+    if (index.isValid()) {
+        return m_fileInfoList[index.row()];
     }
-    return m_fileInfoList[index.row()];
+    return QFileInfo();
 }
 
 void FileTableModel::updateAppearance(bool darker)
 {
+    qDebug() << "FileTableModel::updateAppearance();" << darker;
+
     QSettings settings;
     int darkness = 100;
-    if (darker && settings.value(IniKey_EnableDarker).toBool()) {
+    if (darker) {
         darkness += settings.value(IniKey_Darkness).toInt();
     }
     m_font = settings.value(IniKey_ViewFont).value<QFont>();
@@ -177,23 +143,10 @@ void FileTableModel::updateAppearance(bool darker)
 
 void FileTableModel::directoryChange(const QString &path)
 {
-    qDebug() << "FileTableModel::directoryChange";
+    qDebug() << "FileTableModel::directoryChange" << path;
 
-    m_fsWatcher->removePath(m_dir.absolutePath());
+    m_fsWatcher.removePath(m_dir.absolutePath());
     setPath(path);
-}
-
-QFileInfoList FileTableModel::checkedItems() const
-{
-    QFileInfoList list;
-    for (int n = 0; n < m_checkStates.size(); n++) {
-        if (m_fileInfoList[n].fileName() != ".." &&
-            m_checkStates[n] == Qt::Checked)
-        {
-            list.append(m_fileInfoList[n]);
-        }
-    }
-    return list;
 }
 
 int FileTableModel::rowCount(const QModelIndex &parent) const
@@ -222,6 +175,7 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case 0: // チェックボックス
             return QString("");
+
         case 1: // ファイル名
             if (info.isDir()) {
                 return info.fileName();
@@ -267,7 +221,8 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
             }
             else {
                 // infoを使うと、正しいアイコンが取れない場合がある…なぜ？
-                return m_IconFactory.icon(QFileInfo(info.absoluteFilePath()));
+//                return m_IconFactory.icon(QFileInfo(info.absoluteFilePath()));
+                return m_IconFactory.icon(QFileInfo(info));
             }
         }
         break;
@@ -342,10 +297,12 @@ QVariant FileTableModel::headerData(int section, Qt::Orientation orientation, in
 Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
     if (!index.isValid()) {
-        flags |= Qt::ItemIsDropEnabled;
+        return flags | Qt::ItemIsDropEnabled;
     }
-    else if (m_fileInfoList[index.row()].fileName() != "..") {
+
+    if (m_fileInfoList[index.row()].fileName() != "..") {
         if (index.column() == 0) {
             flags |= Qt::ItemIsUserCheckable;
         }
@@ -356,7 +313,7 @@ Qt::ItemFlags FileTableModel::flags(const QModelIndex &index) const
 
 bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    qDebug() << "FileTableModel::setData()";
+    qDebug() << "FileTableModel::setData()" << index;
 
     if (!index.isValid()) {
         return false;
@@ -366,7 +323,7 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
     case Qt::CheckStateRole:
         if (index.column() == 0) {
             m_checkStates[index.row()] = static_cast<Qt::CheckState>(value.toInt());
-            emit dataChanged(index, this->index(index.row(), 3));
+            emit dataChanged(index, index);
             return true;
         }
         break;
@@ -377,11 +334,15 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
 
 Qt::DropActions FileTableModel::supportedDropActions() const
 {
-    return Qt::CopyAction | Qt::MoveAction;
+    qDebug() << "FileTableModel::supportedDropActions()";
+
+    return Qt::CopyAction;
 }
 
 QStringList FileTableModel::mimeTypes() const
 {
+    qDebug() << "FileTableModel::mimeTypes()";
+
     QStringList types;
 
     types << "text/uri-list";

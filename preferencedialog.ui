@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
-    <height>584</height>
+    <width>683</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>環境設定</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="focusPolicy">
@@ -519,7 +519,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
-           <number>4</number>
+           <number>0</number>
           </property>
           <property name="leftMargin">
            <number>4</number>
@@ -649,21 +649,9 @@
          <property name="title">
           <string>ファイルビュー</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
+           <number>0</number>
           </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_21">
@@ -742,30 +730,33 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_18">
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
             <property name="spacing">
-             <number>4</number>
-            </property>
-            <property name="leftMargin">
-             <number>4</number>
-            </property>
-            <property name="topMargin">
-             <number>4</number>
-            </property>
-            <property name="rightMargin">
-             <number>4</number>
-            </property>
-            <property name="bottomMargin">
-             <number>4</number>
+             <number>-1</number>
             </property>
             <item>
              <widget class="QGroupBox" name="groupBox_3">
               <property name="title">
                <string>文字色</string>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_19">
+              <layout class="QHBoxLayout" name="horizontalLayout_13">
+               <property name="topMargin">
+                <number>12</number>
+               </property>
                <item>
                 <widget class="QPushButton" name="clrFgSystem">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::StrongFocus</enum>
                  </property>
@@ -776,16 +767,40 @@
                </item>
                <item>
                 <widget class="QPushButton" name="clrFgMark">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::StrongFocus</enum>
                  </property>
                  <property name="text">
-                  <string>マーク</string>
+                  <string> マーク </string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="clrFgHidden">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::StrongFocus</enum>
                  </property>
@@ -796,6 +811,18 @@
                </item>
                <item>
                 <widget class="QPushButton" name="clrFgReadonly">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::StrongFocus</enum>
                  </property>
@@ -806,6 +833,22 @@
                </item>
               </layout>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
              <widget class="QGroupBox" name="groupBox_4">
@@ -825,6 +868,53 @@
                </item>
               </layout>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>非アクティブパネルの暗さ(0〜100)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="dark">
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -873,51 +963,6 @@
              <bool>false</bool>
             </attribute>
            </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="enableDarker">
-         <property name="title">
-          <string>非アクティブパネルの色を暗くする</string>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
-          <item>
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>暗さ(0〜100)</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="dark">
-            <property name="prefix">
-             <string/>
-            </property>
-            <property name="maximum">
-             <number>100</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -993,264 +1038,257 @@
       <attribute name="title">
        <string>ファイル操作</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_8">
-       <property name="spacing">
-        <number>-1</number>
-       </property>
-       <property name="leftMargin">
-        <number>4</number>
-       </property>
-       <property name="topMargin">
-        <number>4</number>
-       </property>
-       <property name="rightMargin">
-        <number>4</number>
-       </property>
-       <property name="bottomMargin">
-        <number>4</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>操作の開始時、確認ダイアログを表示する</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_24">
-          <property name="spacing">
-           <number>-1</number>
-          </property>
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <item>
-           <widget class="QCheckBox" name="confirmCopy">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+        <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>操作の開始時、確認ダイアログを表示する</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_24">
+            <property name="spacing">
+             <number>-1</number>
             </property>
-            <property name="text">
-             <string>コピー</string>
+            <property name="leftMargin">
+             <number>4</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="confirmMove">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+            <property name="topMargin">
+             <number>4</number>
             </property>
-            <property name="text">
-             <string>移動</string>
+            <property name="rightMargin">
+             <number>4</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="confirmDelete">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+            <property name="bottomMargin">
+             <number>4</number>
             </property>
-            <property name="text">
-             <string>削除</string>
+            <item>
+             <widget class="QCheckBox" name="confirmCopy">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>コピー</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="confirmMove">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>移動</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="confirmDelete">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>削除</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="confirmRename">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>名前変更</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_6">
+           <property name="title">
+            <string>操作の成功時、進捗ダイアログを自動で閉じる</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_25">
+            <property name="spacing">
+             <number>-1</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="confirmRename">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+            <property name="leftMargin">
+             <number>4</number>
             </property>
-            <property name="text">
-             <string>名前変更</string>
+            <property name="topMargin">
+             <number>4</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_14">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+            <property name="rightMargin">
+             <number>4</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <property name="bottomMargin">
+             <number>4</number>
             </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
+            <item>
+             <widget class="QCheckBox" name="autoCloseCopy">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>コピー</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="autoCloseMove">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>移動</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="autoCloseDelete">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>削除</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="autoCloseRename">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>名前変更</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_10">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>操作の成功時、進捗ダイアログを自動で閉じる</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_25">
-          <property name="spacing">
-           <number>-1</number>
-          </property>
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <item>
-           <widget class="QCheckBox" name="autoCloseCopy">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+        <layout class="QHBoxLayout" name="horizontalLayout_15">
+         <item>
+          <widget class="QGroupBox" name="groupBox_7">
+           <property name="title">
+            <string>同名ファイル存在時の既定の動作</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="leftMargin">
+             <number>4</number>
             </property>
-            <property name="text">
-             <string>コピー</string>
+            <property name="topMargin">
+             <number>4</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="autoCloseMove">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+            <property name="rightMargin">
+             <number>4</number>
             </property>
-            <property name="text">
-             <string>移動</string>
+            <property name="bottomMargin">
+             <number>4</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="autoCloseDelete">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+            <property name="spacing">
+             <number>-1</number>
             </property>
-            <property name="text">
-             <string>削除</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="autoCloseRename">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>名前変更</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_15">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>同名ファイル存在時の既定の動作</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
-          <property name="spacing">
-           <number>-1</number>
-          </property>
-          <item row="0" column="0">
-           <widget class="QRadioButton" name="rbOverWrite">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>上書き</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">overwriteOptions</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="rbOverWriteIfNew">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>新しければ上書き</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">overwriteOptions</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QRadioButton" name="rbSkip">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>スキップ</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">overwriteOptions</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QRadioButton" name="rbAppendNumber">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>ファイル名末尾に数字を付与</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">overwriteOptions</string>
-            </attribute>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QRadioButton" name="rbRename">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="text">
-             <string>名前を変更</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">overwriteOptions</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="rbOverWrite">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>上書き</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">overwriteOptions</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QRadioButton" name="rbOverWriteIfNew">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>新しければ上書き</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">overwriteOptions</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QRadioButton" name="rbSkip">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>スキップ</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">overwriteOptions</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QRadioButton" name="rbAppendNumber">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>ファイル名末尾に数字を付与</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">overwriteOptions</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QRadioButton" name="rbRename">
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>名前を変更</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">overwriteOptions</string>
+              </attribute>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QCheckBox" name="moveAfterCreate">
@@ -1997,8 +2035,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="posOptions"/>
   <buttongroup name="sizeOptions"/>
   <buttongroup name="overwriteOptions"/>
+  <buttongroup name="posOptions"/>
  </buttongroups>
 </ui>

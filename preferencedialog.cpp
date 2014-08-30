@@ -56,8 +56,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
     connect(ui->clrFgSystem, SIGNAL(clicked()), this, SLOT(selectViewColor()));
     connect(ui->chooseViewFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
 
-    connect(ui->enableDarker, SIGNAL(toggled(bool)), this, SLOT(setControlsEnabled(bool)));
-
     connect(ui->importAppearance, SIGNAL(clicked()), this, SLOT(importAppearance()));
     connect(ui->exportAppearance, SIGNAL(clicked()), this, SLOT(exportAppearance()));
 
@@ -122,7 +120,6 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     //>>>>> 色とフォント、テキストビューア
     loadAppearance(settings, false);
-    ui->enableDarker->setChecked(settings.value(IniKey_EnableDarker).toBool());
     ui->dark->setValue(settings.value(IniKey_Darkness).toInt());
 
     //>>>>> ファイル操作
@@ -363,9 +360,6 @@ void PreferenceDialog::setControlsEnabled(bool enabled)
     else if (sender() == ui->enableViewerIgnoreExt) {
         ui->viewerIgnoreExt->setEnabled(enabled);
     }
-    else if (sender() == ui->enableDarker) {
-        ui->dark->setEnabled(enabled);
-    }
 }
 
 void PreferenceDialog::setIgnoreExtDefault()
@@ -539,7 +533,6 @@ void PreferenceDialog::accept()
 
     //>>>>> 色とフォント
     saveAppearance(settings);
-    settings.setValue(IniKey_EnableDarker, ui->enableDarker->isChecked());
     settings.setValue(IniKey_Darkness, ui->dark->value());
 
     //>>>>> ファイル操作

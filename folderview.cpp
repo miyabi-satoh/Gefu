@@ -95,7 +95,7 @@ void FolderView::updateAppearance(bool darker)
     QSettings settings;
     QPalette pal = palette();
     int darkness = 100;
-    if (darker && settings.value(IniKey_EnableDarker).toBool()) {
+    if (darker) {
         darkness += settings.value(IniKey_Darkness).toInt();
     }
     pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
@@ -185,14 +185,16 @@ void FolderView::searchPrev(const QString &text)
     emit itemNotFound();
 }
 
-void FolderView::setCheckStateAll(bool checked)
+void FolderView::setCheckStateAll(Qt::CheckState state)
 {
-    qDebug() << side() << "markAll();";
+    qDebug() << side() << "setCheckStateAll();" << state;
 
     QModelIndex current = currentIndex();
 
     setUpdatesEnabled(false);
-    m_model.setCheckStateAll(checked ? Qt::Checked : Qt::Unchecked);
+    for (int n = 0; n < m_model.rowCount(); n++) {
+        m_model.setData(m_model.index(n, 0), state, Qt::CheckStateRole);
+    }
     setUpdatesEnabled(true);
 
     setCurrentIndex(current);
@@ -200,19 +202,19 @@ void FolderView::setCheckStateAll(bool checked)
 
 void FolderView::setCheckStateAllFiles()
 {
-    qDebug() << side() << "markAllFiles();";
+    qDebug() << side() << "setCheckStateAllFiles();";
 
     QModelIndex current = currentIndex();
 
     setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
-        QModelIndex index = m_model.index(n, 1);
+        QModelIndex index = m_model.index(n, 0);
         QFileInfo info = m_model.fileInfo(index);
         if (info.isDir()) {
-            m_model.setCheckState(index, Qt::Unchecked);
+            m_model.setData(index, Qt::Unchecked, Qt::CheckStateRole);
         }
         else {
-            m_model.setCheckState(index, Qt::Checked);
+            m_model.setData(index, Qt::Checked, Qt::CheckStateRole);
         }
     }
     setUpdatesEnabled(true);
@@ -228,12 +230,12 @@ void FolderView::invertCheckState()
 
     setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
-        QModelIndex index = m_model.index(n, 1);
-        if (m_model.checkState(index) == Qt::Checked) {
-            m_model.setCheckState(index, Qt::Unchecked);
+        QModelIndex index = m_model.index(n, 0);
+        if (m_model.data(index, Qt::CheckStateRole).toInt() == Qt::Checked) {
+            m_model.setData(index, Qt::Unchecked, Qt::CheckStateRole);
         }
         else {
-            m_model.setCheckState(index, Qt::Checked);
+            m_model.setData(index, Qt::Checked, Qt::CheckStateRole);
         }
     }
     setUpdatesEnabled(true);
@@ -247,11 +249,12 @@ void FolderView::toggleCheckState(const QModelIndex &index)
 
     QFileInfo info = m_model.fileInfo(index);
     if (info.fileName() != "..") {
-        if (m_model.checkState(index) == Qt::Checked) {
-            m_model.setCheckState(index, Qt::Unchecked);
+        QModelIndex chkIndex = m_model.index(index.row(), 0);
+        if (m_model.data(chkIndex, Qt::CheckStateRole).toInt() == Qt::Checked) {
+            m_model.setData(chkIndex, Qt::Unchecked, Qt::CheckStateRole);
         }
         else {
-            m_model.setCheckState(index, Qt::Checked);
+            m_model.setData(chkIndex, Qt::Checked, Qt::CheckStateRole);
         }
     }
     // 最終行でなければ、次のアイテムに移動する
@@ -292,7 +295,14 @@ QFileInfoList FolderView::checkedItems() const
 {
     qDebug() << side() << "checkedItems()";
 
-    return m_model.checkedItems();
+    QFileInfoList list;
+    for (int n = 0; n < m_model.rowCount(); n++) {
+        QModelIndex index = m_model.index(n, 0);
+        if (m_model.data(index, Qt::CheckStateRole).toInt() == Qt::Checked) {
+            list << m_model.fileInfo(index);
+        }
+    }
+    return list;
 }
 
 QFileInfoList FolderView::selectedItems() const
@@ -300,7 +310,7 @@ QFileInfoList FolderView::selectedItems() const
     qDebug() << side() << "selectedItems";
 
     // マークされているアイテムを取得する
-    QFileInfoList list = m_model.checkedItems();
+    QFileInfoList list = checkedItems();
 
     // 一つもマークされていなければ、カーソル位置のアイテムを取得する
     if (list.isEmpty()) {

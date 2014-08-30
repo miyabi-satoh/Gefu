@@ -24,7 +24,7 @@ void LocationBox::updateAppearance(bool darker)
 
     QPalette pal = palette();
     int darkness = 100;
-    if (darker && settings.value(IniKey_EnableDarker).toBool()) {
+    if (darker) {
         darkness += settings.value(IniKey_Darkness).toInt();
     }
     pal.setColor(QPalette::Base, settings.value(IniKey_BoxColorBg).value<QColor>().darker(darkness));

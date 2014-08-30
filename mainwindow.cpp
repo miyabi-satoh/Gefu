@@ -283,7 +283,7 @@ void MainWindow::markAll()
     FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
     Q_CHECK_PTR(view);
 
-    view->setCheckStateAll(true);
+    view->setCheckStateAll(Qt::Checked);
 }
 
 void MainWindow::markAllFiles()
@@ -303,7 +303,7 @@ void MainWindow::markAllOff()
     FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
     Q_CHECK_PTR(view);
 
-    view->setCheckStateAll(false);
+    view->setCheckStateAll(Qt::Unchecked);
 }
 
 void MainWindow::markInvert()
@@ -1647,7 +1647,7 @@ void MainWindow::updateActions()
             }
         }
 
-        if (info.fileName() == "..") {
+        if (info.fileName() == ".." && view->checkedItems().isEmpty()) {
             // ファイル操作を抑止
             ui->cmd_Copy->setEnabled(false);
             ui->cmd_Delete->setEnabled(false);

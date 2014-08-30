@@ -14,33 +14,26 @@ class FileTableModel : public QAbstractTableModel
 public:
     explicit FileTableModel(QObject *parent = 0);
 
+    // action
     bool setPath(const QString &path);
+    void updateAppearance(bool darker = false);
 
+    // getter
+    QDir::SortFlags sorting() const { return m_dir.sorting(); }
     QDir::Filters filter() const { return m_dir.filter(); }
-    void setFilter(QDir::Filters filters) { m_dir.setFilter(filters); }
-
     QStringList nameFilters() const { return m_dir.nameFilters(); }
+    const QString absolutePath() const { return m_dir.absolutePath(); }
+    QFileInfo fileInfo(const QModelIndex &index) const;
+    QFont font() const { return m_font; }
+
+    // setter
+    void setSorting(QDir::SortFlags sort) { m_dir.setSorting(sort); }
+    void setFilter(QDir::Filters filters) { m_dir.setFilter(filters); }
     void setNameFilters(const QStringList &nameFiltes) {
         m_dir.setNameFilters(nameFiltes);
     }
 
-    QDir::SortFlags sorting() const { return m_dir.sorting(); }
-    void setSorting(QDir::SortFlags sort) { m_dir.setSorting(sort); }
-
-    Qt::CheckState checkState(const QModelIndex &index) const;
-    void setCheckState(const QModelIndex &index, Qt::CheckState state);
-    void setCheckStateAll(Qt::CheckState state);
-    const QString absolutePath() const { return m_dir.absolutePath(); }
-
-    QFileInfoList checkedItems() const;
-    QFileInfo fileInfo(const QModelIndex &index) const;
-
-    void updateAppearance(bool darker = false);
-
-    QFont font() const { return m_font; }
-
 signals:
-//    void rootChanged(const QString &root);
     void selectionChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
 
 public slots:
@@ -51,7 +44,7 @@ private:
     QFileInfoList m_fileInfoList;
     QVector<Qt::CheckState> m_checkStates;
     QFileIconProvider m_IconFactory;
-    QFileSystemWatcher *m_fsWatcher;
+    QFileSystemWatcher m_fsWatcher;
     QFont m_font;
     QBrush m_NormalBrush;
     QBrush m_NormalTextBrush;
@@ -60,8 +53,6 @@ private:
     QBrush m_SystemBrush;
     QBrush m_HiddenBrush;
     QBrush m_ReadonlyBrush;
-
-//    void stateChanged();
 
     // QAbstractItemModel interface
 public:
