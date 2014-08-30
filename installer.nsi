@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Gefu"
-!define PRODUCT_VERSION "0.18"
+!define PRODUCT_VERSION "0.19"
 !define PRODUCT_PUBLISHER "@miyabi_satoh"
 !define PRODUCT_WEB_SITE "http://gefu.sourceforge.jp/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Gefu.exe"
@@ -51,7 +51,7 @@ var ICONS_GROUP
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Gefu018_Setup.exe"
+OutFile "Gefu019_Setup.exe"
 InstallDir "$PROGRAMFILES\Gefu"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
