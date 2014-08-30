@@ -1111,6 +1111,8 @@ void MainWindow::setFontSizeUp()
 
 void MainWindow::changeFontSize(int diff)
 {
+    qDebug() << "MainWindow::changeFontSize(;";
+
     QSettings settings;
     QFont font;
 
@@ -1138,6 +1140,13 @@ void MainWindow::changeFontSize(int diff)
         ui->pane1->textView()->updateAppearance();
         ui->pane2->textView()->updateAppearance();
         ui->pane3->textView()->updateAppearance();
+    }
+
+    if (ui->pane1->imageView()->hasFocus() ||
+        ui->pane2->imageView()->hasFocus() ||
+        ui->pane3->imageView()->hasFocus())
+    {
+        ui->pane1->imageView()->changeScale(diff > 0);
     }
 }
 
@@ -1670,7 +1679,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     QString ksq = KeyEventToSequence(event);
 
-    qDebug() << ">>>>> キーイベントを受信" << ksq << "<<<<<";
+    qDebug() << ">>>>> キーイベントを受信(MainWindow)" << ksq << "<<<<<";
 
     if (ProcessShortcut(ksq, this)) {
         event->accept();

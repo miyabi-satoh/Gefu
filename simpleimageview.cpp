@@ -61,7 +61,7 @@ SimpleImageView::SimpleImageView(QWidget *parent) :
 
     //>>>>> 「等倍」メニュー
     m_scaleNormal = new QAction(tr("等倍"), this);
-    m_scaleNormal->setObjectName("scaleUp");
+    m_scaleNormal->setObjectName("scaleNormal");
     shortcuts.clear();
     shortcuts << QKeySequence("=");
     shortcuts << QKeySequence("Shift+=");
@@ -110,6 +110,16 @@ bool SimpleImageView::setSource(const QString &path)
     return true;
 }
 
+void SimpleImageView::changeScale(bool up)
+{
+    if (up) {
+        scaleUp();
+    }
+    else {
+        scaleDown();
+    }
+}
+
 double SimpleImageView::scaleFactor(const QSize &size)
 {
     double scaleFactor;
@@ -145,6 +155,10 @@ void SimpleImageView::sizeChanged()
 
 double SimpleImageView::resizeImage()
 {
+    if (m_imgSrc.isNull()) {
+        return 1;
+    }
+
     double scaleFactor = this->scaleFactor(viewport()->size());
     m_rotateDeg %= 360;
 
@@ -250,8 +264,6 @@ void SimpleImageView::contextMenuEvent(QContextMenuEvent *event)
 
 void SimpleImageView::resizeEvent(QResizeEvent *event)
 {
-    if (!m_imgSrc.isNull()) {
-        resizeImage();
-    }
+    resizeImage();
     QGraphicsView::resizeEvent(event);
 }

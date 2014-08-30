@@ -11,6 +11,8 @@ public:
 
     bool setSource(const QString &path);
 
+    void changeScale(bool up);
+
 private:
     QAction *m_back;
     QAction *m_fitToWindow;
