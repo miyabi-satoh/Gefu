@@ -7,7 +7,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSettings>
-//#include <QVector>
 
 BookmarkDialog::BookmarkDialog(QWidget *parent) :
     QDialog(parent),

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "mainwindow.h"
 #include "folderpanel.h"
-#include "locationbox.h"
 #include "folderview.h"
 
 #include <QDebug>
@@ -37,6 +36,8 @@ FolderView::FolderView(QWidget *parent) :
 {
     setModel(&m_model);
     connect(&m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+    connect(&m_model, SIGNAL(preReload()), this, SLOT(preReload()));
+    connect(&m_model, SIGNAL(postReload()), this, SLOT(postReload()));
 
     setDragEnabled(true);
     setAcceptDrops(true);
@@ -56,7 +57,7 @@ QString FolderView::side() const
     }
 }
 
-void FolderView::initialize(MainWindow *mainWnd, bool left)
+void FolderView::initialize(MainWindow *mainWnd)
 {
     qDebug() << side() << "initialize";
 
@@ -73,65 +74,42 @@ void FolderView::initialize(MainWindow *mainWnd, bool left)
     // 前回終了時のパスを開く
     QSettings settings;
     setPath(settings.value(side() + slash + IniKey_Dir).toString(), true);
-
-    // 色とフォントを設定する
-    updateAppearance(!left);
-
-    // 列のリサイズモードを設定する
-    QHeaderView *header;
-    header = horizontalHeader();
-    header->setSectionResizeMode(0, QHeaderView::Fixed);
-    header->setSectionResizeMode(1, QHeaderView::Stretch);
-    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
-}
-
-void FolderView::updateAppearance(bool darker)
-{
-    qDebug() << side() << "updateAppearance";
-    m_model.updateAppearance(darker);
-
-    QSettings settings;
-    QPalette pal = palette();
-    int darkness = 100;
-    if (darker) {
-        darkness += settings.value(IniKey_Darkness).toInt();
-    }
-    pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
-    setPalette(pal);
-
-    // 行の高さを設定する
-    QHeaderView *header = verticalHeader();
-    header->setDefaultSectionSize(QFontMetrics(m_model.font()).height() * 1.5);
-
-    // 列の幅を設定する
-    header = horizontalHeader();
-    header->setSectionResizeMode(0, QHeaderView::Fixed);
-    header->setSectionResizeMode(1, QHeaderView::Stretch);
-    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
-
-    repaint();
 }
 
 void FolderView::refresh()
 {
     qDebug() << side() << "refresh";
 
-    int row = currentIndex().row();
+    preReload();
 
     setPath(m_model.absolutePath(), false);
 
-    if (row < 0) {
-        row = 0;
+    postReload();
+}
+
+void FolderView::preReload()
+{
+    // 現在行と名前を保存しておく
+    m_saveRow = currentIndex().row();
+    m_saveName = currentItem().fileName();
+}
+
+void FolderView::postReload()
+{
+    // 保存した名前と同名アイテムが見つかれば、再選択する
+    for (int row = 0; row < m_model.rowCount(); row++) {
+        QModelIndex index = m_model.index(row, 1);
+        if (m_model.fileInfo(index).fileName().indexOf(m_saveName) != -1) {
+            setCurrentIndex(index);
+            return;
+        }
     }
-    else if (row >= m_model.rowCount()) {
-        row = m_model.rowCount() - 1;
+
+    // 同名アイテムが見つからなければ、行を維持する
+    if (m_saveRow >= m_model.rowCount()) {
+        m_saveRow = m_model.rowCount() - 1;
     }
-    setCurrentIndex(m_model.index(row, 1));
-//    selectRow(row);
+    setCurrentIndex(m_model.index(m_saveRow, 1));
 }
 
 void FolderView::searchItem(const QString &text)
@@ -191,11 +169,9 @@ void FolderView::setCheckStateAll(Qt::CheckState state)
 
     QModelIndex current = currentIndex();
 
-    setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
         m_model.setData(m_model.index(n, 0), state, Qt::CheckStateRole);
     }
-    setUpdatesEnabled(true);
 
     setCurrentIndex(current);
 }
@@ -206,7 +182,6 @@ void FolderView::setCheckStateAllFiles()
 
     QModelIndex current = currentIndex();
 
-    setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
         QModelIndex index = m_model.index(n, 0);
         QFileInfo info = m_model.fileInfo(index);
@@ -217,7 +192,6 @@ void FolderView::setCheckStateAllFiles()
             m_model.setData(index, Qt::Checked, Qt::CheckStateRole);
         }
     }
-    setUpdatesEnabled(true);
 
     setCurrentIndex(current);
 }
@@ -228,7 +202,6 @@ void FolderView::invertCheckState()
 
     QModelIndex current = currentIndex();
 
-    setUpdatesEnabled(false);
     for (int n = 0; n < m_model.rowCount(); n++) {
         QModelIndex index = m_model.index(n, 0);
         if (m_model.data(index, Qt::CheckStateRole).toInt() == Qt::Checked) {
@@ -238,7 +211,6 @@ void FolderView::invertCheckState()
             m_model.setData(index, Qt::Checked, Qt::CheckStateRole);
         }
     }
-    setUpdatesEnabled(true);
 
     setCurrentIndex(current);
 }
@@ -320,6 +292,11 @@ QFileInfoList FolderView::selectedItems() const
     return list;
 }
 
+FolderPanel *FolderView::parentPanel() const
+{
+    return qobject_cast<FolderPanel*>(parentWidget());
+}
+
 void FolderView::setPath(const QString &path, bool addHistory)
 {
     qDebug() << side() << "setPath" << path << addHistory;
@@ -329,10 +306,8 @@ void FolderView::setPath(const QString &path, bool addHistory)
     m_mainWnd->statusBar()->showMessage(tr("ファイルリストを取得しています..."));
     emit retrieveStarted(path);
 
-    setUpdatesEnabled(false);
     m_model.setPath(path);
     setCurrentIndex(m_model.index(0, 1));
-    setUpdatesEnabled(true);
 
     if (addHistory) {
         m_history.add(path);
@@ -519,7 +494,7 @@ void FolderView::dropEvent(QDropEvent *event)
 
     event->acceptProposedAction();
 
-    emit dropAccepted(list);
+    emit dropAccepted(list, event);
 }
 
 
@@ -528,31 +503,4 @@ void FolderView::contextMenuEvent(QContextMenuEvent *event)
     qDebug() << side() << "contextMenuEvent();";
 
     emit requestContextMenu(event);
-}
-
-
-void FolderView::focusInEvent(QFocusEvent *event)
-{
-    if (!currentIndex().isValid()) {
-        setCurrentIndex(m_model.index(0, 1));
-    }
-
-    this->updateAppearance();
-
-    FolderPanel *fp = qobject_cast<FolderPanel*>(parentWidget());
-    fp->locationBox()->updateAppearance();
-
-    QTableView::focusInEvent(event);
-}
-
-void FolderView::focusOutEvent(QFocusEvent *event)
-{
-    m_model.updateAppearance(true);
-
-    this->updateAppearance(true);
-
-    FolderPanel *fp = qobject_cast<FolderPanel*>(parentWidget());
-    fp->locationBox()->updateAppearance(true);
-
-    QTableView::focusOutEvent(event);
 }

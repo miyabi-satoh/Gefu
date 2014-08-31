@@ -33,7 +33,6 @@ SOURCES += main.cpp\
     simpletextview.cpp \
     searchbox.cpp \
     folderview.cpp \
-    locationbox.cpp \
     anyview.cpp \
     folderpanel.cpp \
     bookmarkdialog.cpp \
@@ -59,7 +58,6 @@ HEADERS  += mainwindow.h \
     simpletextview.h \
     searchbox.h \
     folderview.h \
-    locationbox.h \
     version.h \
     anyview.h \
     folderpanel.h \

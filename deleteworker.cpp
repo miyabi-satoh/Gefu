@@ -64,21 +64,22 @@ void DeleteWorker::operate()
 
 void DeleteWorker::Listup(const QString &path)
 {
-//    qDebug() << tr("Listup: ") << path;
-
     if (isStopRequested()) {
         return;
     }
 
-    QFileInfo info(path);
-
-    if (info.isDir()) {
+    if (QFileInfo(path).isDir()) {
         QDir dir(path);
-        foreach (QFileInfo info2, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-//            qDebug() << info2.fileName();
-            Listup(info2.absoluteFilePath());
+        QFileInfoList list = dir.entryInfoList(QDir::NoDotAndDotDot |
+                                               QDir::System |
+                                               QDir::Hidden |
+                                               QDir::AllDirs |
+                                               QDir::Files,
+                                               QDir::DirsFirst);
+        foreach (const QFileInfo &info, list) {
+            Listup(info.absoluteFilePath());
         }
     }
-//    qDebug() << "Targeting: " << path;
+
     m_Targets << path;
 }

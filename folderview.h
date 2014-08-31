@@ -6,6 +6,7 @@
 
 #include <QTableView>
 class MainWindow;
+class FolderPanel;
 
 class FolderView : public QTableView
 {
@@ -16,9 +17,7 @@ public:
     QString side() const;
 
     // actions
-    void initialize(MainWindow *mainWnd, bool left);
-    void updateAppearance(bool darker = false);
-    void refresh();
+    void initialize(MainWindow *mainWnd);
 
     void searchItem(const QString &text);
     void searchNext(const QString &text);
@@ -39,6 +38,8 @@ public:
     QFileInfoList selectedItems() const;
     const History* history() const { return &m_history; }
     QStringList nameFilters() const { return m_model.nameFilters(); }
+    FolderPanel *parentPanel() const;
+
 
     // setter
     void setPath(const QString &path, bool addHistory);
@@ -53,18 +54,22 @@ private:
     History m_history;
     QPoint m_dragStartPos;
     bool m_dragging;
+    int m_saveRow;
+    QString m_saveName;
 
 signals:
     void currentChanged(const QFileInfo &info);
     void dataChanged();
-    void dropAccepted(const QFileInfoList &list);
+    void dropAccepted(const QFileInfoList &list, QDropEvent *event);
     void itemFound();
     void itemNotFound();
     void retrieveStarted(const QString &path);
     void requestContextMenu(QContextMenuEvent *event);
-//    void keyPressed(QKeyEvent *event);
 
 public slots:
+    void refresh();
+    void preReload();
+    void postReload();
 
     // QAbstractItemView interface
 protected slots:
@@ -79,8 +84,6 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
-    void focusInEvent(QFocusEvent *event);
-    void focusOutEvent(QFocusEvent *event);
 };
 
 #endif // FOLDERVIEW_H

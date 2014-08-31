@@ -32,7 +32,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -1748,6 +1748,12 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
                <height>110</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Monaco</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
              <property name="plainText">
               <string>1
 2
@@ -1895,8 +1901,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="sizeOptions"/>
   <buttongroup name="overwriteOptions"/>
+  <buttongroup name="sizeOptions"/>
   <buttongroup name="posOptions"/>
  </buttongroups>
 </ui>

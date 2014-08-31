@@ -120,17 +120,13 @@ QFileInfo FileTableModel::fileInfo(const QModelIndex &index) const
     return QFileInfo();
 }
 
-void FileTableModel::updateAppearance(bool darker)
+void FileTableModel::updateAppearance(int darkness)
 {
-    qDebug() << "FileTableModel::updateAppearance();" << darker;
+    qDebug() << "FileTableModel::updateAppearance();" << darkness;
 
     QSettings settings;
-    int darkness = 100;
-    if (darker) {
-        darkness += settings.value(IniKey_Darkness).toInt();
-    }
-    m_font = settings.value(IniKey_ViewFont).value<QFont>();
 
+    m_font = settings.value(IniKey_ViewFont).value<QFont>();
     m_NormalBrush = QBrush(settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
     m_NormalTextBrush = QBrush(settings.value(IniKey_ViewColorFgNormal).value<QColor>().darker(darkness));
     m_MarkBrush = QBrush(settings.value(IniKey_ViewColorBgMark).value<QColor>().darker(darkness));
@@ -145,8 +141,12 @@ void FileTableModel::directoryChange(const QString &path)
 {
     qDebug() << "FileTableModel::directoryChange" << path;
 
+    emit preReload();
+
     m_fsWatcher.removePath(m_dir.absolutePath());
     setPath(path);
+
+    emit postReload();
 }
 
 int FileTableModel::rowCount(const QModelIndex &parent) const
@@ -221,7 +221,6 @@ QVariant FileTableModel::data(const QModelIndex &index, int role) const
             }
             else {
                 // infoを使うと、正しいアイコンが取れない場合がある…なぜ？
-//                return m_IconFactory.icon(QFileInfo(info.absoluteFilePath()));
                 return m_IconFactory.icon(QFileInfo(info));
             }
         }

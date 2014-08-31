@@ -1,7 +1,6 @@
 #include "common.h"
 #include "mainwindow.h"
 #include "searchbox.h"
-#include "locationbox.h"
 #include "folderpanel.h"
 #include "ui_folderpanel.h"
 
@@ -22,7 +21,7 @@ FolderPanel::~FolderPanel()
     delete ui;
 }
 
-void FolderPanel::initialize(MainWindow *mainWnd, bool left)
+void FolderPanel::initialize(MainWindow *mainWnd)
 {
     qDebug() << "FolderPanel::initialize();";
     m_mainWnd = mainWnd;
@@ -30,7 +29,7 @@ void FolderPanel::initialize(MainWindow *mainWnd, bool left)
     // シグナル＆スロット
     connect(ui->searchBox, SIGNAL(textEdited(QString)), this, SLOT(searchItem(QString)));
     connect(ui->folderView, SIGNAL(doubleClicked(QModelIndex)), mainWnd, SLOT(open(QModelIndex)));
-    connect(ui->folderView, SIGNAL(dropAccepted(QFileInfoList)), mainWnd, SLOT(dropAccept(QFileInfoList)));
+    connect(ui->folderView, SIGNAL(dropAccepted(QFileInfoList,QDropEvent*)), mainWnd, SLOT(dropAccept(QFileInfoList,QDropEvent*)));
     connect(ui->folderView, SIGNAL(currentChanged(QFileInfo)), mainWnd, SLOT(currentChange(QFileInfo)));
     connect(ui->folderView, SIGNAL(requestContextMenu(QContextMenuEvent*)), mainWnd, SLOT(showContextMenu(QContextMenuEvent*)));
     connect(ui->folderView, SIGNAL(retrieveStarted(QString)), ui->locationBox, SLOT(setText(QString)));
@@ -42,14 +41,49 @@ void FolderPanel::initialize(MainWindow *mainWnd, bool left)
     // 初期状態では検索ボックスは非表示
     ui->searchBox->setVisible(false);
 
-    // ロケーションボックスを初期化する
-    ui->locationBox->initialize(left);
-
     // フォルダビューを初期化する
-    ui->folderView->initialize(mainWnd, left);
+    ui->folderView->initialize(mainWnd);
 }
 
-LocationBox *FolderPanel::locationBox() const
+void FolderPanel::updateAppearance(bool darker)
+{
+    QSettings settings;
+    QPalette pal;
+    int darkness = 100;
+    if (darker) {
+        darkness += settings.value(IniKey_Darkness).toInt();
+    }
+
+    // ロケーションボックス
+    pal = ui->locationBox->palette();
+    pal.setColor(QPalette::Base, settings.value(IniKey_BoxColorBg).value<QColor>().darker(darkness));
+    pal.setColor(QPalette::Text, settings.value(IniKey_BoxColorFg).value<QColor>().darker(darkness));
+    ui->locationBox->setPalette(pal);
+    ui->locationBox->setFont(settings.value(IniKey_BoxFont).value<QFont>());
+
+    // モデル
+    FileTableModel *model = qobject_cast<FileTableModel*>(ui->folderView->model());
+    model->updateAppearance(darkness);
+
+    // ビュー
+    pal = ui->folderView->palette();
+    pal.setColor(QPalette::Base, settings.value(IniKey_ViewColorBgNormal).value<QColor>().darker(darkness));
+    ui->folderView->setPalette(pal);
+
+    // 行の高さを設定する
+    QHeaderView *header = ui->folderView->verticalHeader();
+    header->setDefaultSectionSize(QFontMetrics(model->font()).height() * 1.5);
+
+    // 列の幅を設定する
+    header = ui->folderView->horizontalHeader();
+    header->setSectionResizeMode(0, QHeaderView::Fixed);
+    header->setSectionResizeMode(1, QHeaderView::Stretch);
+    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+    header->setSectionResizeMode(4, QHeaderView::ResizeToContents);
+}
+
+QLineEdit *FolderPanel::locationBox() const
 {
     return ui->locationBox;
 }

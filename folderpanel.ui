@@ -35,7 +35,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="LocationBox" name="locationBox">
+      <widget class="QLineEdit" name="locationBox">
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
@@ -126,11 +126,6 @@
    <class>FolderView</class>
    <extends>QTableView</extends>
    <header>folderview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>LocationBox</class>
-   <extends>QLineEdit</extends>
-   <header>locationbox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

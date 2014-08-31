@@ -16,7 +16,7 @@ public:
 
     // action
     bool setPath(const QString &path);
-    void updateAppearance(bool darker = false);
+    void updateAppearance(int darkness = false);
 
     // getter
     QDir::SortFlags sorting() const { return m_dir.sorting(); }
@@ -35,6 +35,8 @@ public:
 
 signals:
     void selectionChanged(int checkedFoldrs, int checkedFiles, quint64 totalSize);
+    void preReload();
+    void postReload();
 
 public slots:
     void directoryChange(const QString &path);

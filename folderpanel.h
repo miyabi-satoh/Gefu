@@ -3,6 +3,7 @@
 
 #include <QWidget>
 class QLabel;
+class QLineEdit;
 class LocationBox;
 class FolderView;
 class SearchBox;
@@ -20,10 +21,11 @@ public:
     explicit FolderPanel(QWidget *parent = 0);
     ~FolderPanel();
 
-    void initialize(MainWindow *mainWnd, bool left);
+    void initialize(MainWindow *mainWnd);
+    void updateAppearance(bool darker = false);
 
     // getter
-    LocationBox* locationBox() const;
+    QLineEdit *locationBox() const;
     FolderView* folderView() const;
     SearchBox* searchBox() const;
     QLabel* filterLabel() const;

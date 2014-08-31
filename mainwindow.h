@@ -35,7 +35,7 @@ public slots:
                       const QString &srcPath, const QString &tgtPath);
 
     void currentChange(const QFileInfo &info);
-    void dropAccept(const QFileInfoList &list);
+    void dropAccept(const QFileInfoList &list, QDropEvent *event);
     void focusChange(QWidget * old, QWidget * now);
     void leftKeyPress();
     void rightKeyPress();
@@ -115,7 +115,7 @@ private:
     typedef QFlags<Mode> ModeFlags;
 
     Ui::MainWindow *ui;
-    QWidget *m_focusedView;
+    FolderView *m_activeView;
     OverWriteDialog *m_overwriteDialog;
     ModeFlags m_viewMode;
 
@@ -127,6 +127,7 @@ private:
     void setEnabledAllActions(bool enable);
     void showNameFilters(FolderView *view);
     void copyItems(const QFileInfoList &list, const QString &tgtDir);
+    void moveItems(const QFileInfoList &list, const QString &tgtDir);
     void changeFontSize(int diff);
     void initBookmark();
     void sendEventOther(QEvent *event);

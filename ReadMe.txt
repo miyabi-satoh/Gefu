@@ -1,6 +1,6 @@
 ===============================================================================
     Gefu(げふぅ) - Gefu is an Experimental File Utility - 
-    Version 0.19
+    Version 0.20
 ===============================================================================
                                                        2014/08/31 @miyabi_satoh
 
@@ -87,6 +87,10 @@
    自己の責任の上でご利用ください。
  - 配布・転載を行う場合は @miyabi_satoh までご連絡ください。
    特に利益を生じる無断配布・無断転載は固く禁じます。
+ - メニューおよびツールバーのアイコンには、以下を使用しています
+    - Tango Icon Library            http://tango.freedesktop.org/Tango_Icon_Library
+    - Utilities-file-archiver.png   http://chakraos.org/wiki/index.php?title=File:Utilities-file-archiver.png
+    - Cats Icons 2                  http://www.softicons.com/system-icons/cats-icons-2-by-mcdo-design
 
 ◇ 連絡先 ◇
  Web:     https://sourceforge.jp/projects/gefu/
@@ -96,6 +100,10 @@
  Twitter: https://twitter.com/miyabi_satoh
 
 ◇ 履歴 ◇
+#### 2014/08/31 Ver0.20
+  * ウィンドウ自体が非アクティブになったとき、両パネルとも暗くなっていたのを修正。
+  * ドロップ時、コピー・移動・キャンセルのポップアップメニューを出すようにした。
+
 #### 2014/08/31 Ver0.19
   * 「アーカイバで開く」を追加。
   * パス設定のiniファイルキーを変更(設定が初期化されます)。

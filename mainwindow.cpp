@@ -3,7 +3,6 @@
 #include "preferencedialog.h"
 #include "folderview.h"
 #include "searchbox.h"
-#include "locationbox.h"
 #include "copymoveworker.h"
 #include "operationdialog.h"
 #include "overwritedialog.h"
@@ -37,7 +36,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_focusedView(NULL),
+    m_activeView(NULL),
     m_overwriteDialog(NULL),
     m_viewMode(ModeBasic)
 {
@@ -78,7 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
         fp->setObjectName(QString("folderPanel%1").arg(i));
         fp->folderView()->setObjectName(QString("folderView%1").arg(i));
 
-        fp->initialize(this, i == 1);
+        fp->initialize(this);
+        fp->updateAppearance(i == 2);
     }
 
     QSettings settings;
@@ -88,8 +88,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // メニュー項目の状態を初期化する
     ui->view_Hidden->setChecked(settings.value(IniKey_ShowHidden).toBool());
     ui->view_System->setChecked(settings.value(IniKey_ShowSystem).toBool());
-//    ui->action_OpenEditor->setEnabled(!settings.value(IniKey_PathEditor).toString().isEmpty());
-//    ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_PathTerminal).toString().isEmpty());
 
     // 追加のショートカットキーを設定する
     QList<QKeySequence> shortcuts;
@@ -206,8 +204,10 @@ void MainWindow::focusChange(QWidget *old, QWidget *now)
     if (now == ui->pane1->folderPanel()->folderView() ||
         now == ui->pane2->folderPanel()->folderView())
     {
-        FolderView *view = static_cast<FolderView*>(now);
-        ui->statusBar->showMessage(view->currentItem().absoluteFilePath());
+        m_activeView = qobject_cast<FolderView*>(now);
+        ui->statusBar->showMessage(m_activeView->currentItem().absoluteFilePath());
+        m_activeView->parentPanel()->updateAppearance(false);
+        otherSideFolderView(m_activeView)->parentPanel()->updateAppearance(true);
     }
 
     if (now) {
@@ -219,10 +219,7 @@ void MainWindow::executeCommand()
 {
     qDebug() << "MainWindow::executeCommand";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfoList list = view->selectedItems();
+    QFileInfoList list = m_activeView->selectedItems();
     QString command = QString::null;
     foreach (const QFileInfo &info, list) {
 #ifdef Q_OS_MAC
@@ -248,7 +245,7 @@ void MainWindow::executeCommand()
     int ret = dlg.exec();
     command = dlg.textValue();
     if (ret == QDialog::Accepted && !command.isEmpty()) {
-        startProcess(command, view->dir(), tr("コマンドの実行に失敗しました。"));
+        startProcess(command, m_activeView->dir(), tr("コマンドの実行に失敗しました。"));
     }
 }
 
@@ -284,10 +281,7 @@ void MainWindow::historyBack()
 {
     qDebug() << "MainWindow::historyBack();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    if (view->historyBack()) {
+    if (m_activeView->historyBack()) {
         updateActions();
     }
 }
@@ -296,10 +290,7 @@ void MainWindow::historyForward()
 {
     qDebug() << "MainWindow::historyForward();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    if (view->historyForward()) {
+    if (m_activeView->historyForward()) {
         updateActions();
     }
 }
@@ -308,103 +299,58 @@ void MainWindow::markAll()
 {
     qDebug() << "MainWindow::markAll();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->setCheckStateAll(Qt::Checked);
+    m_activeView->setCheckStateAll(Qt::Checked);
 }
 
 void MainWindow::markAllFiles()
 {
     qDebug() << "MainWindow::markAllFiles();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->setCheckStateAllFiles();
+    m_activeView->setCheckStateAllFiles();
 }
 
 void MainWindow::markAllOff()
 {
     qDebug() << "MainWindow::markAllOff();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->setCheckStateAll(Qt::Unchecked);
+    m_activeView->setCheckStateAll(Qt::Unchecked);
 }
 
 void MainWindow::markInvert()
 {
     qDebug() << "MainWindow::markInvert();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->invertCheckState();
+    m_activeView->invertCheckState();
 }
 
 void MainWindow::markToggle()
 {
     qDebug() << "MainWindow::markToggle();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->toggleCheckState(view->currentIndex());
+    m_activeView->toggleCheckState(m_activeView->currentIndex());
 }
 
 void MainWindow::moveItems()
 {
     qDebug() << "MainWindow::moveItems";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfoList list = view->selectedItems();
+    QFileInfoList list = m_activeView->selectedItems();
     if (list.isEmpty()) {
         return;
     }
 
-    QSettings settings;
-    if (settings.value(IniKey_ConfirmMove).toBool()) {
-        if (QMessageBox::question(this, tr("確認"), tr("移動を実行しますか？"))
-            != QMessageBox::Yes)
-        {
-            return;
-        }
+    int row = m_activeView->currentIndex().row();
+
+    QString tgtPath = otherSideFolderView(m_activeView)->dir();
+    moveItems(list, tgtPath);
+    m_activeView->refresh();
+
+    if (row >= m_activeView->model()->rowCount()) {
+        row = m_activeView->model()->rowCount() - 1;
     }
-
-    // 上書き確認ダイアログを初期化する
-    m_overwriteDialog->reset();
-
-    // ワーカースレッドを作成する
-    FolderView *other = otherSideFolderView(view);
-    CopyMoveWorker *worker = new CopyMoveWorker();
-    connect(worker, SIGNAL(askOverWrite(QString*,QString*,QString,QString)),
-            this, SLOT(askOverWrite(QString*,QString*,QString,QString)));
-    worker->setCopyList(&list);
-    worker->setTargetDir(other->dir());
-    worker->setMoveMode(true);
-
-    // 進捗ダイアログを表示して、処理を開始する
-    OperationDialog opDlg(this);
-    opDlg.setWindowTitle(tr("移動"));
-    opDlg.setWorker(worker);
-    opDlg.setAutoClose(settings.value(IniKey_AutoCloseMove).toBool());
-
-    int row = view->currentIndex().row();
-
-    opDlg.exec();
-
-    if (row >= view->model()->rowCount()) {
-        row = view->model()->rowCount() - 1;
-    }
-    //view->selectRow(row);
-    view->setCurrentIndex(view->model()->index(row, 1));
-
-    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
+    m_activeView->setCurrentIndex(m_activeView->model()->index(row, 1));
 }
+
 
 void MainWindow::leftKeyPress()
 {
@@ -451,13 +397,10 @@ void MainWindow::chooseFolder()
 {
     qDebug() << "MainWindow::chooseFolder();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     QString path = QFileDialog::getExistingDirectory(
-                this, tr("フォルダを選択"), view->dir());
+                this, tr("フォルダを選択"), m_activeView->dir());
     if (!path.isEmpty()) {
-        view->setPath(path, true);
+        m_activeView->setPath(path, true);
         updateActions();
     }
 }
@@ -466,22 +409,16 @@ void MainWindow::copyFilenameToClipboard()
 {
     qDebug() << "MainWindow::copyFilenameToClipboard();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(view->currentItem().fileName());
+    clipboard->setText(m_activeView->currentItem().fileName());
 }
 
 void MainWindow::copyFullpathTpClipboard()
 {
     qDebug() << "MainWindow::copyFullpathTpClipboard();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(view->currentItem().absoluteFilePath());
+    clipboard->setText(m_activeView->currentItem().absoluteFilePath());
 }
 
 void MainWindow::askOverWrite(QString *copyMethod,
@@ -534,19 +471,32 @@ void MainWindow::currentChange(const QFileInfo &info)
     updateActions();
 }
 
-void MainWindow::dropAccept(const QFileInfoList &list)
+void MainWindow::dropAccept(const QFileInfoList &list, QDropEvent *event)
 {
     qDebug() << "MainWindow::dropAccept();";
 
     FolderView *view = static_cast<FolderView*>(sender());
     Q_CHECK_PTR(view);
 
-    copyItems(list, view->dir());
+    bool move = false;
+    QMenu menu(this);
+    QAction *actCopy = menu.addAction(tr("コピー"));
+    QAction *actMove = menu.addAction(tr("移動"));
+    menu.addSeparator();
+    menu.addAction(tr("キャンセル"));
+
+    QAction *selected = menu.exec(view->mapToGlobal(event->pos()));
+    if (selected == actMove) {
+        moveItems(list, view->dir());
+    }
+    else if (selected == actCopy) {
+        copyItems(list, view->dir());
+    }
 }
 
 void MainWindow::copyItems(const QFileInfoList &list, const QString &tgtDir)
 {
-    qDebug() << "MainWindow::copyItems();";
+    qDebug() << "MainWindow::copyItems();" << tgtDir;
 
     QSettings settings;
     if (settings.value(IniKey_ConfirmCopy).toBool()) {
@@ -579,28 +529,57 @@ void MainWindow::copyItems(const QFileInfoList &list, const QString &tgtDir)
     settings.setValue(IniKey_AutoCloseCopy, opDlg.autoClose());
 }
 
+void MainWindow::moveItems(const QFileInfoList &list, const QString &tgtDir)
+{
+    qDebug() << "MainWindow::moveItems();" << tgtDir;
+
+    QSettings settings;
+    if (settings.value(IniKey_ConfirmMove).toBool()) {
+        if (QMessageBox::question(this, tr("確認"), tr("移動を実行しますか？"))
+            != QMessageBox::Yes)
+        {
+            return;
+        }
+    }
+
+    // 上書き確認ダイアログを初期化する
+    m_overwriteDialog->reset();
+
+    // ワーカースレッドを作成する
+    CopyMoveWorker *worker = new CopyMoveWorker();
+    connect(worker, SIGNAL(askOverWrite(QString*,QString*,QString,QString)),
+            this, SLOT(askOverWrite(QString*,QString*,QString,QString)));
+    worker->setCopyList(&list);
+    worker->setTargetDir(tgtDir);
+    worker->setMoveMode(true);
+
+    // 進捗ダイアログを表示して、処理を開始する
+    OperationDialog opDlg(this);
+    opDlg.setWindowTitle(tr("移動"));
+    opDlg.setWorker(worker);
+    opDlg.setAutoClose(settings.value(IniKey_AutoCloseMove).toBool());
+
+    opDlg.exec();
+
+    settings.setValue(IniKey_AutoCloseMove, opDlg.autoClose());
+}
+
 void MainWindow::copyItems()
 {
     qDebug() << "MainWindow::copyItems";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfoList list = view->selectedItems();
+    QFileInfoList list = m_activeView->selectedItems();
     if (list.isEmpty()) {
         return;
     }
 
-    QString tgtPath = otherSideFolderView(view)->dir();
+    QString tgtPath = otherSideFolderView(m_activeView)->dir();
     copyItems(list, tgtPath);
 }
 
 void MainWindow::createFile()
 {
     qDebug() << "MainWindow::createFile";
-
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
 
     bool bOk;
     QString name = QInputDialog::getText(
@@ -610,7 +589,7 @@ void MainWindow::createFile()
         return;
     }
 
-    QDir dir(view->dir());
+    QDir dir(m_activeView->dir());
     QFile file(dir.absoluteFilePath(name));
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(
@@ -625,17 +604,14 @@ void MainWindow::createFile()
             openEditor(dir.absoluteFilePath(name));
         }
 
-        view->refresh();
-        view->searchItem(name);
+        m_activeView->refresh();
+        m_activeView->searchItem(name);
     }
 }
 
 void MainWindow::createFolder()
 {
     qDebug() << "MainWindow::createFolder";
-
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
 
     bool bOk;
     QString name = QInputDialog::getText(
@@ -645,7 +621,7 @@ void MainWindow::createFolder()
         return;
     }
 
-    QDir dir(view->dir());
+    QDir dir(m_activeView->dir());
     if (!dir.mkpath(name)) {
         QMessageBox::critical(
                     this, tr("エラー"),
@@ -654,11 +630,11 @@ void MainWindow::createFolder()
     else {
         QSettings settings;
         if (settings.value(IniKey_MoveAfterCreateFolder).toBool()) {
-            view->setPath(dir.absoluteFilePath(name), true);
+            m_activeView->setPath(dir.absoluteFilePath(name), true);
         }
 
-        view->refresh();
-        view->searchItem(name);
+        m_activeView->refresh();
+        m_activeView->searchItem(name);
     }
 }
 
@@ -666,10 +642,7 @@ void MainWindow::deleteItems()
 {
     qDebug() << "MainWindow::deleteItems";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfoList list = view->selectedItems();
+    QFileInfoList list = m_activeView->selectedItems();
     if (list.isEmpty()) {
         return;
     }
@@ -699,16 +672,15 @@ void MainWindow::deleteItems()
     opDlg.setWorker(worker);
     opDlg.setAutoClose(settings.value(IniKey_AutoCloseDelete).toBool());
 
-    int row = view->currentIndex().row();
+    int row = m_activeView->currentIndex().row();
 
     opDlg.exec();
-    view->refresh();
+    m_activeView->refresh();
 
-    if (row >= view->model()->rowCount()) {
-        row = view->model()->rowCount() - 1;
+    if (row >= m_activeView->model()->rowCount()) {
+        row = m_activeView->model()->rowCount() - 1;
     }
-//    view->selectRow(row);
-    view->setCurrentIndex(view->model()->index(row, 1));
+    m_activeView->setCurrentIndex(m_activeView->model()->index(row, 1));
 
     settings.setValue(IniKey_AutoCloseDelete, opDlg.autoClose());
 }
@@ -716,21 +688,15 @@ void MainWindow::deleteItems()
 void MainWindow::open(const QModelIndex &index)
 {
     Q_UNUSED(index);
-    qDebug() << "MainWindow::open";
+    qDebug() << "MainWindow::open" << index;
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfo info = view->currentItem();
+    QFileInfo info = m_activeView->currentItem();
     if (info.isDir()) {
-        view->setPath(info.absoluteFilePath(), true);
+        m_activeView->setPath(info.absoluteFilePath(), true);
         updateActions();
         return;
     }
 
-    setUpdatesEnabled(false);
-
-    m_focusedView = view;
     if (ui->pane3->setViewItem(info)) {
         ui->pane3->setVisible(true);
         ui->splitter->setVisible(false);
@@ -739,17 +705,16 @@ void MainWindow::open(const QModelIndex &index)
     }
     else {
         ui->pane3->setVisible(false);
+        if (index.isValid()) {
+            QString path = QDir::toNativeSeparators(info.absoluteFilePath());
+            QDesktopServices::openUrl(QUrl("file:///" + path));
+        }
     }
-
-    setUpdatesEnabled(true);
 }
 
 void MainWindow::openEditor(const QString &path)
 {
     qDebug() << "MainWindow::openEditor";
-
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
 
     QSettings settings;
     QString exe = settings.value(IniKey_PathEditor).toString();
@@ -762,7 +727,7 @@ void MainWindow::openEditor(const QString &path)
 
     QFileInfoList list;
     if (path.isEmpty()) {
-        list = view->selectedItems();
+        list = m_activeView->selectedItems();
     }
     else {
         list << path;
@@ -777,7 +742,7 @@ void MainWindow::openEditor(const QString &path)
 #else
     QString command = exe + files;
 #endif
-    if (!startProcess(command, view->dir(), tr("外部エディタの起動に失敗しました。"))) {
+    if (!startProcess(command, m_activeView->dir(), tr("外部エディタの起動に失敗しました。"))) {
         qDebug() << command;
     }
 }
@@ -785,9 +750,6 @@ void MainWindow::openEditor(const QString &path)
 void MainWindow::openTerminal()
 {
     qDebug() << "MainWindow::openTerminal";
-
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
 
     QSettings settings;
     QString exe = settings.value(IniKey_PathTerminal).toString();
@@ -799,7 +761,7 @@ void MainWindow::openTerminal()
     }
 
     QSet<QString> dirs;
-    foreach (const QFileInfo &info, view->selectedItems()) {
+    foreach (const QFileInfo &info, m_activeView->selectedItems()) {
         if (info.isDir()) {
             dirs.insert(info.absoluteFilePath());
         }
@@ -814,7 +776,7 @@ void MainWindow::openTerminal()
 #else
         QString command = exe + " " + QQ(dir);
 #endif
-        if (!startProcess(command, view->dir(), tr("ターミナルの起動に失敗しました。"))) {
+        if (!startProcess(command, m_activeView->dir(), tr("ターミナルの起動に失敗しました。"))) {
             qDebug() << command;
             break;
         }
@@ -824,9 +786,6 @@ void MainWindow::openTerminal()
 void MainWindow::openArchiver()
 {
     qDebug() << "MainWindow::openArchiver";
-
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
 
     QSettings settings;
     QString exe = settings.value(IniKey_PathArchiver).toString();
@@ -838,7 +797,7 @@ void MainWindow::openArchiver()
     }
 
     QString files;
-    foreach (const QFileInfo &info, view->selectedItems()) {
+    foreach (const QFileInfo &info, m_activeView->selectedItems()) {
         files += " " + QQ(info.absoluteFilePath());
     }
 #ifdef Q_OS_MAC
@@ -846,7 +805,7 @@ void MainWindow::openArchiver()
 #else
     QString command = exe + files;
 #endif
-    if (!startProcess(command, view->dir(), tr("アーカイバの起動に失敗しました。"))) {
+    if (!startProcess(command, m_activeView->dir(), tr("アーカイバの起動に失敗しました。"))) {
         qDebug() << command;
     }
 }
@@ -855,35 +814,26 @@ void MainWindow::openBookmark()
 {
     qDebug() << "MainWindow::openBookmark();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     QAction *action = qobject_cast<QAction*>(sender());
     Q_CHECK_PTR(action);
 
     QSettings settings;
     int i = action->data().toInt();
-    view->setPath(settings.value(IniKey_BookmarkEntryPath(i)).toString(), true);
+    m_activeView->setPath(settings.value(IniKey_BookmarkEntryPath(i)).toString(), true);
 }
 
 void MainWindow::refresh()
 {
     qDebug() << "MainWindow::refresh();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->refresh();
+    m_activeView->refresh();
 }
 
 void MainWindow::renameItems()
 {
     qDebug() << "MainWindow::renameItems";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QFileInfoList list = view->selectedItems();
+    QFileInfoList list = m_activeView->selectedItems();
     if (list.isEmpty()) {
         return;
     }
@@ -895,7 +845,7 @@ void MainWindow::renameItems()
     else {
         dlg = new RenameMultiDialog(this);
     }
-    dlg->setWorkingDirectory(view->dir());
+    dlg->setWorkingDirectory(m_activeView->dir());
     dlg->setNames(list);
     int dlgResult = dlg->exec();
     if (dlgResult != QDialog::Accepted || dlg->renameMap().isEmpty()) {
@@ -920,10 +870,10 @@ void MainWindow::renameItems()
     opDlg.setAutoClose(settings.value(IniKey_AutoCloseRename).toBool());
 
     opDlg.exec();
-    view->refresh();
+    m_activeView->refresh();
 
     QFileInfo info(dlg->renameMap().first());
-    view->searchItem(info.fileName());
+    m_activeView->searchItem(info.fileName());
 
     settings.setValue(IniKey_AutoCloseRename, opDlg.autoClose());
 }
@@ -932,10 +882,7 @@ void MainWindow::shellExecute()
 {
     qDebug() << "MainWindow::shellExecute";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    foreach (const QFileInfo &info, view->selectedItems()) {
+    foreach (const QFileInfo &info, m_activeView->selectedItems()) {
         QString path = QDir::toNativeSeparators(info.absoluteFilePath());
         QDesktopServices::openUrl(QUrl("file:///" + path));
     }
@@ -943,8 +890,7 @@ void MainWindow::shellExecute()
 
 void MainWindow::showBookmarkDialog()
 {
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
+    qDebug() << "MainWindow::showBookmarkDialog();";
 
     BookmarkDialog dlg(this);
     dlg.setEditMode(false);
@@ -952,7 +898,7 @@ void MainWindow::showBookmarkDialog()
         int n = dlg.selectedIndex();
 
         QSettings settings;
-        view->setPath(settings.value(IniKey_BookmarkEntryPath(n)).toString(), true);
+        m_activeView->setPath(settings.value(IniKey_BookmarkEntryPath(n)).toString(), true);
     }
 }
 
@@ -972,10 +918,7 @@ void MainWindow::showFilterDialog()
 {
     qDebug() << "MainWindow::showFilterDialog();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QString filters = view->nameFilters().join(" ");
+    QString filters = m_activeView->nameFilters().join(" ");
 
     QInputDialog dlg(this);
     dlg.setInputMode(QInputDialog::TextInput);
@@ -985,16 +928,16 @@ void MainWindow::showFilterDialog()
     dlg.resize(width() * 0.8, dlg.height());
 
     if (dlg.exec() == QDialog::Accepted) {
-        static_cast<FolderPanel*>(view->parent())->setNameFilters(dlg.textValue());
-        int row = view->currentIndex().row();
+        static_cast<FolderPanel*>(m_activeView->parent())->setNameFilters(dlg.textValue());
+        int row = m_activeView->currentIndex().row();
 
-        view->refresh();
+        m_activeView->refresh();
 
-        if (row >= view->model()->rowCount()) {
-            row = view->model()->rowCount() - 1;
+        if (row >= m_activeView->model()->rowCount()) {
+            row = m_activeView->model()->rowCount() - 1;
         }
-//        view->selectRow(row);
-        view->setCurrentIndex(view->model()->index(row, 1));
+
+        m_activeView->setCurrentIndex(m_activeView->model()->index(row, 1));
 
     }
 }
@@ -1003,27 +946,24 @@ void MainWindow::showHistoryDialog()
 {
     qDebug() << "MainWindow::showHistoryDialog();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    FolderView *vOther = otherSideFolderView(view);
+    FolderView *vOther = otherSideFolderView(m_activeView);
 
     HistoryDialog dlg(this);
-    if (view->side() == "Left") {
+    if (m_activeView->side() == "Left") {
         dlg.setDefaultLeft(true);
-        dlg.setHistory(view->history(), vOther->history());
+        dlg.setHistory(m_activeView->history(), vOther->history());
     }
     else {
         dlg.setDefaultLeft(false);
-        dlg.setHistory(vOther->history(), view->history());
+        dlg.setHistory(vOther->history(), m_activeView->history());
     }
 
     if (dlg.exec() == QDialog::Accepted) {
-        if (view->side() == dlg.selectedSide()) {
-            view->setHistoryIndexAt(dlg.selectedIndex());
+        if (m_activeView->side() == dlg.selectedSide()) {
+            m_activeView->setHistoryIndexAt(dlg.selectedIndex());
         }
         else {
-            view->setPath(vOther->history()->at(dlg.selectedIndex()), true);
+            m_activeView->setPath(vOther->history()->at(dlg.selectedIndex()), true);
         }
     }
 }
@@ -1032,15 +972,12 @@ void MainWindow::showSortDialog()
 {
     qDebug() << "MainWindow::showSortDialog();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     SortDialog dlg(this);
-    dlg.setRightOrLeft(view->side());
+    dlg.setRightOrLeft(m_activeView->side());
 
     if (dlg.exec() == QDialog::Accepted) {
-        view->setSorting();
-        view->refresh();
+        m_activeView->setSorting();
+        m_activeView->refresh();
     }
 }
 
@@ -1072,17 +1009,14 @@ void MainWindow::switchHalfMode(bool checked)
 {
     qDebug() << "MainWindow::switchHalfMode();" << checked;
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
     AnyView *pane = static_cast<AnyView*>(
-                otherSideFolderView(view)->parent()->parent());
+                otherSideFolderView(m_activeView)->parent()->parent());
     Q_CHECK_PTR(pane);
 
     if (checked) {
         // ハーフモードへ移行する
         setViewMode(ModeHalfView);
-        pane->setViewItem(view->currentItem());
+        pane->setViewItem(m_activeView->currentItem());
     }
     else {
         // ハーフモードを解除する
@@ -1092,26 +1026,6 @@ void MainWindow::switchHalfMode(bool checked)
     updateActions();
 }
 
-//void MainWindow::searchItem(const QString &text)
-//{
-//    qDebug() << "MainWindow::searchItem" << text;
-
-//    SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
-//    Q_CHECK_PTR(box);
-
-//    if (text.right(1) == "/") {
-//        // '/'が入力されたら、検索終了
-//        box->setText(text.left(text.length() - 1));
-//        ui->action_Search->setChecked(false);
-//    }
-//    else {
-//        FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
-//        Q_CHECK_PTR(fp);
-
-//        fp->folderView()->searchItem(box->text());
-//    }
-//}
-
 void MainWindow::searchNext()
 {
     qDebug() << "MainWindow::searchNext";
@@ -1119,10 +1033,7 @@ void MainWindow::searchNext()
     SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
     Q_CHECK_PTR(box);
 
-    FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
-    Q_CHECK_PTR(fp);
-
-    fp->folderView()->searchNext(box->text());
+    m_activeView->searchNext(box->text());
 }
 
 void MainWindow::searchPrev()
@@ -1132,10 +1043,7 @@ void MainWindow::searchPrev()
     SearchBox *box = qobject_cast<SearchBox*>(qApp->focusWidget());
     Q_CHECK_PTR(box);
 
-    FolderPanel *fp = qobject_cast<FolderPanel*>(box->parent());
-    Q_CHECK_PTR(fp);
-
-    fp->folderView()->searchPrev(box->text());
+    m_activeView->searchPrev(box->text());
 }
 
 void MainWindow::setCursorToBegin()
@@ -1243,8 +1151,8 @@ void MainWindow::changeFontSize(int diff)
         font.setPointSize(font.pointSize() + diff);
         settings.setValue(IniKey_ViewFont, font);
 
-        ui->pane1->folderPanel()->folderView()->updateAppearance();
-        ui->pane2->folderPanel()->folderView()->updateAppearance();
+        ui->pane1->folderPanel()->updateAppearance();
+        ui->pane2->folderPanel()->updateAppearance();
     }
 
     // テキストビューのフォントサイズ変更
@@ -1333,47 +1241,35 @@ void MainWindow::setPathFromOther()
 {
     qDebug() << "MainWindow::setPathFromOther();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
+    FolderView *other = otherSideFolderView(m_activeView);
 
-    FolderView *other = otherSideFolderView(view);
-
-    view->setPath(other->dir(), true);
+    m_activeView->setPath(other->dir(), true);
 }
 
 void MainWindow::setPathToHome()
 {
     qDebug() << "MainWindow::setPathToHome();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->setPath(QDir::homePath(), true);
+    m_activeView->setPath(QDir::homePath(), true);
 }
 
 void MainWindow::setPathToOther()
 {
     qDebug() << "MainWindow::setPathToOther();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
+    FolderView *other = otherSideFolderView(m_activeView);
 
-    FolderView *other = otherSideFolderView(view);
-
-    other->setPath(view->dir(), true);
+    other->setPath(m_activeView->dir(), true);
 }
 
 void MainWindow::setPathToParent()
 {
     qDebug() << "MainWindow::setPathToParent();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    QDir dir(view->dir());
+    QDir dir(m_activeView->dir());
     if (!dir.isRoot()) {
         dir.cdUp();
-        view->setPath(dir.absolutePath(), true);
+        m_activeView->setPath(dir.absolutePath(), true);
     }
 }
 
@@ -1381,10 +1277,7 @@ void MainWindow::setPathToRoot()
 {
     qDebug() << "MainWindow::setPathToRoot();";
 
-    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
-    Q_CHECK_PTR(view);
-
-    view->setPath(QDir::rootPath(), true);
+    m_activeView->setPath(QDir::rootPath(), true);
 }
 
 void MainWindow::toggleSearchBox(bool checked)
@@ -1396,10 +1289,8 @@ void MainWindow::toggleSearchBox(bool checked)
 
     if (checked) {
         setViewMode(m_viewMode | ModeSearch);
-        view = static_cast<FolderView*>(qApp->focusWidget());
-        Q_CHECK_PTR(view);
 
-        box = view->parent()->findChild<SearchBox*>("searchBox");
+        box = m_activeView->parent()->findChild<SearchBox*>("searchBox");
         Q_CHECK_PTR(box);
 
         box->setVisible(true);
@@ -1431,13 +1322,11 @@ void MainWindow::showPreferenceDialog()
 
     PreferenceDialog dlg(this);
     if (dlg.exec() == QDialog::Accepted) {
-        bool dark1 = !ui->pane1->folderPanel()->folderView()->hasFocus();
-        bool dark2 = !ui->pane2->folderPanel()->folderView()->hasFocus();
+        bool dark1 = m_activeView != ui->pane1->folderPanel()->folderView();
+        bool dark2 = m_activeView != ui->pane2->folderPanel()->folderView();
 
-        ui->pane1->folderPanel()->locationBox()->updateAppearance(dark1);
-        ui->pane2->folderPanel()->locationBox()->updateAppearance(dark2);
-        ui->pane1->folderPanel()->folderView()->updateAppearance(dark1);
-        ui->pane2->folderPanel()->folderView()->updateAppearance(dark2);
+        ui->pane1->folderPanel()->updateAppearance(dark1);
+        ui->pane2->folderPanel()->updateAppearance(dark2);
         ui->pane1->textView()->updateAppearance();
         ui->pane2->textView()->updateAppearance();
         ui->pane3->textView()->updateAppearance();
@@ -1574,7 +1463,7 @@ void MainWindow::viewFinish()
     ui->statusBar->findChild<QLabel*>("Right")->setText("");
     ui->pane3->setVisible(false);
     ui->splitter->setVisible(true);
-    m_focusedView->setFocus();
+    m_activeView->setFocus();
 }
 
 void MainWindow::initActionConnections()
@@ -1632,6 +1521,7 @@ void MainWindow::initActionConnections()
     connect(ui->view_HalfMode, SIGNAL(toggled(bool)), this, SLOT(switchHalfMode(bool)));
     connect(ui->view_Hidden, SIGNAL(toggled(bool)), this, SLOT(toggleShowHiddenFiles(bool)));
     connect(ui->view_Refresh, SIGNAL(triggered()), this, SLOT(refresh()));
+
     connect(ui->view_Sort, SIGNAL(triggered()), this, SLOT(showSortDialog()));
     connect(ui->view_Swap, SIGNAL(triggered()), this, SLOT(swapView()));
     connect(ui->view_System, SIGNAL(toggled(bool)), this, SLOT(toggleShowSystemFiles(bool)));
