@@ -240,12 +240,21 @@
     <addaction name="bookmark_Edit"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menu_Panel">
+    <property name="title">
+     <string>パネル</string>
+    </property>
+    <addaction name="split_Center"/>
+    <addaction name="expand_Left"/>
+    <addaction name="expand_Right"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Mark"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Move"/>
    <addaction name="menu_Bookmark"/>
    <addaction name="menu_Operate"/>
+   <addaction name="menu_Panel"/>
    <addaction name="menu_Help"/>
   </widget>
   <action name="action_Quit">
@@ -985,6 +994,39 @@
    </property>
    <property name="shortcut">
     <string>B</string>
+   </property>
+  </action>
+  <action name="split_Center">
+   <property name="text">
+    <string>中央で分割</string>
+   </property>
+   <property name="toolTip">
+    <string>中央で分割</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Space</string>
+   </property>
+  </action>
+  <action name="expand_Left">
+   <property name="text">
+    <string>左パネルを拡大</string>
+   </property>
+   <property name="toolTip">
+    <string>左パネルを拡大</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Right</string>
+   </property>
+  </action>
+  <action name="expand_Right">
+   <property name="text">
+    <string>右パネルを拡大</string>
+   </property>
+   <property name="toolTip">
+    <string>右パネルを拡大</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Left</string>
    </property>
   </action>
  </widget>

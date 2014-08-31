@@ -252,6 +252,34 @@ void MainWindow::executeCommand()
     }
 }
 
+void MainWindow::expandLeft()
+{
+    qDebug() << "MainWindow::expandLeft();";
+
+    QList<int> sizes = ui->splitter->sizes();
+    QList<int> newSizes;
+
+    newSizes << sizes[0] + 30;
+    newSizes << sizes[1] - 30;
+
+    ui->splitter->setSizes(newSizes);
+
+}
+
+void MainWindow::expandRight()
+{
+    qDebug() << "MainWindow::expandLeft();";
+
+    QList<int> sizes = ui->splitter->sizes();
+    QList<int> newSizes;
+
+    newSizes << sizes[0] - 30;
+    newSizes << sizes[1] + 30;
+
+    ui->splitter->setSizes(newSizes);
+
+}
+
 void MainWindow::historyBack()
 {
     qDebug() << "MainWindow::historyBack();";
@@ -980,6 +1008,17 @@ void MainWindow::showSortDialog()
     }
 }
 
+void MainWindow::splitCenter()
+{
+    qDebug() << "MainWindow::splitCenter();";
+
+    QList<int> sizes = ui->splitter->sizes();
+    int sizeTotal = sizes[0] + sizes[1];
+    sizes[0] = sizeTotal / 2;
+    sizes[1] = sizeTotal - sizes[0];
+    ui->splitter->setSizes(sizes);
+}
+
 void MainWindow::swapView()
 {
     qDebug() << "MainWindow::swapView();";
@@ -1561,6 +1600,9 @@ void MainWindow::initActionConnections()
     connect(ui->view_ToOther, SIGNAL(triggered()), this, SLOT(setPathToOther()));
     connect(ui->bookmark_Edit, SIGNAL(triggered()), this, SLOT(editBookmark()));
     connect(ui->bookmark_Show, SIGNAL(triggered()), this, SLOT(showBookmarkDialog()));
+    connect(ui->split_Center, SIGNAL(triggered()), this, SLOT(splitCenter()));
+    connect(ui->expand_Left, SIGNAL(triggered()), this, SLOT(expandLeft()));
+    connect(ui->expand_Right, SIGNAL(triggered()), this, SLOT(expandRight()));
 }
 
 void MainWindow::replaceVars(QString &str, const QFileInfo info)

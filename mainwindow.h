@@ -58,6 +58,8 @@ public slots:
     void deleteItems();
     void editBookmark();
     void executeCommand();
+    void expandLeft();
+    void expandRight();
     void historyBack();
     void historyForward();
     void markAll();
@@ -91,6 +93,7 @@ public slots:
     void showHistoryDialog();
     void showPreferenceDialog();
     void showSortDialog();
+    void splitCenter();
     void swapView();
     void switchHalfMode(bool checked);
     void toggleSearchBox(bool checked);

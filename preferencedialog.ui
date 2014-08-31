@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
+    <width>693</width>
     <height>530</height>
    </rect>
   </property>
@@ -26,7 +26,7 @@
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -1909,19 +1909,24 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   </layout>
  </widget>
  <tabstops>
+  <tabstop>bootSize</tabstop>
   <tabstop>sizeAbsolute</tabstop>
   <tabstop>absoluteWidth</tabstop>
   <tabstop>absoluteHeight</tabstop>
   <tabstop>sizeRelative</tabstop>
   <tabstop>relativeWidth</tabstop>
+  <tabstop>relativeHeight</tabstop>
   <tabstop>sizeLast</tabstop>
+  <tabstop>bootPos</tabstop>
   <tabstop>posAbsolute</tabstop>
   <tabstop>absoluteLeft</tabstop>
   <tabstop>absoluteTop</tabstop>
   <tabstop>posRelative</tabstop>
   <tabstop>relativeLeft</tabstop>
+  <tabstop>relativeTop</tabstop>
   <tabstop>posCenter</tabstop>
   <tabstop>posLast</tabstop>
+  <tabstop>checkUpdates</tabstop>
   <tabstop>resetOnBoot</tabstop>
   <tabstop>confirmExit</tabstop>
   <tabstop>chooseBoxFont</tabstop>
@@ -1936,6 +1941,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   <tabstop>clrFgHidden</tabstop>
   <tabstop>clrFgReadonly</tabstop>
   <tabstop>clrBgMark</tabstop>
+  <tabstop>dark</tabstop>
   <tabstop>importAppearance</tabstop>
   <tabstop>exportAppearance</tabstop>
   <tabstop>confirmCopy</tabstop>
@@ -1966,10 +1972,10 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   <tabstop>viewerInherit</tabstop>
   <tabstop>viewerSample</tabstop>
   <tabstop>enableViewerIgnoreExt</tabstop>
-  <tabstop>defaultIgnoreExt</tabstop>
   <tabstop>viewerIgnoreExt</tabstop>
+  <tabstop>defaultIgnoreExt</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>checkUpdates</tabstop>
+  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>
