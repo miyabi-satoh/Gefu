@@ -35,5 +35,6 @@
         <file>images/utilities_file_archiver.png</file>
         <file>images/Zoom in.png</file>
         <file>images/Zoom out.png</file>
+        <file>images/Search text.png</file>
     </qresource>
 </RCC>

@@ -55,6 +55,8 @@ extern void Sleep(int msec);
 #define IniKey_PathEditor               "Path/Editor"
 #define IniKey_PathTerminal             "Path/Terminal"
 #define IniKey_PathArchiver             "Path/Archiver"
+#define IniKey_InflateOptions           "Path/InflateOptions"
+#define IniKey_DeflateOptions           "Path/DeflateOptions"
 #define IniKey_ViewerFont               "Viewer/Font"
 #define IniKey_ViewerColorBg            "Viewer/ColorBg"
 #define IniKey_ViewerColorFg            "Viewer/ColorFg"

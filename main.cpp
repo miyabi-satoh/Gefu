@@ -108,14 +108,12 @@ int main(int argc, char *argv[])
         else if (QFileInfo::exists("C:/Program Files/Lhaca/Lhaca.exe")) {
             settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/Lhaca/Lhaca.exe"));
         }
-        else if (QFileInfo::exists("C:/Program Files/7-zip/7zG.exe")) {
-            settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/7-zip/7zG.exe"));
+        else if (QFileInfo::exists("C:/Program Files/7-zip/7zFM.exe")) {
+            settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/7-zip/7zFM.exe"));
         }
 
 #elif defined(Q_OS_MAC)
-        if (QFileInfo::exists("/Applications/The Unarchiver.app")) {
-            settings.setValue(IniKey_PathArchiver, QQ("/Applications/The Unarchiver.app"));
-        }
+        settings.setValue(IniKey_PathArchiver, QQ("/System/Library/CoreServices/Archive Utility.app"));
 #else
 #endif
     }

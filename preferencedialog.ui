@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
+    <width>671</width>
     <height>535</height>
    </rect>
   </property>
@@ -1307,7 +1307,7 @@
       <attribute name="title">
        <string>パス設定</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_10">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
        <item>
         <widget class="QGroupBox" name="groupBox_9">
          <property name="title">
@@ -1334,7 +1334,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="editorBrowse">
+           <widget class="QPushButton" name="browseEditor">
             <property name="text">
              <string>参照</string>
             </property>
@@ -1350,7 +1350,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_22">
           <item>
-           <widget class="QLineEdit" name="termPath"/>
+           <widget class="QLineEdit" name="terminalPath"/>
           </item>
           <item>
            <spacer name="horizontalSpacer_25">
@@ -1369,7 +1369,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="termBrowse">
+           <widget class="QPushButton" name="browseTerminal">
             <property name="text">
              <string>参照</string>
             </property>
@@ -1383,7 +1383,7 @@
          <property name="title">
           <string>アーカイバ</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_27">
+         <layout class="QHBoxLayout" name="horizontalLayout_23">
           <item>
            <widget class="QLineEdit" name="archiverPath"/>
           </item>
@@ -1404,7 +1404,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="archiverBrowse">
+           <widget class="QPushButton" name="browseArchiver">
             <property name="text">
              <string>参照</string>
             </property>
@@ -1427,7 +1427,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder></zorder>
       <zorder>verticalSpacer_4</zorder>
       <zorder>groupBox_9</zorder>
       <zorder>groupBox_10</zorder>
@@ -1847,9 +1846,9 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   <tabstop>moveAfterCreate</tabstop>
   <tabstop>openAfterCreate</tabstop>
   <tabstop>editorPath</tabstop>
-  <tabstop>editorBrowse</tabstop>
-  <tabstop>termPath</tabstop>
-  <tabstop>termBrowse</tabstop>
+  <tabstop>browseEditor</tabstop>
+  <tabstop>terminalPath</tabstop>
+  <tabstop>browseTerminal</tabstop>
   <tabstop>chooseViewerFont</tabstop>
   <tabstop>viewerClrFg</tabstop>
   <tabstop>viewerClrBg</tabstop>
