@@ -49,6 +49,7 @@ void BookmarkDialog::setEditMode(bool edit)
     }
     ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->resizeRowsToContents();
+    ui->tableWidget->setCurrentCell(0, 0);
 }
 
 int BookmarkDialog::selectedIndex() const
