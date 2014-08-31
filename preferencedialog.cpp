@@ -438,7 +438,7 @@ void PreferenceDialog::browseApp()
                 QStandardPaths::ApplicationsLocation);
 #ifdef Q_OS_WIN
     QString path = QFileDialog::getOpenFileName(
-                this, tr("アプリケーションを選択"), list.at(0),
+                this, tr("アプリケーションを選択"), getenv("PROGRAMFILES"),
                 tr("実行ファイル (*.exe *.com *.bat *.pif);;すべてのファイル (*)"));
 #elif defined(Q_OS_MAC)
     QString path = QFileDialog::getOpenFileName(
