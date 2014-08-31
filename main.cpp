@@ -79,28 +79,47 @@ int main(int argc, char *argv[])
     if (settings.value(IniKey_OpenAfterCreateFile, "").toString().isEmpty())
         settings.setValue(IniKey_OpenAfterCreateFile, false);
     //>>>>> パス設定
-    if (settings.value(IniKey_EditorPath, "").toString().isEmpty()) {
+    // エディタ
+    if (settings.value(IniKey_PathEditor, "").toString().isEmpty()) {
 #if defined(Q_OS_WIN)
-        settings.setValue(IniKey_EditorPath, "notepad.exe");
+        settings.setValue(IniKey_PathEditor, "notepad.exe");
 #elif defined(Q_OS_MAC)
-        settings.setValue(IniKey_EditorPath, "/Applications/TextEdit.app");
+        settings.setValue(IniKey_PathEditor, "/Applications/TextEdit.app");
 #else
-        settings.setValue(IniKey_EditorPath, "gedit");
+        settings.setValue(IniKey_PathEditor, "gedit");
 #endif
-        settings.setValue(IniKey_EditorOption, QQ("$P"));
     }
-    if (settings.value(IniKey_TerminalPath, "").toString().isEmpty()) {
+    // ターミナル
+    if (settings.value(IniKey_PathTerminal, "").toString().isEmpty()) {
 #if defined(Q_OS_WIN)
-        settings.setValue(IniKey_TerminalPath, "cmd.exe");
-        settings.setValue(IniKey_TerminalOption, "/k cd " + QQ("$D"));
+        settings.setValue(IniKey_PathTerminal, "cmd.exe /k cd");
 #elif defined(Q_OS_MAC)
-        settings.setValue(IniKey_TerminalPath, "/Applications/Utilities/Terminal.app");
-        settings.setValue(IniKey_TerminalOption, "-c cd " + QQ("$D"));
+        settings.setValue(IniKey_PathTerminal, "/Applications/Utilities/Terminal.app --args -c cd");
 #else
         settings.setValue(IniKey_TerminalPath, "gnome-terminal");
-        settings.setValue(IniKey_TerminalOption, "-c cd " + QQ("$D"));
 #endif
     }
+    // アーカイバ
+    if (settings.value(IniKey_PathArchiver, "").toString().isEmpty()) {
+#if defined(Q_OS_WIN)
+        if (QFileInfo::exists("C:/Program Files/Lhaplus/Lhaplus.exe")) {
+            settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/Lhaplus/Lhaplus.exe"));
+        }
+        else if (QFileInfo::exists("C:/Program Files/Lhaca/Lhaca.exe")) {
+            settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/Lhaca/Lhaca.exe"));
+        }
+        else if (QFileInfo.exists("C:/Program Files/7-zip/7zG.exe")) {
+            settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/7-zip/7zG.exe"));
+        }
+
+#elif defined(Q_OS_MAC)
+        if (QFileInfo::exists("/Applications/The Unarchiver.app")) {
+            settings.setValue(IniKey_PathArchiver, QQ("/Applications/The Unarchiver.app"));
+        }
+#else
+#endif
+    }
+
     //>>>>> テキストビューア
     if (settings.value(IniKey_ViewerFont, "").toString().isEmpty()) {
         settings.setValue(IniKey_ViewerColorBg, QPalette().base().color());

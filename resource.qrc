@@ -1,252 +1,39 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/3d bar chart.png</file>
-        <file>images/3d chart.png</file>
-        <file>images/3d graph.png</file>
-        <file>images/16 colors.png</file>
-        <file>images/256 colors.png</file>
-        <file>images/About.png</file>
-        <file>images/Add.png</file>
         <file>images/Add folder.png</file>
-        <file>images/Angle.png</file>
-        <file>images/Apply.png</file>
-        <file>images/Arc.png</file>
-        <file>images/Arrow.png</file>
-        <file>images/Attach.png</file>
         <file>images/Back.png</file>
-        <file>images/Bitmap editor.png</file>
-        <file>images/Brightness.png</file>
-        <file>images/Brush.png</file>
-        <file>images/Camera.png</file>
         <file>images/Cancel.png</file>
-        <file>images/Chart xy.png</file>
         <file>images/Check boxes.png</file>
-        <file>images/Circle.png</file>
-        <file>images/Clear.png</file>
-        <file>images/Clipboard.png</file>
-        <file>images/Close.png</file>
         <file>images/Close file.png</file>
-        <file>images/Close folder.png</file>
-        <file>images/CMYK.png</file>
-        <file>images/Coffe.png</file>
-        <file>images/Coffee.png</file>
-        <file>images/Color.png</file>
-        <file>images/Color balance.png</file>
-        <file>images/Color filter.png</file>
-        <file>images/Color layers.png</file>
-        <file>images/Color palette.png</file>
-        <file>images/Color profile.png</file>
-        <file>images/Color test.png</file>
-        <file>images/Comment.png</file>
-        <file>images/Contrast.png</file>
         <file>images/Copy.png</file>
-        <file>images/Create.png</file>
-        <file>images/Critical details.png</file>
-        <file>images/Curve.png</file>
-        <file>images/Curve points.png</file>
-        <file>images/Cut.png</file>
-        <file>images/Danger.png</file>
-        <file>images/Decrease time.png</file>
-        <file>images/Delete.png</file>
-        <file>images/Delete frame.png</file>
-        <file>images/Delete frames.png</file>
-        <file>images/Designer.png</file>
-        <file>images/Diagram.png</file>
-        <file>images/Down.png</file>
-        <file>images/Download.png</file>
-        <file>images/Download image.png</file>
-        <file>images/Dropper.png</file>
-        <file>images/Edit.png</file>
         <file>images/Edit page.png</file>
-        <file>images/Edit text.png</file>
-        <file>images/Ellipse.png</file>
-        <file>images/E-mail.png</file>
-        <file>images/Equipment.png</file>
-        <file>images/Erase.png</file>
-        <file>images/Eraser.png</file>
-        <file>images/Error.png</file>
         <file>images/Exit.png</file>
         <file>images/Export.png</file>
         <file>images/Favourites.png</file>
-        <file>images/Feather.png</file>
-        <file>images/File exetension.png</file>
-        <file>images/Fill.png</file>
-        <file>images/Find.png</file>
-        <file>images/Fine brush.png</file>
         <file>images/Flip.png</file>
-        <file>images/Flip horizontally.png</file>
-        <file>images/Flip vertically.png</file>
-        <file>images/Flow block.png</file>
-        <file>images/Flower.png</file>
         <file>images/Folder.png</file>
-        <file>images/Form.png</file>
         <file>images/Forward.png</file>
-        <file>images/Frames.png</file>
         <file>images/Funnel.png</file>
+        <file>images/Gefu.png</file>
         <file>images/Go down.png</file>
         <file>images/Go up.png</file>
-        <file>images/Gpadient.png</file>
-        <file>images/Graphic designer.png</file>
-        <file>images/Graphic file.png</file>
-        <file>images/Graphic tools.png</file>
-        <file>images/Grid.png</file>
         <file>images/Help.png</file>
-        <file>images/Help book.png</file>
-        <file>images/Hexagon.png</file>
-        <file>images/Hide.png</file>
-        <file>images/Hint.png</file>
-        <file>images/Hints.png</file>
         <file>images/Home.png</file>
-        <file>images/Homepage.png</file>
-        <file>images/HSL.png</file>
-        <file>images/HSV.png</file>
-        <file>images/Ico.png</file>
-        <file>images/Icon wizard.png</file>
-        <file>images/Import.png</file>
-        <file>images/Increase time.png</file>
-        <file>images/Index.png</file>
-        <file>images/Info.png</file>
-        <file>images/Key.png</file>
-        <file>images/Knife.png</file>
-        <file>images/LAB color model.png</file>
-        <file>images/Layers.png</file>
-        <file>images/Left.png</file>
-        <file>images/Left-right.png</file>
-        <file>images/Line.png</file>
-        <file>images/List.png</file>
-        <file>images/Lock.png</file>
-        <file>images/Lock color.png</file>
-        <file>images/Lock transparency.png</file>
-        <file>images/Magic hat.png</file>
-        <file>images/Measure.png</file>
-        <file>images/Microsoft flag.png</file>
         <file>images/Monitor.png</file>
-        <file>images/Monitors.png</file>
-        <file>images/Mouse.png</file>
-        <file>images/Mouse pointer.png</file>
-        <file>images/Move.png</file>
-        <file>images/Movie.png</file>
-        <file>images/New clip art.png</file>
         <file>images/New file.png</file>
-        <file>images/New frame.png</file>
-        <file>images/New frame1.png</file>
-        <file>images/New image.png</file>
-        <file>images/New imagelist.png</file>
-        <file>images/New video.png</file>
-        <file>images/No.png</file>
-        <file>images/Objects.png</file>
         <file>images/Ok.png</file>
         <file>images/Open.png</file>
-        <file>images/Open colors.png</file>
-        <file>images/Open file.png</file>
-        <file>images/Open v2.png</file>
-        <file>images/Paint over pixels.png</file>
-        <file>images/Painter.png</file>
-        <file>images/Pantone.png</file>
         <file>images/Paste.png</file>
-        <file>images/Pen.png</file>
-        <file>images/Pencil.png</file>
-        <file>images/Pick color.png</file>
-        <file>images/Picture.png</file>
-        <file>images/Pie chart.png</file>
-        <file>images/Pin.png</file>
-        <file>images/Pinion.png</file>
-        <file>images/Pixel editor.png</file>
-        <file>images/Pixels.png</file>
         <file>images/Play.png</file>
         <file>images/Preview.png</file>
-        <file>images/Print.png</file>
-        <file>images/Problem.png</file>
-        <file>images/Properties.png</file>
-        <file>images/Red book.png</file>
-        <file>images/Red eye removing.png</file>
-        <file>images/Redo.png</file>
         <file>images/Refresh.png</file>
-        <file>images/Registration.png</file>
-        <file>images/Registry.png</file>
         <file>images/Rename.png</file>
-        <file>images/Replace pixels.png</file>
-        <file>images/Resize image.png</file>
-        <file>images/Restangle.png</file>
-        <file>images/Revert.png</file>
-        <file>images/RGB.png</file>
-        <file>images/Right.png</file>
-        <file>images/Rotate CCW.png</file>
-        <file>images/Rotate CW.png</file>
-        <file>images/Rotate left.png</file>
-        <file>images/Rotate right.png</file>
-        <file>images/Rotation.png</file>
-        <file>images/Rounded rectangle.png</file>
-        <file>images/Save.png</file>
-        <file>images/Save as.png</file>
-        <file>images/Save color.png</file>
-        <file>images/Save data.png</file>
-        <file>images/Save image.png</file>
-        <file>images/Save picture.png</file>
-        <file>images/Scan film.png</file>
-        <file>images/Scan image.png</file>
-        <file>images/Scanner.png</file>
-        <file>images/Scenario.png</file>
-        <file>images/Script.png</file>
         <file>images/Search.png</file>
-        <file>images/Search computer.png</file>
-        <file>images/Search folder.png</file>
-        <file>images/Search online.png</file>
-        <file>images/Search text.png</file>
-        <file>images/Select gpadient.png</file>
-        <file>images/Selection.png</file>
         <file>images/Settings.png</file>
-        <file>images/Sharpness.png</file>
-        <file>images/Show.png</file>
-        <file>images/Sizes.png</file>
-        <file>images/Smooth.png</file>
-        <file>images/Smooth line.png</file>
-        <file>images/Spell checking.png</file>
-        <file>images/Spiral.png</file>
-        <file>images/Spray.png</file>
-        <file>images/Square.png</file>
-        <file>images/Stop.png</file>
-        <file>images/Stop playing.png</file>
-        <file>images/Synchronize.png</file>
-        <file>images/Tag.png</file>
-        <file>images/Target.png</file>
-        <file>images/Target1.png</file>
-        <file>images/Test line.png</file>
-        <file>images/Text color.png</file>
-        <file>images/Text replace.png</file>
-        <file>images/Text tool.png</file>
-        <file>images/Time.png</file>
-        <file>images/Tip of the day.png</file>
-        <file>images/To do list.png</file>
-        <file>images/Tools.png</file>
-        <file>images/Touch.png</file>
-        <file>images/Transparency.png</file>
-        <file>images/Transparent background.png</file>
-        <file>images/Transparent color.png</file>
-        <file>images/Triangle.png</file>
-        <file>images/True color.png</file>
-        <file>images/Undo.png</file>
-        <file>images/Units.png</file>
-        <file>images/Unlock.png</file>
+        <file>images/terminal.png</file>
         <file>images/Up.png</file>
-        <file>images/Up-down.png</file>
-        <file>images/Upload image.png</file>
-        <file>images/Wait.png</file>
-        <file>images/Warning.png</file>
-        <file>images/Web designer.png</file>
-        <file>images/Webcam.png</file>
-        <file>images/Wide brush.png</file>
-        <file>images/Wizard.png</file>
-        <file>images/Work area.png</file>
-        <file>images/Writing pencil.png</file>
-        <file>images/Wrong.png</file>
-        <file>images/Yes.png</file>
-        <file>images/YUV color space.png</file>
-        <file>images/Zoom.png</file>
-        <file>images/Zoom auto.png</file>
+        <file>images/utilities_file_archiver.png</file>
         <file>images/Zoom in.png</file>
         <file>images/Zoom out.png</file>
-        <file>images/Gefu.png</file>
-        <file>images/Gefu.icns</file>
     </qresource>
 </RCC>

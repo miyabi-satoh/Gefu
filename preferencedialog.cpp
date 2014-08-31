@@ -61,6 +61,7 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     connect(ui->termBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
     connect(ui->editorBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
+    connect(ui->archiverBrowse, SIGNAL(clicked()), this, SLOT(browseApp()));
 
     connect(ui->chooseViewerFont, SIGNAL(clicked()), this, SLOT(chooseFont()));
     connect(ui->viewerClrBg, SIGNAL(clicked()), this, SLOT(selectViewerColor()));
@@ -148,11 +149,11 @@ PreferenceDialog::PreferenceDialog(QWidget *parent) :
 
     //>>>>> パス設定
     // エディタ
-    ui->editorOpt->setText(settings.value(IniKey_EditorOption).toString());
-    ui->editorPath->setText(settings.value(IniKey_EditorPath).toString());
+    ui->editorPath->setText(settings.value(IniKey_PathEditor).toString());
     // ターミナル
-    ui->termOpt->setText(settings.value(IniKey_TerminalOption).toString());
-    ui->termPath->setText(settings.value(IniKey_TerminalPath).toString());
+    ui->termPath->setText(settings.value(IniKey_PathTerminal).toString());
+    // アーカイバ
+    ui->archiverPath->setText(settings.value(IniKey_PathArchiver).toString());
 
     //>>>>> テキストビューア
     ui->enableViewerIgnoreExt->setChecked(true);
@@ -449,11 +450,18 @@ void PreferenceDialog::browseApp()
                 tr("すべてのファイル (*)"));
 #endif
     if (!path.isEmpty()) {
+        if (path.indexOf(" ") != -1) {
+            path = QQ(path);
+        }
+
         if (sender() == ui->editorBrowse) {
             ui->editorPath->setText(path);
         }
         else if (sender() == ui->termBrowse) {
             ui->termPath->setText(path);
+        }
+        else if (sender() == ui->archiverBrowse) {
+            ui->archiverPath->setText(path);
         }
     }
 }
@@ -553,11 +561,9 @@ void PreferenceDialog::accept()
     settings.setValue(IniKey_OpenAfterCreateFile, ui->openAfterCreate->isChecked());
 
     //>>>>> パス設定
-    settings.setValue(IniKey_EditorOption, ui->editorOpt->text().trimmed());
-    settings.setValue(IniKey_EditorPath, ui->editorPath->text().trimmed());
-
-    settings.setValue(IniKey_TerminalOption, ui->termOpt->text().trimmed());
-    settings.setValue(IniKey_TerminalPath, ui->termPath->text().trimmed());
+    settings.setValue(IniKey_PathEditor, ui->editorPath->text().trimmed());
+    settings.setValue(IniKey_PathTerminal, ui->termPath->text().trimmed());
+    settings.setValue(IniKey_PathArchiver, ui->archiverPath->text().trimmed());
 
     //>>>>> テキストビューア
     settings.setValue(IniKey_ViewerFont, ui->viewerSample->font());

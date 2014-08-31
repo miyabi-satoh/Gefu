@@ -88,8 +88,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // メニュー項目の状態を初期化する
     ui->view_Hidden->setChecked(settings.value(IniKey_ShowHidden).toBool());
     ui->view_System->setChecked(settings.value(IniKey_ShowSystem).toBool());
-    ui->action_OpenEditor->setEnabled(!settings.value(IniKey_EditorPath).toString().isEmpty());
-    ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_TerminalPath).toString().isEmpty());
+//    ui->action_OpenEditor->setEnabled(!settings.value(IniKey_PathEditor).toString().isEmpty());
+//    ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_PathTerminal).toString().isEmpty());
 
     // 追加のショートカットキーを設定する
     QList<QKeySequence> shortcuts;
@@ -752,7 +752,7 @@ void MainWindow::openEditor(const QString &path)
     Q_CHECK_PTR(view);
 
     QSettings settings;
-    QString exe = settings.value(IniKey_EditorPath).toString();
+    QString exe = settings.value(IniKey_PathEditor).toString();
     if (exe.isEmpty()) {
         QMessageBox::critical(
                     this, tr("エラー"),
@@ -768,18 +768,17 @@ void MainWindow::openEditor(const QString &path)
         list << path;
     }
 
+    QString files;
     foreach (const QFileInfo &info, list) {
-        QString opt = settings.value(IniKey_EditorOption).toString();
-        replaceVars(opt, info);
-
+        files += " " + QQ(info.absoluteFilePath());
+    }
 #ifdef Q_OS_MAC
-        QString command = "open -a " + exe + " " + opt;
+    QString command = "open -a " + exe + files;
 #else
-        QString command = QQ(exe) + " " + opt;
+    QString command = exe + files;
 #endif
-        if (!startProcess(command, info.absolutePath(), tr("外部エディタの起動に失敗しました。"))) {
-            break;
-        }
+    if (!startProcess(command, view->dir(), tr("外部エディタの起動に失敗しました。"))) {
+        qDebug() << command;
     }
 }
 
@@ -791,7 +790,7 @@ void MainWindow::openTerminal()
     Q_CHECK_PTR(view);
 
     QSettings settings;
-    QString exe = settings.value(IniKey_TerminalPath).toString();
+    QString exe = settings.value(IniKey_PathTerminal).toString();
     if (exe.isEmpty()) {
         QMessageBox::critical(
                     this, tr("エラー"),
@@ -799,19 +798,56 @@ void MainWindow::openTerminal()
         return;
     }
 
+    QSet<QString> dirs;
     foreach (const QFileInfo &info, view->selectedItems()) {
-        QString opt = settings.value(IniKey_TerminalOption).toString();
-        replaceVars(opt, info);
+        if (info.isDir()) {
+            dirs.insert(info.absoluteFilePath());
+        }
+        else {
+            dirs.insert(info.absolutePath());
+        }
+    }
 
+    foreach (const QString &dir, dirs) {
 #ifdef Q_OS_MAC
-        QString command = "open -a " + QQ(exe) + " --args " + opt;
+        QString command = "open -n -a " + exe + " " + QQ(dir);
 #else
-        QString command = QQ(exe) + " " + opt;
+        QString command = exe + " " + QQ(dir);
 #endif
-        if (!startProcess(command, info.absolutePath(), tr("ターミナルの起動に失敗しました。"))) {
+        if (!startProcess(command, view->dir(), tr("ターミナルの起動に失敗しました。"))) {
+            qDebug() << command;
             break;
         }
-        Sleep(1000);
+    }
+}
+
+void MainWindow::openArchiver()
+{
+    qDebug() << "MainWindow::openArchiver";
+
+    FolderView *view = static_cast<FolderView*>(qApp->focusWidget());
+    Q_CHECK_PTR(view);
+
+    QSettings settings;
+    QString exe = settings.value(IniKey_PathArchiver).toString();
+    if (exe.isEmpty()) {
+        QMessageBox::critical(
+                    this, tr("エラー"),
+                    tr("アーカイバのパスが未定義です。"));
+        return;
+    }
+
+    QString files;
+    foreach (const QFileInfo &info, view->selectedItems()) {
+        files += " " + QQ(info.absoluteFilePath());
+    }
+#ifdef Q_OS_MAC
+    QString command = "open -a " + exe + files;
+#else
+    QString command = exe + files;
+#endif
+    if (!startProcess(command, view->dir(), tr("アーカイバの起動に失敗しました。"))) {
+        qDebug() << command;
     }
 }
 
@@ -1447,6 +1483,7 @@ void MainWindow::showContextMenu(QContextMenuEvent *event)
         menu.addAction(ui->action_Exec);
         menu.addAction(ui->action_OpenEditor);
         menu.addAction(ui->action_OpenTerminal);
+        menu.addAction(ui->action_OpenArchiver);
         menu.addSeparator();
         menu.addAction(ui->cmd_Copy);
         menu.addAction(ui->cmd_Move);
@@ -1552,6 +1589,7 @@ void MainWindow::initActionConnections()
     connect(ui->action_Open, SIGNAL(triggered()), this, SLOT(open()));
     connect(ui->action_OpenEditor, SIGNAL(triggered()), this, SLOT(openEditor()));
     connect(ui->action_OpenTerminal, SIGNAL(triggered()), this, SLOT(openTerminal()));
+    connect(ui->action_OpenArchiver, SIGNAL(triggered()), this, SLOT(openArchiver()));
     connect(ui->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
     connect(ui->action_Search, SIGNAL(toggled(bool)), this, SLOT(toggleSearchBox(bool)));
     connect(ui->action_SearchNext, SIGNAL(triggered()), this, SLOT(searchNext()));
@@ -1706,8 +1744,8 @@ void MainWindow::updateActions()
             ui->move_Forward->setEnabled(!view->history()->isEnd());
 
             QSettings settings;
-            ui->action_OpenEditor->setEnabled(!settings.value(IniKey_EditorPath).toString().isEmpty());
-            ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_TerminalPath).toString().isEmpty());
+            ui->action_OpenEditor->setEnabled(!settings.value(IniKey_PathEditor).toString().isEmpty());
+            ui->action_OpenTerminal->setEnabled(!settings.value(IniKey_PathTerminal).toString().isEmpty());
 
         }
         else if (!otherSideFolderView(view)->isVisible()) {

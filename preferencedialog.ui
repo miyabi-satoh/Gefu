@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>693</width>
-    <height>530</height>
+    <width>665</width>
+    <height>535</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,14 +19,20 @@
   <property name="windowTitle">
    <string>環境設定</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="verticalLayout_9">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="font">
+      <font>
+       <family>Lucida Grande</family>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tabBoot_Exit">
       <attribute name="title">
@@ -1301,231 +1307,110 @@
       <attribute name="title">
        <string>パス設定</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_20">
-       <property name="spacing">
-        <number>4</number>
-       </property>
-       <property name="leftMargin">
-        <number>4</number>
-       </property>
-       <property name="topMargin">
-        <number>4</number>
-       </property>
-       <property name="rightMargin">
-        <number>4</number>
-       </property>
-       <property name="bottomMargin">
-        <number>4</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_9">
-         <property name="spacing">
-          <number>4</number>
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>外部エディタ</string>
          </property>
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_27">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>4</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label_19">
-             <property name="text">
-              <string>外部エディタ：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editorPath"/>
-           </item>
-           <item>
-            <widget class="QPushButton" name="editorBrowse">
-             <property name="text">
-              <string>参照</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_26">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>4</number>
-           </property>
-           <item>
-            <spacer name="horizontalSpacer_16">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_20">
-             <property name="text">
-              <string>オプション引数：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="editorOpt"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
+         <layout class="QHBoxLayout" name="horizontalLayout_19">
+          <item>
+           <widget class="QLineEdit" name="editorPath"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_24">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="editorBrowse">
+            <property name="text">
+             <string>参照</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_10">
-         <property name="spacing">
-          <number>4</number>
+        <widget class="QGroupBox" name="groupBox_10">
+         <property name="title">
+          <string>ターミナル</string>
          </property>
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_55">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>4</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label_45">
-             <property name="text">
-              <string>コマンドライン端末：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="termPath"/>
-           </item>
-           <item>
-            <widget class="QPushButton" name="termBrowse">
-             <property name="text">
-              <string>参照</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_56">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
-            <number>4</number>
-           </property>
-           <item>
-            <spacer name="horizontalSpacer_33">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_46">
-             <property name="text">
-              <string>オプション引数：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="termOpt"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
+         <layout class="QHBoxLayout" name="horizontalLayout_22">
+          <item>
+           <widget class="QLineEdit" name="termPath"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_25">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="termBrowse">
+            <property name="text">
+             <string>参照</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
-        <widget class="QPlainTextEdit" name="optExplain">
-         <property name="font">
-          <font>
-           <family>Monaco</family>
-          </font>
+        <widget class="QGroupBox" name="groupBox_11">
+         <property name="title">
+          <string>アーカイバ</string>
          </property>
-         <property name="plainText">
-          <string>オプション引数に使える文字
-$B ... ファイル名から拡張子を除いた部分
-$E ... 拡張子
-$F ... ファイル名($B.$Eと同じ)
-$D ... ファイルの場合は親フォルダ名、フォルダの場合は自身のファイル名($Fと同じ)
-$P ... フルパス</string>
-         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_27">
+          <item>
+           <widget class="QLineEdit" name="archiverPath"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_26">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="archiverBrowse">
+            <property name="text">
+             <string>参照</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -1543,8 +1428,10 @@ $P ... フルパス</string>
        </item>
       </layout>
       <zorder></zorder>
-      <zorder>optExplain</zorder>
       <zorder>verticalSpacer_4</zorder>
+      <zorder>groupBox_9</zorder>
+      <zorder>groupBox_10</zorder>
+      <zorder>groupBox_11</zorder>
      </widget>
      <widget class="QWidget" name="tabTextViewer">
       <attribute name="title">
@@ -1961,11 +1848,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   <tabstop>openAfterCreate</tabstop>
   <tabstop>editorPath</tabstop>
   <tabstop>editorBrowse</tabstop>
-  <tabstop>editorOpt</tabstop>
   <tabstop>termPath</tabstop>
   <tabstop>termBrowse</tabstop>
-  <tabstop>termOpt</tabstop>
-  <tabstop>optExplain</tabstop>
   <tabstop>chooseViewerFont</tabstop>
   <tabstop>viewerClrFg</tabstop>
   <tabstop>viewerClrBg</tabstop>
@@ -1975,7 +1859,6 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ
   <tabstop>viewerIgnoreExt</tabstop>
   <tabstop>defaultIgnoreExt</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

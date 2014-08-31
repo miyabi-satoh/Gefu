@@ -103,7 +103,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_OpenEditor"/>
    <addaction name="action_Search"/>
    <addaction name="action_Setting"/>
    <addaction name="separator"/>
@@ -121,10 +120,6 @@
    <addaction name="move_Home"/>
    <addaction name="move_Jump"/>
    <addaction name="separator"/>
-   <addaction name="cmd_Copy"/>
-   <addaction name="cmd_Move"/>
-   <addaction name="cmd_Delete"/>
-   <addaction name="cmd_Rename"/>
    <addaction name="cmd_NewFile"/>
    <addaction name="cmd_NewFolder"/>
    <addaction name="separator"/>
@@ -148,6 +143,7 @@
     <addaction name="action_Exec"/>
     <addaction name="action_OpenEditor"/>
     <addaction name="action_OpenTerminal"/>
+    <addaction name="action_OpenArchiver"/>
     <addaction name="action_Command"/>
     <addaction name="separator"/>
     <addaction name="action_Search"/>
@@ -235,14 +231,14 @@
    </widget>
    <widget class="QMenu" name="menu_Bookmark">
     <property name="title">
-     <string>ブックマーク</string>
+     <string>ブックマーク(&amp;B)</string>
     </property>
     <addaction name="bookmark_Edit"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_Panel">
     <property name="title">
-     <string>パネル</string>
+     <string>パネル(&amp;P)</string>
     </property>
     <addaction name="split_Center"/>
     <addaction name="expand_Left"/>
@@ -307,8 +303,7 @@
   </action>
   <action name="view_FromOther">
    <property name="icon">
-    <iconset theme="隣のパネルと同じフォルダを表示" resource="resource.qrc">
-     <normaloff>:/images/Synchronize.png</normaloff>:/images/Synchronize.png</iconset>
+    <iconset theme="隣のパネルと同じフォルダを表示"/>
    </property>
    <property name="text">
     <string>隣のパネルと同じフォルダを表示</string>
@@ -398,7 +393,7 @@
   <action name="view_Swap">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/images/Text replace.png</normaloff>:/images/Text replace.png</iconset>
+     <normaloff>:/images/Flip.png</normaloff>:/images/Flip.png</iconset>
    </property>
    <property name="text">
     <string>表示フォルダを交換</string>
@@ -666,7 +661,7 @@
   <action name="cmd_Delete">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/images/Delete.png</normaloff>:/images/Delete.png</iconset>
+     <normaloff>:/images/Close file.png</normaloff>:/images/Close file.png</iconset>
    </property>
    <property name="text">
     <string>選択項目を削除</string>
@@ -771,6 +766,10 @@
    </property>
   </action>
   <action name="action_OpenTerminal">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/terminal.png</normaloff>:/images/terminal.png</iconset>
+   </property>
    <property name="text">
     <string>ターミナルで開く</string>
    </property>
@@ -1027,6 +1026,21 @@
    </property>
    <property name="shortcut">
     <string>Shift+Left</string>
+   </property>
+  </action>
+  <action name="action_OpenArchiver">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/images/utilities_file_archiver.png</normaloff>:/images/utilities_file_archiver.png</iconset>
+   </property>
+   <property name="text">
+    <string>アーカイバで開く</string>
+   </property>
+   <property name="toolTip">
+    <string>アーカイバで開く</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+U</string>
    </property>
   </action>
  </widget>

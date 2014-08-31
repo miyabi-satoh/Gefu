@@ -71,6 +71,7 @@ public slots:
     void open(const QModelIndex &index = QModelIndex());
     void openEditor(const QString &path = QString());
     void openTerminal();
+    void openArchiver();
     void openBookmark();
     void refresh();
     void renameItems();
