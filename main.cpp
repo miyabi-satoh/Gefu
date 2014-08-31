@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
         else if (QFileInfo::exists("C:/Program Files/Lhaca/Lhaca.exe")) {
             settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/Lhaca/Lhaca.exe"));
         }
-        else if (QFileInfo.exists("C:/Program Files/7-zip/7zG.exe")) {
+        else if (QFileInfo::exists("C:/Program Files/7-zip/7zG.exe")) {
             settings.setValue(IniKey_PathArchiver, QQ("C:/Program Files/7-zip/7zG.exe"));
         }
 
