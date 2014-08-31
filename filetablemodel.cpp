@@ -323,7 +323,7 @@ bool FileTableModel::setData(const QModelIndex &index, const QVariant &value, in
     case Qt::CheckStateRole:
         if (index.column() == 0) {
             m_checkStates[index.row()] = static_cast<Qt::CheckState>(value.toInt());
-            emit dataChanged(index, index);
+            emit dataChanged(index, this->index(index.row(), 4));
             return true;
         }
         break;
